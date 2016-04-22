@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+	<context:property-placeholder location="classpath:healthCheck-scheduler-config.properties" />
+	
+	<beans:bean id="healthCheckData" class="com.snapdeal.healthcheck.app.model.HealthCheckData">
+		<beans:property name="camsEndPoint" value="${cams_endpoint}"/>
+		<beans:property name="cocofsEndPoint" value="${cocofs_endpoint}"/>
+		<beans:property name="ipmsEndPoint" value="${ipms_endpoint}"/>
+		<beans:property name="omsEndPoint" value="${oms_endpoint}"/>
+		<beans:property name="opmsEndPoint" value="${opms_endpoint}"/>
+		<beans:property name="opsEndPoint" value="${ops_endpoint}"/>
+		<beans:property name="promoEndPoint" value="${promo_endpoint}"/>
+		<beans:property name="scoreEndPoint" value="${score_endpoint}"/>
+	</beans:bean>
+    
+ 	<beans:bean id="mongoService" class="com.snapdeal.healthcheck.app.mongo.repositories.MongoRepoService">
+    </beans:bean>
+   
+	<!-- Quartz Job -->
+	<beans:bean id="healthCheckJob"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<beans:property name="jobClass"
+			value="com.snapdeal.healthcheck.app.scheduler.HealthCheckScheduler" />
+		<beans:property name="durability" value="true" />
+	</beans:bean>
+
+	<beans:bean id="healthCheckCronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<beans:property name="jobDetail" ref="healthCheckJob" />
+		<beans:property name="cronExpression" value="${health_check_cron}" />
+	</beans:bean>
+
+	<beans:bean
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<beans:property name="schedulerContextAsMap">
+			<beans:map>
+				<beans:entry key="data" value-ref="healthCheckData" />
+ 				<beans:entry key="repoService" value-ref="mongoService"/>
+			</beans:map>
+		</beans:property>
+		<beans:property name="jobDetails">
+			<beans:list>
+				<beans:ref bean="healthCheckJob" />
+			</beans:list>
+		</beans:property>
+		<beans:property name="triggers">
+			<beans:list>
+				<beans:ref bean="healthCheckCronTrigger" />
+			</beans:list>
+		</beans:property>
+		<beans:property name="waitForJobsToCompleteOnShutdown" 
+			value="true"></beans:property>
+		<beans:property name="applicationContextSchedulerContextKey"
+			value="applicationContext"></beans:property>
+	</beans:bean>
+
+
+</beans:beans>
