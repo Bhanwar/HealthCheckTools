@@ -32,9 +32,4 @@ public class OMSHealthCheck {
 		logger.debug("Response Body: " + resp.getResponseBody());
 		return isServerUp;
 	}
-
-	public static void main(String[] args) {
-		OMSHealthCheck oms = new OMSHealthCheck("http://52.74.88.101:8081");
-		System.out.println(oms.isServerUp());
-	}
 }
