@@ -1,13 +1,13 @@
 package com.snapdeal.healthcheck.app.controller;
 
+import static com.snapdeal.healthcheck.app.constants.AppConstant.healthResult;
+
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import static com.snapdeal.healthcheck.app.constants.ComponentNameConstants.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.snapdeal.healthcheck.app.constants.AppConstant;
+import com.snapdeal.healthcheck.app.enums.Component;
 import com.snapdeal.healthcheck.app.model.StartUpResult;
 import com.snapdeal.healthcheck.app.mongo.repositories.StartUpResultsRepository;
 
@@ -24,8 +26,6 @@ import com.snapdeal.healthcheck.app.mongo.repositories.StartUpResultsRepository;
 public class ServiceController {
 	
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	
-	public static Map<String, Boolean> healthResult;
 	
 	@Autowired
 	private StartUpResultsRepository startUpDataRepo;
@@ -61,17 +61,17 @@ public class ServiceController {
 	@RequestMapping(value = "/isServerUp", method=RequestMethod.GET)
 	@ResponseBody
 	public String contactUs () {
-		return "I am up and running..!!";
+		return "I am up and running..!! " + AppConstant.currentExecDate;
 	}
 	
 	private void createInitialData() {
-		healthResult.put(COMPONENT_CAMS, true);
-		healthResult.put(COMPONENT_COCOFS, true);
-		healthResult.put(COMPONENT_IPMS, true);
-		healthResult.put(COMPONENT_OMS, true);
-		healthResult.put(COMPONENT_OPMS, true);
-		healthResult.put(COMPONENT_OPS, true);
-		healthResult.put(COMPONENT_PROMO, true);
-		healthResult.put(COMPONENT_SCORE, true);
+		healthResult.put(Component.CAMS.code(), true);
+		healthResult.put(Component.COCOFS.code(), true);
+		healthResult.put(Component.IPMS.code(), true);
+		healthResult.put(Component.OMS.code(), true);
+		healthResult.put(Component.OPMS.code(), true);
+		healthResult.put(Component.OPS.code(), true);
+		healthResult.put(Component.PROMO.code(), true);
+		healthResult.put(Component.SCORE.code(), true);
 	}
 }

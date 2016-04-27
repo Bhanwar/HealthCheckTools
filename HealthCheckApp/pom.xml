@@ -81,28 +81,28 @@
 			<version>${spring.version}</version>
 		</dependency>
 		<!-- Hibernate -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.hibernate</groupId> -->
-<!-- 			<artifactId>hibernate-core</artifactId> -->
-<!-- 			<version>${hibernate.version}</version> -->
-<!-- 			<scope>compile</scope> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.hibernate</groupId> -->
-<!-- 			<artifactId>hibernate-validator</artifactId> -->
-<!-- 			<version>4.3.1.Final</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.hibernate</groupId> -->
-<!-- 			<artifactId>hibernate-validator-annotation-processor</artifactId> -->
-<!-- 			<version>4.3.1.Final</version> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.hibernate</groupId> -->
+		<!-- <artifactId>hibernate-core</artifactId> -->
+		<!-- <version>${hibernate.version}</version> -->
+		<!-- <scope>compile</scope> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.hibernate</groupId> -->
+		<!-- <artifactId>hibernate-validator</artifactId> -->
+		<!-- <version>4.3.1.Final</version> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.hibernate</groupId> -->
+		<!-- <artifactId>hibernate-validator-annotation-processor</artifactId> -->
+		<!-- <version>4.3.1.Final</version> -->
+		<!-- </dependency> -->
 		<!-- MySQL -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>mysql</groupId> -->
-<!-- 			<artifactId>mysql-connector-java</artifactId> -->
-<!-- 			<version>${mysql.connector.version}</version> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>mysql</groupId> -->
+		<!-- <artifactId>mysql-connector-java</artifactId> -->
+		<!-- <version>${mysql.connector.version}</version> -->
+		<!-- </dependency> -->
 
 		<!-- JSTL dependency -->
 		<dependency>
@@ -163,7 +163,17 @@
 			<artifactId>spring-data-mongodb</artifactId>
 			<version>1.9.1.RELEASE</version>
 		</dependency>
-
+		<!-- javax mail -->
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>javax.mail-api</artifactId>
+			<version>1.5.5</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>javax.mail</artifactId>
+			<version>1.5.5</version>
+		</dependency>
 
 	</dependencies>
 	<build>

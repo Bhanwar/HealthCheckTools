@@ -1,5 +1,7 @@
 package com.snapdeal.healthcheck.app.model;
 
+import java.util.Date;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -13,6 +15,7 @@ public class HealthCheckResult {
 	private boolean serverUp;
 	private String execDate;
 	private String execTime;
+	private Date execDateTime;
 	
 	public HealthCheckResult(String componentName) {
 		this.componentName = componentName;
@@ -21,6 +24,14 @@ public class HealthCheckResult {
 	public String getComponentName() {
 		return componentName;
 	}
+	public Date getExecDateTime() {
+		return execDateTime;
+	}
+
+	public void setExecDateTime(Date execDateTime) {
+		this.execDateTime = execDateTime;
+	}
+
 	public void setComponentName(String componentName) {
 		this.componentName = componentName;
 	}

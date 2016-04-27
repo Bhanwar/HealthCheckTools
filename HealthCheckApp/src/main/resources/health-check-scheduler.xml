@@ -2,12 +2,26 @@
 <beans:beans xmlns="http://www.springframework.org/schema/mvc"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans"
 	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mongo="http://www.springframework.org/schema/data/mongo"
 	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
-		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+		http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo.xsd">
 
 	<context:property-placeholder location="classpath:healthCheck-scheduler-config.properties" />
+	<context:component-scan base-package="com.snapdeal.healthcheck.app.*" />
+	<beans:bean id="mongo" class="org.springframework.data.mongodb.core.MongoClientFactoryBean">
+		<beans:property name="host" value="localhost" />
+	</beans:bean>
+
+	<!-- MongoTemplate for connecting and quering the documents in the database -->
+	<beans:bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+		<beans:constructor-arg name="mongo" ref="mongo" />
+		<beans:constructor-arg name="databaseName" value="healthCheck" />
+	</beans:bean>
+
+	<mongo:repositories base-package="com.snapdeal.healthcheck.app.mongo.repositories" />
 	
 	<beans:bean id="healthCheckData" class="com.snapdeal.healthcheck.app.model.HealthCheckData">
 		<beans:property name="camsEndPoint" value="${cams_endpoint}"/>
@@ -30,11 +44,22 @@
 			value="com.snapdeal.healthcheck.app.scheduler.HealthCheckScheduler" />
 		<beans:property name="durability" value="true" />
 	</beans:bean>
-
 	<beans:bean id="healthCheckCronTrigger"
 		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<beans:property name="jobDetail" ref="healthCheckJob" />
 		<beans:property name="cronExpression" value="${health_check_cron}" />
+	</beans:bean>
+	
+	<beans:bean id="dailyReportJob"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<beans:property name="jobClass"
+			value="com.snapdeal.healthcheck.app.scheduler.ReportScheduler" />
+		<beans:property name="durability" value="true" />
+	</beans:bean>
+	<beans:bean id="dailyReportCronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<beans:property name="jobDetail" ref="dailyReportJob" />
+		<beans:property name="cronExpression" value="${daily_report_cron}" />
 	</beans:bean>
 
 	<beans:bean
@@ -43,16 +68,21 @@
 			<beans:map>
 				<beans:entry key="data" value-ref="healthCheckData" />
  				<beans:entry key="repoService" value-ref="mongoService"/>
+ 				<beans:entry key="toAddress" value-type="java.lang.String" value="${to_mail_recepients}"/>
+ 				<beans:entry key="ccAddress" value-type="java.lang.String" value="${cc_mail_recepients}"/>
+ 				<beans:entry key="envName" value-type="java.lang.String" value="${env_name}"/>
 			</beans:map>
 		</beans:property>
 		<beans:property name="jobDetails">
 			<beans:list>
 				<beans:ref bean="healthCheckJob" />
+				<beans:ref bean="dailyReportJob" />
 			</beans:list>
 		</beans:property>
 		<beans:property name="triggers">
 			<beans:list>
 				<beans:ref bean="healthCheckCronTrigger" />
+				<beans:ref bean="dailyReportCronTrigger" />
 			</beans:list>
 		</beans:property>
 		<beans:property name="waitForJobsToCompleteOnShutdown" 

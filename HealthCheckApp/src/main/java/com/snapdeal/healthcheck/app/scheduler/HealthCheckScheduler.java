@@ -1,9 +1,10 @@
 package com.snapdeal.healthcheck.app.scheduler;
 
-import static com.snapdeal.healthcheck.app.constants.ComponentNameConstants.compCount;
-import static com.snapdeal.healthcheck.app.controller.ServiceController.healthResult;
+import static com.snapdeal.healthcheck.app.constants.AppConstant.currentExecDate;
+import static com.snapdeal.healthcheck.app.constants.AppConstant.healthResult;
+import static com.snapdeal.healthcheck.app.constants.Formatter.dateFormatter;
+import static com.snapdeal.healthcheck.app.constants.Formatter.timeFormatter;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -17,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
+import com.snapdeal.healthcheck.app.enums.Component;
+import com.snapdeal.healthcheck.app.enums.DownTimeReasonCode;
 import com.snapdeal.healthcheck.app.model.DownTimeData;
 import com.snapdeal.healthcheck.app.model.HealthCheckData;
 import com.snapdeal.healthcheck.app.model.HealthCheckResult;
@@ -34,10 +37,9 @@ public class HealthCheckScheduler extends QuartzJobBean {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private HealthCheckData data;
-	private SimpleDateFormat dateFormatter = new SimpleDateFormat("dd MMM, yyyy");
-	private SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm:ss");
+
 	private MongoRepoService repoService;
-	
+
 	public HealthCheckData getData() {
 		return data;
 	}
@@ -56,10 +58,11 @@ public class HealthCheckScheduler extends QuartzJobBean {
 
 	@Override
 	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
-		Date executingDateTime = new Date();
-		String date = dateFormatter.format(executingDateTime);
-		String time = timeFormatter.format(executingDateTime);
-		log.debug("Running scheduled task: " + executingDateTime);
+		currentExecDate = new Date();
+		String date = dateFormatter.format(currentExecDate);
+		String time = timeFormatter.format(currentExecDate);
+		int compCount = Component.values().length;
+		log.debug("Running scheduled task: " + currentExecDate);
 		ExecutorService exec = null;
 		try {
 			exec = Executors.newCachedThreadPool();
@@ -77,12 +80,19 @@ public class HealthCheckScheduler extends QuartzJobBean {
 					HealthCheckResult result = compSer.take().get();
 					result.setExecDate(date);
 					result.setExecTime(time);
+					result.setExecDateTime(currentExecDate);
 					log.debug(result.toString());
-					if(healthResult.get(result.getComponentName()) != result.isServerUp()) {
-						updateAndSendMail(result.getComponentName(), result.isServerUp(), executingDateTime);
+					if (healthResult.get(result.getComponentName()) != result.isServerUp()) {
+						final HealthCheckResult updateRes = result;
+						final Date updateDate = currentExecDate;
+						exec.submit(new Runnable() {
+							@Override
+							public void run() {
+								updateAndSendMail(updateRes.getComponentName(), updateRes.isServerUp(), updateDate);
+							}
+						});
 					}
 					healthResult.put(result.getComponentName(), result.isServerUp());
-					repoService.save(result);
 				} catch (InterruptedException | ExecutionException e) {
 					log.error("Exception occured while getting results: " + e.getMessage(), e);
 				}
@@ -91,23 +101,22 @@ public class HealthCheckScheduler extends QuartzJobBean {
 		} catch (Exception ee) {
 			log.error("Exception occured while executing scheduled task: " + ee.getMessage(), ee);
 		} finally {
-			if(exec != null)
+			if (exec != null)
 				exec.shutdown();
 		}
 	}
 
 	private void updateAndSendMail(String compName, boolean isServerUp, Date execDate) {
 		DownTimeData data = null;
-		if(isServerUp) {
+		if (isServerUp) {
 			log.debug(compName + " Server is UP!!");
 			data = repoService.findUpTimeUpdate(compName);
-			log.debug("Finding data..");
-			log.debug("Find response: " + data.toString());
-			data.setUpTime(timeFormatter.format(execDate));
-			log.debug("Mongo data: date - " + data.getExecDate());
-			long totalTimeMins = (execDate.getTime() - data.getExecDate().getTime())/60000;
-			log.debug("Total down time: ");
-			data.setTotalDownTime(Long.toString(totalTimeMins));
+			data.setUpTime(execDate);
+			long totalTimeMins = (execDate.getTime() - data.getDownTime().getTime()) / 60000;
+			log.debug("Total down time: " + totalTimeMins);
+			data.setTotalDownTimeInMins(Long.toString(totalTimeMins));
+			data.setServerUp("YES");
+			data.setReasonCode(DownTimeReasonCode.NOTSET);
 			log.debug("Updating down time data in Mongo");
 			repoService.save(data);
 		} else {
@@ -115,9 +124,8 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			data = new DownTimeData();
 			data.setComponentName(compName);
 			data.setDate(dateFormatter.format(execDate));
-			data.setDownTime(timeFormatter.format(execDate));
-			data.setExecDate(execDate);
-			data.setUpTime("");
+			data.setDownTime(execDate);
+			data.setServerUp("NO");
 			log.debug("Saving down time data in Mongo");
 			repoService.save(data);
 		}

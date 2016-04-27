@@ -1,10 +1,11 @@
 package com.snapdeal.healthcheck.app.services.impl;
 
 import java.util.concurrent.Callable;
-import static com.snapdeal.healthcheck.app.constants.ComponentNameConstants.COMPONENT_CAMS;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.snapdeal.healthcheck.app.enums.Component;
 import com.snapdeal.healthcheck.app.model.HealthCheckResult;
 import com.snapdeal.healthcheck.components.CAMSHealthCheck;
 
@@ -20,7 +21,7 @@ public class CAMSHealthCheckImpl implements Callable<HealthCheckResult>{
 	@Override
 	public HealthCheckResult call() throws Exception {
 		CAMSHealthCheck comp = new CAMSHealthCheck(endPoint);
-		HealthCheckResult result = new HealthCheckResult(COMPONENT_CAMS);
+		HealthCheckResult result = new HealthCheckResult(Component.CAMS.code());
 		log.debug("Checking if CAMS server is up on endpoint: " + endPoint);
 		result.setServerUp(comp.isServerUp());
 		return result;

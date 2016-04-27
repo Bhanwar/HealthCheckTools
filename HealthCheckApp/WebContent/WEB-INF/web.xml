@@ -9,7 +9,6 @@
   <context-param>
     <param-name>contextConfigLocation</param-name>
     <param-value>
-      classpath:health-check-servlet.xml
       classpath:health-check-scheduler.xml
     </param-value>
   </context-param>

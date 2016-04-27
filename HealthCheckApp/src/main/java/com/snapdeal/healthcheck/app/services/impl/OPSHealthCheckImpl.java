@@ -1,11 +1,11 @@
 package com.snapdeal.healthcheck.app.services.impl;
 
 import java.util.concurrent.Callable;
-import static com.snapdeal.healthcheck.app.constants.ComponentNameConstants.COMPONENT_OPS;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.snapdeal.healthcheck.app.enums.Component;
 import com.snapdeal.healthcheck.app.model.HealthCheckResult;
 import com.snapdeal.healthcheck.components.OPSHealthCheck;
 
@@ -22,7 +22,7 @@ public class OPSHealthCheckImpl implements Callable<HealthCheckResult>{
 	@Override
 	public HealthCheckResult call() throws Exception {
 		OPSHealthCheck comp = new OPSHealthCheck(endPoint);
-		HealthCheckResult result = new HealthCheckResult(COMPONENT_OPS);
+		HealthCheckResult result = new HealthCheckResult(Component.OPS.code());
 		log.debug("Checking is OPS server is up on endpoint: " + endPoint);
 		result.setServerUp(comp.isServerUp());
 		return result;
