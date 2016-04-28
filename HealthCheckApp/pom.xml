@@ -10,6 +10,7 @@
 		<hibernate.version>4.3.11.Final</hibernate.version>
 		<mysql.connector.version>5.1.31</mysql.connector.version>
 		<quartz.version>2.2.1</quartz.version>
+		<flyway.version>4.0</flyway.version>
 		<apache.log4j.version>2.1</apache.log4j.version>
 	</properties>
 	<repositories>
@@ -81,29 +82,36 @@
 			<version>${spring.version}</version>
 		</dependency>
 		<!-- Hibernate -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.hibernate</groupId> -->
-		<!-- <artifactId>hibernate-core</artifactId> -->
-		<!-- <version>${hibernate.version}</version> -->
-		<!-- <scope>compile</scope> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.hibernate</groupId> -->
-		<!-- <artifactId>hibernate-validator</artifactId> -->
-		<!-- <version>4.3.1.Final</version> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.hibernate</groupId> -->
-		<!-- <artifactId>hibernate-validator-annotation-processor</artifactId> -->
-		<!-- <version>4.3.1.Final</version> -->
-		<!-- </dependency> -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>${hibernate.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>4.3.1.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator-annotation-processor</artifactId>
+			<version>4.3.1.Final</version>
+		</dependency>
 		<!-- MySQL -->
-		<!-- <dependency> -->
-		<!-- <groupId>mysql</groupId> -->
-		<!-- <artifactId>mysql-connector-java</artifactId> -->
-		<!-- <version>${mysql.connector.version}</version> -->
-		<!-- </dependency> -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>${mysql.connector.version}</version>
+		</dependency>
 
+		<!-- Flyway -->
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+			<version>${flyway.version}</version>
+		</dependency>
+		
 		<!-- JSTL dependency -->
 		<dependency>
 			<groupId>javax.servlet</groupId>

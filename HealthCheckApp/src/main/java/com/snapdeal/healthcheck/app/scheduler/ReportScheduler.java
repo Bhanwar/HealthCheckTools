@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
+import com.snapdeal.healthcheck.app.constants.AppConstant;
 import com.snapdeal.healthcheck.app.enums.DownTimeReasonCode;
 import com.snapdeal.healthcheck.app.model.DownTimeData;
 import com.snapdeal.healthcheck.app.mongo.repositories.MongoRepoService;
@@ -31,7 +32,7 @@ public class ReportScheduler extends QuartzJobBean {
 	protected void executeInternal(JobExecutionContext arg0) throws JobExecutionException {
 		Date currentDate = new Date();
 		String date = dateFormatter.format(currentDate);
-		String time = timeFormatter.format(currentDate);
+		String time = timeFormatter.format(AppConstant.currentExecDate);
 		List<DownTimeData> list = repoService.downTimeFindAllForDate(date);
 		if (list != null && !list.isEmpty()) {
 			log.debug("List is not empty! Size: " + list.size());

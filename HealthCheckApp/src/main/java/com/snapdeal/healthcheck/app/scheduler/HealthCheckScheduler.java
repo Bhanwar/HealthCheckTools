@@ -35,6 +35,7 @@ import com.snapdeal.healthcheck.app.services.impl.SCOREHealthCheckImpl;
 
 public class HealthCheckScheduler extends QuartzJobBean {
 
+
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private HealthCheckData data;
 
@@ -65,6 +66,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 		log.debug("Running scheduled task: " + currentExecDate);
 		ExecutorService exec = null;
 		try {
+			data.get();
 			exec = Executors.newCachedThreadPool();
 			CompletionService<HealthCheckResult> compSer = new ExecutorCompletionService<HealthCheckResult>(exec);
 			compSer.submit(new CAMSHealthCheckImpl(data.getCamsEndPoint()));

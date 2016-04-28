@@ -9,34 +9,48 @@
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
 		http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo.xsd">
 
-	<context:property-placeholder location="classpath:healthCheck-scheduler-config.properties" />
+	<context:property-placeholder
+		location="classpath:healthCheck-scheduler-config.properties,classpath:healthCheck-db-config.properties" />
 	<context:component-scan base-package="com.snapdeal.healthcheck.app.*" />
-	<beans:bean id="mongo" class="org.springframework.data.mongodb.core.MongoClientFactoryBean">
-		<beans:property name="host" value="localhost" />
+
+	<!-- Flyway configuration -->
+	<beans:bean id="flywayRepair" class="org.flywaydb.core.Flyway"
+		init-method="repair">
+		<beans:property name="baselineOnMigrate" value="true" />
+		<beans:property name="locations" value="classpath:/db/migration/" />
+		<beans:property name="dataSource" ref="dataSource" />
+	</beans:bean>
+	<beans:bean id="flyway" class="org.flywaydb.core.Flyway"
+		init-method="migrate">
+		<beans:property name="baselineOnMigrate" value="true" />
+		<beans:property name="locations" value="classpath:/db/migration/" />
+		<beans:property name="dataSource" ref="dataSource" />
 	</beans:bean>
 
-	<!-- MongoTemplate for connecting and quering the documents in the database -->
-	<beans:bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+	<mongo:mongo-client id="mongo"
+		credentials="${mongo_user}:${mongo_pwd}@${mongo_db}" host="${mongo_host}"
+		port="${mongo_port}"></mongo:mongo-client>
+
+	<!-- MongoTemplate for connecting and querying the documents in the database -->
+	<beans:bean id="mongoTemplate"
+		class="org.springframework.data.mongodb.core.MongoTemplate">
 		<beans:constructor-arg name="mongo" ref="mongo" />
-		<beans:constructor-arg name="databaseName" value="healthCheck" />
+		<beans:constructor-arg name="databaseName"
+			value="${mongo_db}" />
 	</beans:bean>
 
 	<mongo:repositories base-package="com.snapdeal.healthcheck.app.mongo.repositories" />
-	
-	<beans:bean id="healthCheckData" class="com.snapdeal.healthcheck.app.model.HealthCheckData">
-		<beans:property name="camsEndPoint" value="${cams_endpoint}"/>
-		<beans:property name="cocofsEndPoint" value="${cocofs_endpoint}"/>
-		<beans:property name="ipmsEndPoint" value="${ipms_endpoint}"/>
-		<beans:property name="omsEndPoint" value="${oms_endpoint}"/>
-		<beans:property name="opmsEndPoint" value="${opms_endpoint}"/>
-		<beans:property name="opsEndPoint" value="${ops_endpoint}"/>
-		<beans:property name="promoEndPoint" value="${promo_endpoint}"/>
-		<beans:property name="scoreEndPoint" value="${score_endpoint}"/>
+
+	<beans:bean id="healthCheckData"
+		class="com.snapdeal.healthcheck.app.model.HealthCheckData">
 	</beans:bean>
-    
- 	<beans:bean id="mongoService" class="com.snapdeal.healthcheck.app.mongo.repositories.MongoRepoService">
-    </beans:bean>
-   
+
+	<beans:bean id="mongoService"
+		class="com.snapdeal.healthcheck.app.mongo.repositories.MongoRepoService">
+	</beans:bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
 	<!-- Quartz Job -->
 	<beans:bean id="healthCheckJob"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
@@ -49,7 +63,7 @@
 		<beans:property name="jobDetail" ref="healthCheckJob" />
 		<beans:property name="cronExpression" value="${health_check_cron}" />
 	</beans:bean>
-	
+
 	<beans:bean id="dailyReportJob"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<beans:property name="jobClass"
@@ -62,15 +76,51 @@
 		<beans:property name="cronExpression" value="${daily_report_cron}" />
 	</beans:bean>
 
+	<beans:bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<beans:property name="driverClassName" value="${jdbc_driverClassName}" />
+		<beans:property name="url" value="${jdbc_url}" />
+		<beans:property name="username" value="${jdbc_username}" />
+		<beans:property name="password" value="${jdbc_password}" />
+	</beans:bean>
+
+	<!-- Hibernate session factory -->
+	<beans:bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<beans:property name="dataSource" ref="dataSource" />
+
+		<beans:property name="hibernateProperties">
+			<beans:props>
+				<beans:prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</beans:prop>
+				<beans:prop key="hibernate.show_sql">true</beans:prop>
+			</beans:props>
+		</beans:property>
+
+		<beans:property name="packagesToScan">
+			<beans:list>
+				<beans:value>com.snapdeal.healthcheck.app.model</beans:value>
+			</beans:list>
+		</beans:property>
+
+	</beans:bean>
+
+	<beans:bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<beans:property name="sessionFactory" ref="sessionFactory" />
+	</beans:bean>
+
 	<beans:bean
 		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<beans:property name="schedulerContextAsMap">
 			<beans:map>
 				<beans:entry key="data" value-ref="healthCheckData" />
- 				<beans:entry key="repoService" value-ref="mongoService"/>
- 				<beans:entry key="toAddress" value-type="java.lang.String" value="${to_mail_recepients}"/>
- 				<beans:entry key="ccAddress" value-type="java.lang.String" value="${cc_mail_recepients}"/>
- 				<beans:entry key="envName" value-type="java.lang.String" value="${env_name}"/>
+				<beans:entry key="repoService" value-ref="mongoService" />
+				<beans:entry key="toAddress" value-type="java.lang.String"
+					value="${to_mail_recepients}" />
+				<beans:entry key="ccAddress" value-type="java.lang.String"
+					value="${cc_mail_recepients}" />
+				<beans:entry key="envName" value-type="java.lang.String"
+					value="${env_name}" />
 			</beans:map>
 		</beans:property>
 		<beans:property name="jobDetails">
@@ -85,7 +135,7 @@
 				<beans:ref bean="dailyReportCronTrigger" />
 			</beans:list>
 		</beans:property>
-		<beans:property name="waitForJobsToCompleteOnShutdown" 
+		<beans:property name="waitForJobsToCompleteOnShutdown"
 			value="true"></beans:property>
 		<beans:property name="applicationContextSchedulerContextKey"
 			value="applicationContext"></beans:property>
