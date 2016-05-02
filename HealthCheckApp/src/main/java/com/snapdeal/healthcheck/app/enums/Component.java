@@ -2,34 +2,40 @@ package com.snapdeal.healthcheck.app.enums;
 
 public enum Component {
 
-	CAMS("CAMS"),
-	COCOFS("COCOFS"),
-	IPMS("IPMS"),
-	OMS("OMS"),
-	OPMS("OPMS"),
-	OPS("OPS"),
-	PROMO("Promo"),
-	SCORE("SCORE"),
-	ERAS("ERAS"),
-	MOBAPI("MobAPI"),
-	RNR("RNR"),
-	SEARCHEXCL("SEARCHEXCL"),
-	SEARCH("SEARCH"),
-	SHIPPINGSELLER("SHIPPINGSELLER"),
-	RCMND("RECOMMENDATION"),
-	UMS("UMS"),
-	CART("CART"),
-	SPMSPMNT("SPMSPMNT"),
-	SCOREADMIN("SCOREADMIN"),
-	FILMS("FILMS");
+	CAMS("CAMS","CAMS"),
+	COCOFS("COCOFS","COCOFS"),
+	IPMS("IPMS","IPMS"),
+	OMS("OMS","OMS"),
+	OPMS("OPMS","OPMS"),
+	OPS("OPS","OPS"),
+	PROMO("PROMO","Promo"),
+	SCORE("SCORE","SCORE"),
+	ERAS("ERAS","ERAS"),
+	MOBAPI("MOBAPI","Mobile API"),
+	RNR("RNR","Review & Rating"),
+	//SEARCHEXCL("SEARCHEXCL","Search Exclusive"),
+	SEARCH("SEARCH","Search"),
+	//SHIPPINGSELLER("SHIPPINGSELLER","Shipping Seller"),
+	//RCMND("RECOMMENDATION","Recommendation"),
+	UMS("UMS","UMS"),
+	CART("CART","CART"),
+	SPMSPMNT("SPMSPMNT","SPMS Payment"),
+	SCOREADMIN("SCOREADMIN","Score Admin"),
+	FILMS("FILMS","Films UI");
 	
 	private String code;
+	private String name;
 	
-	private Component(String code) {
+	private Component(String code, String name) {
 		this.code = code;
+		this.name = name;
 	}
 	
 	public String code() {
 		return this.code;
+	}
+	
+	public String getName() {
+		return this.name;
 	}
 }

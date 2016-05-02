@@ -20,6 +20,9 @@ public class DownTimeData {
 	private String totalDownTimeInMins;
 	private DownTimeReasonCode reasonCode;
 	private String description;
+	private String startDate;
+	private String endDate;
+	private String execDate;
 	
 	public DownTimeReasonCode getReasonCode() {
 		return reasonCode;
@@ -63,17 +66,32 @@ public class DownTimeData {
 	public void setTotalDownTimeInMins(String totalDownTimeInMins) {
 		this.totalDownTimeInMins = totalDownTimeInMins;
 	}
-	public String getDate() {
-		return date;
+	public String getStartDate() {
+		return startDate;
 	}
-	public void setDate(String date) {
-		this.date = date;
+	public void setStartDate(String startDate) {
+		this.startDate = startDate;
 	}
-	private String date;
-
+	public String getEndDate() {
+		return endDate;
+	}
+	public void setEndDate(String endDate) {
+		this.endDate = endDate;
+	}
+	public String getExecDate() {
+		return execDate;
+	}
+	public void setExecDate(String execDate) {
+		this.execDate = execDate;
+	}
+	
 	@Override
 	public String toString() {
 		return "DownTimeData [componentName=" + componentName + ", downTime=" + downTime + ", upTime=" + upTime
-				+ ", serverUp=" + serverUp + ", totalDownTimeInMins=" + totalDownTimeInMins + ", date=" + date + "]";
+				+ ", serverUp=" + serverUp + ", totalDownTimeInMins=" + totalDownTimeInMins + ", reasonCode="
+				+ reasonCode + ", description=" + description + ", startDate=" + startDate + ", endDate=" + endDate
+				+ ", execDate=" + execDate + "]";
 	}
+	
+	
 }

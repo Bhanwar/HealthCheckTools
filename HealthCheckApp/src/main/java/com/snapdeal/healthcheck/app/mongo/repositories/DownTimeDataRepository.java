@@ -11,8 +11,11 @@ import com.snapdeal.healthcheck.app.model.DownTimeData;
 public interface DownTimeDataRepository extends MongoRepository<DownTimeData, String>{
 
 	@Query("{ 'componentName' : ?0 , 'serverUp' : ?1}")
-	DownTimeData findUpTimeUpdate(String compName, String upTime);
+	DownTimeData findUpTimeUpdate(String compName, String isServerUp);
 	
-	@Query("{ 'date' : ?0}")
+	@Query("{ 'execDate' : ?0}")
 	List<DownTimeData> findAllForDate(String date);
+	
+	@Query("{ 'serverUp' : ?0 }")
+	List<DownTimeData> findAllDownTimeData(String isServerUp);
 }

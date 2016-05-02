@@ -6,6 +6,7 @@ import static com.snapdeal.healthcheck.app.constants.Formatter.dateFormatter;
 import static com.snapdeal.healthcheck.app.constants.Formatter.timeFormatter;
 
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -117,6 +118,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 					log.error("Exception occured while getting results: " + e.getMessage(), e);
 				}
 			}
+			updateDownTimeDataWithCurrentExecDate(currentExecDate);
 			log.info("Health check result: " + healthResult);
 		} catch (Exception ee) {
 			log.error("Exception occured while executing scheduled task: " + ee.getMessage(), ee);
@@ -136,6 +138,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			log.debug("Total down time: " + totalTimeMins);
 			data.setTotalDownTimeInMins(Long.toString(totalTimeMins));
 			data.setServerUp("YES");
+			data.setEndDate(dateFormatter.format(execDate));
 			data.setReasonCode(DownTimeReasonCode.NOTSET);
 			log.debug("Updating down time data in Mongo");
 			repoService.save(data);
@@ -143,11 +146,26 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			log.debug(compName + " Server is DOWN!!");
 			data = new DownTimeData();
 			data.setComponentName(compName);
-			data.setDate(dateFormatter.format(execDate));
+			data.setStartDate(dateFormatter.format(execDate));
+			data.setExecDate(dateFormatter.format(execDate));
 			data.setDownTime(execDate);
 			data.setServerUp("NO");
 			log.debug("Saving down time data in Mongo");
 			repoService.save(data);
+		}
+	}
+	
+	private void updateDownTimeDataWithCurrentExecDate(Date execDate) {
+		String currentExecDate = dateFormatter.format(execDate);
+		List<DownTimeData> allDownServers = repoService.findAllDownTimeData();
+		if(!allDownServers.isEmpty()) {
+			for(DownTimeData downData : allDownServers) {
+				if(!downData.getExecDate().equals(currentExecDate)) {
+					log.debug("Updating current exec date for down time comp: " + downData.getComponentName());
+					downData.setExecDate(currentExecDate);
+					repoService.save(downData);
+				}
+			}
 		}
 	}
 }

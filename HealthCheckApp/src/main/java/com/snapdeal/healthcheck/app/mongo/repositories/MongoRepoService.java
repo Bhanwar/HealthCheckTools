@@ -23,4 +23,8 @@ public class MongoRepoService {
 		return downTimeRepo.findAllForDate(date);
 	}
 	
+	public List<DownTimeData> findAllDownTimeData() {
+		return downTimeRepo.findAllDownTimeData("NO");
+	}
+	
 }
