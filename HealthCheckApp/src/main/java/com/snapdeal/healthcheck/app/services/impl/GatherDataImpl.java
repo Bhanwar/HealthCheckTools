@@ -35,11 +35,12 @@ public class GatherDataImpl implements GatherData {
 		for (int i = 0; i < comps.length; i++) {
 			String upTime = "Server still down";
 			String totalTime = "NA";
-			String componentName = comps[i].code();
+			String componentCode = comps[i].code();
+			String componentName = comps[i].getName();
 			List<DownTimeUIData> dataList = new ArrayList<>();
 			if (!list.isEmpty()) {
 				for (DownTimeData downTime : list) {
-					if (downTime.getComponentName().equals(componentName)) {
+					if (downTime.getComponentName().equals(componentCode)) {
 						DownTimeUIData uiData = new DownTimeUIData();
 						Date downTimeDate = downTime.getDownTime();
 						int leftMargin = 0;

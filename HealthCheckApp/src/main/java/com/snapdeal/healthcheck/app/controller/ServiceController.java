@@ -44,10 +44,8 @@ public class ServiceController {
 		healthResult = new HashMap<>();
 		log.debug("Fetching data from Mongo");
 		List<StartUpResult> listComp = startUpDataRepo.findAll();
-		if(listComp.isEmpty()) {
-			log.debug("List is empty, initializing..");
-			createInitialData();
-		} else {
+		createInitialData();
+		if(!listComp.isEmpty()) {
 			log.debug("Got data from mongo, initializing. Total count: " + listComp.size());
 			for(StartUpResult res : listComp) {
 				healthResult.put(res.getComponentName(), res.isServerUp());
@@ -87,21 +85,9 @@ public class ServiceController {
 	}
 	
 	private void createInitialData() {
-		healthResult.put(Component.CAMS.code(), true);
-		healthResult.put(Component.COCOFS.code(), true);
-		healthResult.put(Component.IPMS.code(), true);
-		healthResult.put(Component.OMS.code(), true);
-		healthResult.put(Component.OPMS.code(), true);
-		healthResult.put(Component.OPS.code(), true);
-		healthResult.put(Component.PROMO.code(), true);
-		healthResult.put(Component.SCORE.code(), true);
-		healthResult.put(Component.ERAS.code(), true);
-		healthResult.put(Component.MOBAPI.code(), true);
-		healthResult.put(Component.RNR.code(), true);
-		healthResult.put(Component.SEARCH.code(), true);
-		healthResult.put(Component.CART.code(), true);
-		healthResult.put(Component.SPMSPMNT.code(), true);
-		healthResult.put(Component.SCOREADMIN.code(), true);
-		healthResult.put(Component.FILMS.code(), true);
+		Component[] comps = Component.values();
+		for(int i=0;i<comps.length;i++) {
+			healthResult.put(comps[i].code(), true);
+		}	
 	}
 }

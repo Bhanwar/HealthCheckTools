@@ -4,14 +4,13 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.snapdeal.healthcheck.app.bo.EndpointDetailsBO;
-import static com.snapdeal.healthcheck.app.constants.AppConstant.TOMCAT_ENDPOINT;
+import com.snapdeal.healthcheck.app.bo.ComponentDetailsBO;
 import com.snapdeal.healthcheck.app.enums.Component;
 
 public class HealthCheckData {
 
 	@Autowired
-	private EndpointDetailsBO endpointDetails;
+	private ComponentDetailsBO endpointDetails;
 	
 	private String camsEndPoint;
 	private String cocofsEndPoint;
@@ -100,42 +99,42 @@ public class HealthCheckData {
 	}
 
 	public void get() {
-		List<EndpointDetails> listDetails = endpointDetails.getAllEndpointDetails();
-		for(EndpointDetails detail : listDetails) {
-			if(detail.getKeyName().equals(Component.CAMS.code()+TOMCAT_ENDPOINT))
-				this.camsEndPoint = detail.getKeyValue();
-			else if(detail.getKeyName().equals(Component.COCOFS.code()+TOMCAT_ENDPOINT))
-				this.cocofsEndPoint = detail.getKeyValue();
-			else if(detail.getKeyName().equals(Component.IPMS.code()+TOMCAT_ENDPOINT))
-				this.ipmsEndPoint = detail.getKeyValue();
-			else if(detail.getKeyName().equals(Component.OMS.code()+TOMCAT_ENDPOINT))
-				this.omsEndPoint = detail.getKeyValue();
-			else if(detail.getKeyName().equals(Component.OPMS.code()+TOMCAT_ENDPOINT))
-				this.opmsEndPoint = detail.getKeyValue();
-			else if(detail.getKeyName().equals(Component.OPS.code()+TOMCAT_ENDPOINT))
-				this.opsEndPoint = detail.getKeyValue();
-			else if(detail.getKeyName().equals(Component.PROMO.code()+TOMCAT_ENDPOINT))
-				this.promoEndPoint = detail.getKeyValue();
-			else if(detail.getKeyName().equals(Component.SCORE.code()+TOMCAT_ENDPOINT))
-				this.scoreEndPoint = detail.getKeyValue();
-			else if(detail.getKeyName().equals(Component.ERAS.code()+TOMCAT_ENDPOINT))
-				this.cocofsEndPoint = detail.getKeyValue();
-			else if(detail.getKeyName().equals(Component.MOBAPI.code()+TOMCAT_ENDPOINT))
-				this.ipmsEndPoint = detail.getKeyValue();
-			else if(detail.getKeyName().equals(Component.RNR.code()+TOMCAT_ENDPOINT))
-				this.omsEndPoint = detail.getKeyValue();
-			else if(detail.getKeyName().equals(Component.SEARCH.code()+TOMCAT_ENDPOINT))
-				this.opmsEndPoint = detail.getKeyValue();
-			else if(detail.getKeyName().equals(Component.UMS.code()+TOMCAT_ENDPOINT))
-				this.opsEndPoint = detail.getKeyValue();
-			else if(detail.getKeyName().equals(Component.CART.code()+TOMCAT_ENDPOINT))
-				this.promoEndPoint = detail.getKeyValue();
-			else if(detail.getKeyName().equals(Component.SPMSPMNT.code()+TOMCAT_ENDPOINT))
-				this.scoreEndPoint = detail.getKeyValue();
-			else if(detail.getKeyName().equals(Component.SCOREADMIN.code()+TOMCAT_ENDPOINT))
-				this.promoEndPoint = detail.getKeyValue();
-			else if(detail.getKeyName().equals(Component.FILMS.code()+TOMCAT_ENDPOINT))
-				this.scoreEndPoint = detail.getKeyValue();
+		List<ComponentDetais> listDetails = endpointDetails.getAllEndpointDetails();
+		for(ComponentDetais detail : listDetails) {
+			if(detail.getComponentName().equals(Component.CAMS.code()))
+				this.camsEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.COCOFS.code()))
+				this.cocofsEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.IPMS.code()))
+				this.ipmsEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.OMS.code()))
+				this.omsEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.OPMS.code()))
+				this.opmsEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.OPS.code()))
+				this.opsEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.PROMO.code()))
+				this.promoEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.SCORE.code()))
+				this.scoreEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.ERAS.code()))
+				this.erasEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.MOBAPI.code()))
+				this.mobapiEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.RNR.code()))
+				this.rnrEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.SEARCH.code()))
+				this.searchEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.UMS.code()))
+				this.umsEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.CART.code()))
+				this.cartEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.SPMSPMNT.code()))
+				this.spmsEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.SCOREADMIN.code()))
+				this.scoreAdminEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.FILMS.code()))
+				this.filmsUIEndPoint = detail.getEndpoint();
 		}
 	}
 }
