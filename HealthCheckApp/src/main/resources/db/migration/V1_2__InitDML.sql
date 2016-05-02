@@ -6,7 +6,7 @@ INSERT INTO `endpoint_details` (`key_name`, `key_value`) VALUES
 ('IPMS_Tomcat_Endpoint','http://54.251.163.31:9097'),
 ('OPMS_Tomcat_Endpoint','http://52.74.99.41:8080'),
 ('SCORE_Tomcat_Endpoint','http://54.251.152.42:10070'),
-('Promo_Tomcat_Endpoint','http://54.169.156.29:10220'),
+('PROMO_Tomcat_Endpoint','http://54.169.156.29:10220'),
 ('ERAS_Tomcat_Endpoint','http://10.41.92.43:11100'),
 ('MOBAPI_Tomcat_Endpoint','http://10.41.92.43:10450'),
 ('RNR_Tomcat_Endpoint','http://10.41.65.31:8080'),
