@@ -6,4 +6,16 @@ INSERT INTO `endpoint_details` (`key_name`, `key_value`) VALUES
 ('IPMS_Tomcat_Endpoint','http://54.251.163.31:9097'),
 ('OPMS_Tomcat_Endpoint','http://52.74.99.41:8080'),
 ('SCORE_Tomcat_Endpoint','http://54.251.152.42:10070'),
-('Promo_Tomcat_Endpoint','http://54.169.156.29:10220');
+('Promo_Tomcat_Endpoint','http://54.169.156.29:10220'),
+('ERAS_Tomcat_Endpoint','http://10.41.92.43:11100'),
+('MOBAPI_Tomcat_Endpoint','http://10.41.92.43:10450'),
+('RNR_Tomcat_Endpoint','http://10.41.65.31:8080'),
+('SEARCH_Tomcat_Endpoint','http://10.41.92.43:8050'),
+('UMS_Tomcat_Endpoint','http://10.41.92.43:9080'),
+('CART_Tomcat_Endpoint','http://10.41.92.43:10230'),
+('SPMSPMNT_Tomcat_Endpoint','http://10.41.92.43:10430'),
+('SCOREADMIN_Tomcat_Endpoint','http://10.41.92.43:10060'),
+('FILMS_Tomcat_Endpoint','http://10.41.92.43:12280'),
+('SEARCHEXCL_Tomcat_Endpoint','http://10.41.92.43:12980'),
+('SHIPPINGSELLER_Tomcat_Endpoint','http://10.41.92.43:10590'),
+('RECOMMENDATIONS_Tomcat_Endpoint','http://10.41.66.69:10410');
