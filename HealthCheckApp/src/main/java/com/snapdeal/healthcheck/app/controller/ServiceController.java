@@ -95,5 +95,13 @@ public class ServiceController {
 		healthResult.put(Component.OPS.code(), true);
 		healthResult.put(Component.PROMO.code(), true);
 		healthResult.put(Component.SCORE.code(), true);
+		healthResult.put(Component.ERAS.code(), true);
+		healthResult.put(Component.MOBAPI.code(), true);
+		healthResult.put(Component.RNR.code(), true);
+		healthResult.put(Component.SEARCH.code(), true);
+		healthResult.put(Component.CART.code(), true);
+		healthResult.put(Component.SPMSPMNT.code(), true);
+		healthResult.put(Component.SCOREADMIN.code(), true);
+		healthResult.put(Component.FILMS.code(), true);
 	}
 }
