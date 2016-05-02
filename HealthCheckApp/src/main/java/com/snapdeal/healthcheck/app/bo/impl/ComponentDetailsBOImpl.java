@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.snapdeal.healthcheck.app.bo.ComponentDetailsBO;
 import com.snapdeal.healthcheck.app.dao.ComponentDetailsDAO;
-import com.snapdeal.healthcheck.app.model.ComponentDetais;
+import com.snapdeal.healthcheck.app.model.ComponentDetails;
 
 @Service("endpointDetailsService")
 @Transactional
@@ -19,12 +19,12 @@ public class ComponentDetailsBOImpl implements ComponentDetailsBO{
 	ComponentDetailsDAO dao;
 	
 	@Override
-	public List<ComponentDetais> getAllEndpointDetails() {
+	public List<ComponentDetails> getAllEndpointDetails() {
 		return dao.getAllEndpointDetails();
 	}
 
 	@Override
-	public ComponentDetais getEndpointDetails(String keyName) {
+	public ComponentDetails getEndpointDetails(String keyName) {
 		return dao.getEndpointDetails(keyName);
 	}
 

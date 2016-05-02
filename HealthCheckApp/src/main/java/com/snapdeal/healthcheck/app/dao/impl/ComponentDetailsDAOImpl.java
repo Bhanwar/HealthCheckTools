@@ -8,25 +8,25 @@ import org.springframework.stereotype.Repository;
 
 import com.snapdeal.healthcheck.app.dao.AbstractDao;
 import com.snapdeal.healthcheck.app.dao.ComponentDetailsDAO;
-import com.snapdeal.healthcheck.app.model.ComponentDetais;
+import com.snapdeal.healthcheck.app.model.ComponentDetails;
 
 @Repository("endpointDetailsDao")
 public class ComponentDetailsDAOImpl extends AbstractDao implements ComponentDetailsDAO{
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ComponentDetais> getAllEndpointDetails() {
-		Criteria criteria = getSession().createCriteria(ComponentDetais.class);
+	public List<ComponentDetails> getAllEndpointDetails() {
+		Criteria criteria = getSession().createCriteria(ComponentDetails.class);
 		System.out.println("Inside DAO");
 		System.out.println(criteria.list().size());
-		return (List<ComponentDetais>) criteria.list();
+		return (List<ComponentDetails>) criteria.list();
 	}
 
 	@Override
-	public ComponentDetais getEndpointDetails(String keyName) {
-		Criteria criteria = getSession().createCriteria(ComponentDetais.class);
+	public ComponentDetails getEndpointDetails(String keyName) {
+		Criteria criteria = getSession().createCriteria(ComponentDetails.class);
 		criteria.add(Restrictions.eq("keyName", keyName));
-		return (ComponentDetais) criteria.uniqueResult();
+		return (ComponentDetails) criteria.uniqueResult();
 	}
 
 }

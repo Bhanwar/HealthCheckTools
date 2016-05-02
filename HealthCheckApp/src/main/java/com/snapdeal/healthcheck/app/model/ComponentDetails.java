@@ -13,7 +13,7 @@ import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "components")
-public class ComponentDetais {
+public class ComponentDetails {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -2,12 +2,12 @@ package com.snapdeal.healthcheck.app.bo;
 
 import java.util.List;
 
-import com.snapdeal.healthcheck.app.model.ComponentDetais;
+import com.snapdeal.healthcheck.app.model.ComponentDetails;
 
 public interface ComponentDetailsBO {
 	
-	public List<ComponentDetais> getAllEndpointDetails();
+	public List<ComponentDetails> getAllEndpointDetails();
 	
-	public ComponentDetais getEndpointDetails(String keyName);
+	public ComponentDetails getEndpointDetails(String keyName);
 	
 }
