@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class AppConstant {
 	
-	public static Date currentExecDate;
+	public static Date currentExecDate = new Date();
 	
 	public static Map<String, Boolean> healthResult;
 

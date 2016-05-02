@@ -2,8 +2,10 @@ package com.snapdeal.healthcheck.app.controller;
 
 import static com.snapdeal.healthcheck.app.constants.AppConstant.healthResult;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
@@ -19,9 +21,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.snapdeal.healthcheck.app.constants.AppConstant;
+import com.snapdeal.healthcheck.app.constants.Formatter;
 import com.snapdeal.healthcheck.app.enums.Component;
+import com.snapdeal.healthcheck.app.model.DownTimeUIData;
 import com.snapdeal.healthcheck.app.model.StartUpResult;
 import com.snapdeal.healthcheck.app.mongo.repositories.StartUpResultsRepository;
+import com.snapdeal.healthcheck.app.services.GatherData;
 
 @Controller
 public class ServiceController {
@@ -31,6 +36,9 @@ public class ServiceController {
 	@Autowired
 	private StartUpResultsRepository startUpDataRepo;
 
+	@Autowired
+	private GatherData dataObj;
+	
 	@PostConstruct
 	public void init() {
 		healthResult = new HashMap<>();
@@ -67,7 +75,14 @@ public class ServiceController {
 	
 	@RequestMapping(value = "/", method=RequestMethod.GET)
 	public String homePage(ModelMap model) {
-		model.addAttribute("dateTime", AppConstant.currentExecDate);
+		Date currExecDate = AppConstant.currentExecDate;
+		Map<String, List<DownTimeUIData>> data = dataObj.getDataForHomePage(currExecDate);
+		int timePercentage = dataObj.getTimePercentage(currExecDate);
+		model.addAttribute("total", data.size());
+		model.addAttribute("dateTime", currExecDate);
+		model.addAttribute("data", data);
+		model.addAttribute("dateStr", Formatter.dateFormatter.format(currExecDate));
+		model.addAttribute("timePercentage", timePercentage);
 		return "home";
 	}
 	
