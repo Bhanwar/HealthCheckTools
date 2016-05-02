@@ -11,17 +11,17 @@ public enum Component {
 	PROMO("PROMO","Promo"),
 	SCORE("SCORE","SCORE"),
 	ERAS("ERAS","ERAS"),
-	MOBAPI("MobAPI","Mobile API"),
+	MOBAPI("MOBAPI","Mobile API"),
 	RNR("RNR","Review & Rating"),
-	SEARCHEXCL("SEARCHEXCL",""),
-	SEARCH("SEARCH",""),
-	SHIPPINGSELLER("SHIPPINGSELLER",""),
-	RCMND("RECOMMENDATION",""),
-	UMS("UMS",""),
-	CART("CART",""),
-	SPMSPMNT("SPMSPMNT",""),
-	SCOREADMIN("SCOREADMIN",""),
-	FILMS("FILMS","");
+	//SEARCHEXCL("SEARCHEXCL","Search Exclusive"),
+	SEARCH("SEARCH","Search"),
+	//SHIPPINGSELLER("SHIPPINGSELLER","Shipping Seller"),
+	//RCMND("RECOMMENDATION","Recommendation"),
+	UMS("UMS","UMS"),
+	CART("CART","CART"),
+	SPMSPMNT("SPMSPMNT","SPMS Payment"),
+	SCOREADMIN("SCOREADMIN","Score Admin"),
+	FILMS("FILMS","Films UI");
 	
 	private String code;
 	private String name;
