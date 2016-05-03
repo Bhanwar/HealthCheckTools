@@ -29,6 +29,14 @@ public class HealthCheckData {
 	private String spmsEndPoint;
 	private String scoreAdminEndPoint;
 	private String filmsUIEndPoint;
+	private String sellerToolsEndPoint;
+	private String snsEndPoint;
+	private String ucmsTemplateEndPoint;
+	private String ucmsProcessorEndPoint;
+	private String shipFarEndPoint;
+	private String omsAdminEndPoint;
+	private String pomsEndPoint;
+	private String qnaEndPoint;
 	
 	public String getPromoEndPoint() {
 		return promoEndPoint;
@@ -98,6 +106,38 @@ public class HealthCheckData {
 		return filmsUIEndPoint;
 	}
 
+	public String getSellerToolsEndPoint() {
+		return sellerToolsEndPoint;
+	}
+
+	public String getSNSEndPoint() {
+		return snsEndPoint;
+	}
+
+	public String getUCMSTemplateEndPoint() {
+		return ucmsTemplateEndPoint;
+	}
+
+	public String getUcmsProcessorEndPoint() {
+		return ucmsProcessorEndPoint;
+	}
+
+	public String getShipFarEndPoint() {
+		return shipFarEndPoint;
+	}
+
+	public String getOMSAdminEndPoint() {
+		return omsAdminEndPoint;
+	}
+
+	public String getPomsEndPoint() {
+		return pomsEndPoint;
+	}
+	
+	public String getQnaEndPoint() {
+		return qnaEndPoint;
+	}
+	
 	public void get() {
 		List<ComponentDetails> listDetails = endpointDetails.getAllEndpointDetails();
 		for(ComponentDetails detail : listDetails) {
@@ -135,6 +175,22 @@ public class HealthCheckData {
 				this.scoreAdminEndPoint = detail.getEndpoint();
 			else if(detail.getComponentName().equals(Component.FILMS.code()))
 				this.filmsUIEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.SELLERTOOLS.code()))
+				this.sellerToolsEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.SNS.code()))
+				this.snsEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.UCMSTE.code()))
+				this.ucmsTemplateEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.UCMSP.code()))
+				this.ucmsProcessorEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.SHIPFAR.code()))
+				this.shipFarEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.OMSADMIN.code()))
+				this.omsAdminEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.POMS.code()))
+				this.pomsEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.QNA.code()))
+				this.qnaEndPoint = detail.getEndpoint();
 		}
 	}
 }
