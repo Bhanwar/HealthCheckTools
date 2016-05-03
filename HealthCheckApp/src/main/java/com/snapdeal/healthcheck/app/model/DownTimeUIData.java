@@ -2,6 +2,7 @@ package com.snapdeal.healthcheck.app.model;
 
 public class DownTimeUIData {
 	
+	String id;
 	int leftMargin;
 	int width;
 	String downTime;
@@ -22,6 +23,14 @@ public class DownTimeUIData {
 
 	public void setWidth(int width) {
 		this.width = width;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public String getDownTime() {

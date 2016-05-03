@@ -27,6 +27,9 @@ public class DownTimeData {
 	public DownTimeReasonCode getReasonCode() {
 		return reasonCode;
 	}
+	public String getId() {
+		return id;
+	}
 	public void setReasonCode(DownTimeReasonCode reasonCode) {
 		this.reasonCode = reasonCode;
 	}

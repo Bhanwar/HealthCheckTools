@@ -139,7 +139,7 @@ public class HealthCheckData {
 	}
 	
 	public void get() {
-		List<ComponentDetails> listDetails = endpointDetails.getAllEndpointDetails();
+		List<ComponentDetails> listDetails = endpointDetails.getAllComponentDetails();
 		for(ComponentDetails detail : listDetails) {
 			if(detail.getComponentName().equals(Component.CAMS.code()))
 				this.camsEndPoint = detail.getEndpoint();
