@@ -43,7 +43,8 @@
 			<table id="dashDataTable" class="table dashTable">
 				<thead>
 					<tr>
-						<th rowspan="2" class="tableHdr dashTable" style="text-align: center; width: 15%;"><i>Component</i></th>
+						<th rowspan="2" class="tableHdr dashTable"
+							style="text-align: center; width: 15%;"><i>Component</i></th>
 						<th class="tableHdr dashTable" style="text-align: center;"><i>${dateStr}</i></th>
 					</tr>
 					<tr>
@@ -79,16 +80,20 @@
 					<tr>
 						<td class="compName dashTable">${entry.key}</td>
 						<td bgcolor="#FFFFFF" class="active dashTable">
-						<div class="graphcontainer">
-							<div class="percentgraph" style="width: <c:out value="${timePercentage}"/>%;"></div>
-							<c:forEach items="${entry.value}" var="val">
-								<c:set var="downTimeData" value=
-									"<html>Server Down Time: ${val.downTime}
+							<div class="graphcontainer">
+								<div class="percentgraph"
+									style="width: <c:out value="${timePercentage}"/>%;"></div>
+								<c:forEach items="${entry.value}" var="val">
+									<c:set var="downTimeData"
+										value="<html>Server Down Time: ${val.downTime}
 									<br>Server Up Time: ${val.upTime}
-									<br>Total time server down (mins): ${val.totalTime}</html>"/>
-								<div title="${downTimeData}" class="redbar pointer toolTipster" style="margin-left: <c:out value="${val.leftMargin}"/>%; width: <c:out value="${val.width}"/>%;"></div>
-							</c:forEach>
-						</div>
+									<br>Total time server down (mins): ${val.totalTime}</html>" />
+									<div title="${downTimeData}" class="redbar pointer toolTipster" onclick="updateReason()"
+										style="margin-left: <c:out value="${val.leftMargin}"/>%; width: <c:out value="${val.width}"/>%;"></div>
+
+
+								</c:forEach>
+							</div>
 						</td>
 					</tr>
 				</c:forEach>

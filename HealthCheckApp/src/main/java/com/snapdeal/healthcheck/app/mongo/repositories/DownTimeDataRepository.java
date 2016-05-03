@@ -18,4 +18,10 @@ public interface DownTimeDataRepository extends MongoRepository<DownTimeData, St
 	
 	@Query("{ 'serverUp' : ?0 }")
 	List<DownTimeData> findAllDownTimeData(String isServerUp);
+	
+	@Query("{ 'reasonCode' : 'NOTSET' }")
+	List<DownTimeData> findAllDownTimeDataToUpdateReason();
+	
+	@Query("{ '_id' : ?0}")
+	DownTimeData findById(String compId);
 }

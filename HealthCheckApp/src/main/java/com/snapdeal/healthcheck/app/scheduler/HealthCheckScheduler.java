@@ -139,7 +139,6 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			data.setTotalDownTimeInMins(Long.toString(totalTimeMins));
 			data.setServerUp("YES");
 			data.setEndDate(dateFormatter.format(execDate));
-			data.setReasonCode(DownTimeReasonCode.NOTSET);
 			log.debug("Updating down time data in Mongo");
 			repoService.save(data);
 		} else {
@@ -150,6 +149,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			data.setExecDate(dateFormatter.format(execDate));
 			data.setDownTime(execDate);
 			data.setServerUp("NO");
+			data.setReasonCode(DownTimeReasonCode.NOTSET);
 			log.debug("Saving down time data in Mongo");
 			repoService.save(data);
 		}

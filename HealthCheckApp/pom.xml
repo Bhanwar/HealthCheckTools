@@ -12,6 +12,7 @@
 		<quartz.version>2.2.1</quartz.version>
 		<flyway.version>4.0</flyway.version>
 		<apache.log4j.version>2.1</apache.log4j.version>
+		<jackson.version>2.5.0</jackson.version>
 	</properties>
 	<repositories>
 		<repository>
@@ -99,11 +100,8 @@
 			<version>4.3.1.Final</version>
 		</dependency>
 		<!-- MySQL -->
-		<!-- <dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>${mysql.connector.version}</version>
-		</dependency> -->
+		<!-- <dependency> <groupId>mysql</groupId> <artifactId>mysql-connector-java</artifactId> 
+			<version>${mysql.connector.version}</version> </dependency> -->
 
 		<!-- Flyway -->
 		<dependency>
@@ -111,7 +109,7 @@
 			<artifactId>flyway-core</artifactId>
 			<version>${flyway.version}</version>
 		</dependency>
-		
+
 		<!-- JSTL dependency -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -181,6 +179,17 @@
 			<groupId>com.sun.mail</groupId>
 			<artifactId>javax.mail</artifactId>
 			<version>1.5.5</version>
+		</dependency>
+		<!-- Jackson for JSON converter -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
 		</dependency>
 
 	</dependencies>

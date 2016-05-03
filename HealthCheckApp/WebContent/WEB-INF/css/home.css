@@ -44,10 +44,6 @@ body {
 	flex-direction: row;
 }
 
-#test {
-	width: 50%;
-}
-
 #coverage {
 	width: 50%;
 }

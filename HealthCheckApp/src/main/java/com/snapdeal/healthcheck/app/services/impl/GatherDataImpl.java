@@ -33,6 +33,7 @@ public class GatherDataImpl implements GatherData {
 		Map<String, List<DownTimeUIData>> data = new HashMap<String, List<DownTimeUIData>>();
 		List<DownTimeData> list = downTimeRepo.findAllForDate(date);
 		for (int i = 0; i < comps.length; i++) {
+			Date compExecTime = currExecDate;
 			String upTime = "Server still down";
 			String totalTime = "NA";
 			String componentCode = comps[i].code();
@@ -48,11 +49,12 @@ public class GatherDataImpl implements GatherData {
 							leftMargin = getPercentageForTime(downTimeDate);
 						String downTimeStr = timeFormatter.format(downTime.getDownTime()) + " " +dateFormatter.format(downTime.getDownTime());
 						if(downTime.getUpTime() != null) {
-							currExecDate = downTime.getUpTime();
-							upTime = timeFormatter.format(currExecDate) + " " +dateFormatter.format(currExecDate);
+							compExecTime = downTime.getUpTime();
+							upTime = timeFormatter.format(compExecTime) + " " +dateFormatter.format(compExecTime);
 							totalTime = downTime.getTotalDownTimeInMins();
 						}
-						int rightMargin = getPercentageForTime(currExecDate);
+						int rightMargin = getPercentageForTime(compExecTime);
+						uiData.setId(downTime.getId());
 						uiData.setLeftMargin(leftMargin);
 						uiData.setWidth(rightMargin - leftMargin);
 						uiData.setUpTime(upTime);

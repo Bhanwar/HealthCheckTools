@@ -19,13 +19,13 @@ public class ComponentDetailsBOImpl implements ComponentDetailsBO{
 	ComponentDetailsDAO dao;
 	
 	@Override
-	public List<ComponentDetails> getAllEndpointDetails() {
-		return dao.getAllEndpointDetails();
+	public List<ComponentDetails> getAllComponentDetails() {
+		return dao.getAllComponentDetails();
 	}
 
 	@Override
-	public ComponentDetails getEndpointDetails(String keyName) {
-		return dao.getEndpointDetails(keyName);
+	public ComponentDetails getComponentDetails(String compName) {
+		return dao.getComponentDetails(compName);
 	}
 
 

@@ -6,8 +6,8 @@ import com.snapdeal.healthcheck.app.model.ComponentDetails;
 
 public interface ComponentDetailsBO {
 	
-	public List<ComponentDetails> getAllEndpointDetails();
+	public List<ComponentDetails> getAllComponentDetails();
 	
-	public ComponentDetails getEndpointDetails(String keyName);
+	public ComponentDetails getComponentDetails(String compName);
 	
 }

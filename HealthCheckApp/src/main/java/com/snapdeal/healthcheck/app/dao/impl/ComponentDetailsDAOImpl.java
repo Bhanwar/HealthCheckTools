@@ -15,7 +15,7 @@ public class ComponentDetailsDAOImpl extends AbstractDao implements ComponentDet
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ComponentDetails> getAllEndpointDetails() {
+	public List<ComponentDetails> getAllComponentDetails() {
 		Criteria criteria = getSession().createCriteria(ComponentDetails.class);
 		System.out.println("Inside DAO");
 		System.out.println(criteria.list().size());
@@ -23,9 +23,9 @@ public class ComponentDetailsDAOImpl extends AbstractDao implements ComponentDet
 	}
 
 	@Override
-	public ComponentDetails getEndpointDetails(String keyName) {
+	public ComponentDetails getComponentDetails(String compName) {
 		Criteria criteria = getSession().createCriteria(ComponentDetails.class);
-		criteria.add(Restrictions.eq("keyName", keyName));
+		criteria.add(Restrictions.eq("componentName", compName));
 		return (ComponentDetails) criteria.uniqueResult();
 	}
 
