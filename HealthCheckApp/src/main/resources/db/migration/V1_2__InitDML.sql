@@ -18,4 +18,12 @@ INSERT INTO `components` (`component_name`, `endpoint`) VALUES
 ('FILMS','http://10.41.92.43:12280'),
 ('SEARCHEXCL','http://10.41.92.43:12980'),
 ('SHIPPINGSELLER','http://10.41.92.43:10590'),
-('RECOMMENDATIONS','http://10.41.66.69:10410');
+('RECOMMENDATIONS','http://10.41.66.69:10410'),
+('SELLERTOOLS','http://52.74.176.122'),
+('SNS','http://54.169.130.135'),
+('UCMSTE','http://52.74.220.222:8080'),
+('UCMSP','http://52.74.219.53:8080'),
+('OMSADMIN','http://52.74.89.59:8080'),
+('POMS','http://52.74.108.96:8080'),
+('QNA','http://54.254.136.180:8080'),
+('SHIPFAR','http://54.251.152.42:11000');

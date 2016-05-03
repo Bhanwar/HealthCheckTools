@@ -32,15 +32,23 @@ import com.snapdeal.healthcheck.app.services.impl.ERASHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.FILMSUIHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.IPMSHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.MobAPIHealthCheckImpl;
+import com.snapdeal.healthcheck.app.services.impl.OMSADMINHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.OMSHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.OPMSHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.OPSHealthCheckImpl;
+import com.snapdeal.healthcheck.app.services.impl.POMSHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.PromoHealthCheckImpl;
+import com.snapdeal.healthcheck.app.services.impl.QNAHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.RNRHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.SCOREADMINHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.SCOREHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.SEARCHHealthCheckImpl;
+import com.snapdeal.healthcheck.app.services.impl.SHIPFARHealthCheckImpl;
+import com.snapdeal.healthcheck.app.services.impl.SNSHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.SPMSPMNTHealthCheckImpl;
+import com.snapdeal.healthcheck.app.services.impl.SellerToolsHealthCheckImpl;
+import com.snapdeal.healthcheck.app.services.impl.UCMSPHealthCheckImpl;
+import com.snapdeal.healthcheck.app.services.impl.UCMSTEHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.UMSHealthCheckImpl;
 
 public class HealthCheckScheduler extends QuartzJobBean {
@@ -96,6 +104,14 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			compSer.submit(new SPMSPMNTHealthCheckImpl(data.getSpmsEndPoint()));
 			compSer.submit(new SCOREADMINHealthCheckImpl(data.getScoreAdminEndPoint()));
 			compSer.submit(new FILMSUIHealthCheckImpl(data.getFilmsUIEndPoint()));
+			compSer.submit(new SellerToolsHealthCheckImpl(data.getSellerToolsEndPoint()));
+			compSer.submit(new SNSHealthCheckImpl(data.getSNSEndPoint()));
+			compSer.submit(new UCMSTEHealthCheckImpl(data.getUCMSTemplateEndPoint()));
+			compSer.submit(new UCMSPHealthCheckImpl(data.getUcmsProcessorEndPoint()));
+			compSer.submit(new SHIPFARHealthCheckImpl(data.getShipFarEndPoint()));
+			compSer.submit(new OMSADMINHealthCheckImpl(data.getOMSAdminEndPoint()));
+			compSer.submit(new POMSHealthCheckImpl(data.getPomsEndPoint()));
+			compSer.submit(new QNAHealthCheckImpl(data.getQnaEndPoint()));
 			for (int i = 0; i < compCount; i++) {
 				try {
 					HealthCheckResult result = compSer.take().get();

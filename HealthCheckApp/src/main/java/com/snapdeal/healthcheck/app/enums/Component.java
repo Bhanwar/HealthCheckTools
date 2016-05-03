@@ -21,7 +21,15 @@ public enum Component {
 	CART("CART","CART"),
 	SPMSPMNT("SPMSPMNT","SPMS Payment"),
 	SCOREADMIN("SCOREADMIN","Score Admin"),
-	FILMS("FILMS","Films UI");
+	FILMS("FILMS","Films UI"),
+	SELLERTOOLS("SELLERTOOLS", "MRG Seller Tools"),
+	SNS("SNS", "Snap & Search"),
+	UCMSTE("UCMSTE", "UCMS Template Engine"),
+	UCMSP("UCMSP", "UCMS Processor"),
+	SHIPFAR("SHIPFAR", "Ship Far"),
+	OMSADMIN("OMSADMIN", "OMS Admin"),
+	POMS("POMS", "POMS"),
+	QNA("QNA", "QnA");
 	
 	private String code;
 	private String name;
