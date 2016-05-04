@@ -67,6 +67,7 @@ public class ServiceController {
 				healthResult.put(res.getComponentName(), res.isServerUp());
 			}
 		}
+		// objSharePassword.sharePasswordToQms();
 	}
 	
 	@PreDestroy

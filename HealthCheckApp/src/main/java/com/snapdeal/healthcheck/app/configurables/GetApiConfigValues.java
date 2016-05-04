@@ -10,6 +10,7 @@ public class GetApiConfigValues {
 	private String omsAdminSuborderCode;
 	@Value("${poms_subordercode}")
 	private String pomsSuborderCode;
+	
 	public String getOmsAdminSuborderCode() {
 		return omsAdminSuborderCode;
 	}
