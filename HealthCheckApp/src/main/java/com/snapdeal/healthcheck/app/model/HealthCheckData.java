@@ -11,7 +11,7 @@ public class HealthCheckData {
 
 	@Autowired
 	private ComponentDetailsBO endpointDetails;
-	
+
 	private String camsEndPoint;
 	private String cocofsEndPoint;
 	private String ipmsEndPoint;
@@ -37,7 +37,9 @@ public class HealthCheckData {
 	private String omsAdminEndPoint;
 	private String pomsEndPoint;
 	private String qnaEndPoint;
-	
+	private String sfMobileEndPoint;
+	private String kamEndPoint;
+
 	public String getPromoEndPoint() {
 		return promoEndPoint;
 	}
@@ -69,7 +71,7 @@ public class HealthCheckData {
 	public String getScoreEndPoint() {
 		return scoreEndPoint;
 	}
-	
+
 	public String getErasEndPoint() {
 		return erasEndPoint;
 	}
@@ -101,7 +103,7 @@ public class HealthCheckData {
 	public String getScoreAdminEndPoint() {
 		return scoreAdminEndPoint;
 	}
-	
+
 	public String getFilmsUIEndPoint() {
 		return filmsUIEndPoint;
 	}
@@ -133,11 +135,19 @@ public class HealthCheckData {
 	public String getPomsEndPoint() {
 		return pomsEndPoint;
 	}
-	
+
 	public String getQnaEndPoint() {
 		return qnaEndPoint;
 	}
+
+	public String getSFMobileEndPoint() {
+		return sfMobileEndPoint;
+	}
 	
+	public String getKamEndPoint() {
+		return kamEndPoint;
+	}
+
 	public void get() {
 		List<ComponentDetails> listDetails = endpointDetails.getAllComponentDetails();
 		for(ComponentDetails detail : listDetails) {
@@ -191,6 +201,10 @@ public class HealthCheckData {
 				this.pomsEndPoint = detail.getEndpoint();
 			else if(detail.getComponentName().equals(Component.QNA.code()))
 				this.qnaEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.SFMOBILE.code()))
+				this.sfMobileEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.KAM.code()))
+				this.kamEndPoint = detail.getEndpoint();
 		}
 	}
 }

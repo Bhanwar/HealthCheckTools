@@ -26,4 +26,6 @@ INSERT INTO `components` (`component_name`, `endpoint`) VALUES
 ('OMSADMIN','http://52.74.89.59:8080'),
 ('POMS','http://52.74.108.96:8080'),
 ('QNA','http://54.254.136.180:8080'),
-('SHIPFAR','http://54.251.152.42:11000');
+('SHIPFAR','http://54.251.152.42:11000'),
+('SFMOBILE', 'hhttp://54.254.158.18:10670'),
+('KAM', 'http://52.76.183.136:8080');

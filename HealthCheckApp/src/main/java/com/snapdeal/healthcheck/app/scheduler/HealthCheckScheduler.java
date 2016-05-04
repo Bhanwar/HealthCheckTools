@@ -35,6 +35,7 @@ import com.snapdeal.healthcheck.app.services.impl.COCOFSHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.ERASHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.FILMSUIHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.IPMSHealthCheckImpl;
+import com.snapdeal.healthcheck.app.services.impl.KAMHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.MobAPIHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.OMSADMINHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.OMSHealthCheckImpl;
@@ -47,6 +48,7 @@ import com.snapdeal.healthcheck.app.services.impl.RNRHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.SCOREADMINHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.SCOREHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.SEARCHHealthCheckImpl;
+import com.snapdeal.healthcheck.app.services.impl.SFMobileHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.SHIPFARHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.SNSHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.SPMSPMNTHealthCheckImpl;
@@ -105,6 +107,9 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			compSer.submit(new OMSADMINHealthCheckImpl(data.getOMSAdminEndPoint()));
 			compSer.submit(new POMSHealthCheckImpl(data.getPomsEndPoint()));
 			compSer.submit(new QNAHealthCheckImpl(data.getQnaEndPoint()));
+			compSer.submit(new SFMobileHealthCheckImpl(data.getSFMobileEndPoint()));
+			compSer.submit(new KAMHealthCheckImpl(data.getKamEndPoint()));
+			
 			for (int i = 0; i < compCount; i++) {
 				try {
 					HealthCheckResult result = compSer.take().get();

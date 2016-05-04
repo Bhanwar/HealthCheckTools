@@ -29,20 +29,22 @@ public enum Component {
 	SHIPFAR("SHIPFAR", "Ship Far"),
 	OMSADMIN("OMSADMIN", "OMS Admin"),
 	POMS("POMS", "POMS"),
-	QNA("QNA", "QnA");
-	
+	QNA("QNA", "QnA"),
+	SFMOBILE("SFMOBILE", "SF Mobile"),
+	KAM("KAM", "KAM");
+
 	private String code;
 	private String name;
-	
+
 	private Component(String code, String name) {
 		this.code = code;
 		this.name = name;
 	}
-	
+
 	public String code() {
 		return this.code;
 	}
-	
+
 	public String getName() {
 		return this.name;
 	}
