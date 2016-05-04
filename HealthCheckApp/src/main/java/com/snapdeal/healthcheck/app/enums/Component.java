@@ -32,7 +32,8 @@ public enum Component {
 	QNA("QNA", "QnA"),
 	RMS("RMS","RMS"),
 	SELLERST("SELLERST","SELLERST"),
-	WEB("WEB","WEB");
+	WEB("WEB","WEB"),
+	MATRIX("MATRIX","MATRIX");	
 	
 	private String code;
 	private String name;
@@ -107,6 +108,8 @@ public enum Component {
 			return Component.SELLERST;
 		else if(Component.RMS.code().equalsIgnoreCase(code))
 			return Component.RMS;
+		else if(Component.MATRIX.code().equalsIgnoreCase(code))
+			return Component.MATRIX;
 		else
 			return null;
 	}

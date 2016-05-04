@@ -60,6 +60,7 @@ import com.snapdeal.healthcheck.app.services.impl.UMSHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.RMSHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.SELLERSTHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.WEBHealthCheckImpl;
+import com.snapdeal.healthcheck.app.services.impl.MATRIXHealthCheckImpl;
 import com.snapdeal.healthcheck.app.utils.EmailUtil;
 
 public class HealthCheckScheduler extends QuartzJobBean {
@@ -116,6 +117,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			compSer.submit(new RMSHealthCheckImpl(data.getRMSEndPoint()));
 			compSer.submit(new SELLERSTHealthCheckImpl(data.getSellerSelfTrainingEndPoint()));
 			compSer.submit(new WEBHealthCheckImpl(data.getWebEndPoint()));
+			compSer.submit(new MATRIXHealthCheckImpl(data.getMatrixEndPoint()));
 			for (int i = 0; i < compCount; i++) {
 				try {
 					HealthCheckResult result = compSer.take().get();

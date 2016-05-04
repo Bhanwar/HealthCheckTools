@@ -40,7 +40,13 @@ public class HealthCheckData {
 	private String rmsEndPoint;
 	private String sellerSelfTrainingEndPoint;
 	private String webEndPoint;
-
+	private String matrixEndPoint;
+	
+	
+	public String getMatrixEndPoint() {
+		return matrixEndPoint;
+	}
+	
 	public String getWebEndPoint() {
 		return webEndPoint;
 	}
@@ -211,6 +217,8 @@ public class HealthCheckData {
 				this.sellerSelfTrainingEndPoint = detail.getEndpoint();
 			else if(detail.getComponentName().equals(Component.WEB.code()))
 				this.webEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.MATRIX.code()))
+				this.matrixEndPoint = detail.getEndpoint();
 		}
 	}
 }
