@@ -41,7 +41,7 @@ public class HealthCheckData {
 	private String sellerSelfTrainingEndPoint;
 	private String webEndPoint;
 
-	public String webEndPoint() {
+	public String getWebEndPoint() {
 		return webEndPoint;
 	}
 	

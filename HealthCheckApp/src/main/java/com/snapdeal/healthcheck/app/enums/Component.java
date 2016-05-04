@@ -101,6 +101,12 @@ public enum Component {
 			return Component.UCMSTE;
 		else if(Component.UMS.code().equalsIgnoreCase(code))
 			return Component.UMS;
+		else if(Component.WEB.code().equalsIgnoreCase(code))
+			return Component.WEB;
+		else if(Component.SELLERST.code().equalsIgnoreCase(code))
+			return Component.SELLERST;
+		else if(Component.RMS.code().equalsIgnoreCase(code))
+			return Component.RMS;
 		else
 			return null;
 	}

@@ -115,7 +115,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			compSer.submit(new QNAHealthCheckImpl(data.getQnaEndPoint()));
 			compSer.submit(new RMSHealthCheckImpl(data.getRMSEndPoint()));
 			compSer.submit(new SELLERSTHealthCheckImpl(data.getSellerSelfTrainingEndPoint()));
-			compSer.submit(new WEBHealthCheckImpl(data.webEndPoint()));
+			compSer.submit(new WEBHealthCheckImpl(data.getWebEndPoint()));
 			for (int i = 0; i < compCount; i++) {
 				try {
 					HealthCheckResult result = compSer.take().get();
