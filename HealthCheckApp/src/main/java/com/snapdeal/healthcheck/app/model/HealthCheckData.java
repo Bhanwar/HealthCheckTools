@@ -37,7 +37,21 @@ public class HealthCheckData {
 	private String omsAdminEndPoint;
 	private String pomsEndPoint;
 	private String qnaEndPoint;
+	private String rmsEndPoint;
+	private String sellerSelfTrainingEndPoint;
+	private String webEndPoint;
+
+	public String webEndPoint() {
+		return webEndPoint;
+	}
 	
+	public String getSellerSelfTrainingEndPoint() {
+		return sellerSelfTrainingEndPoint;
+	}
+	
+	public String getRMSEndPoint() {
+		return rmsEndPoint;
+	}
 	public String getPromoEndPoint() {
 		return promoEndPoint;
 	}
@@ -191,6 +205,12 @@ public class HealthCheckData {
 				this.pomsEndPoint = detail.getEndpoint();
 			else if(detail.getComponentName().equals(Component.QNA.code()))
 				this.qnaEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.RMS.code()))
+				this.rmsEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.SELLERST.code()))
+				this.sellerSelfTrainingEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.WEB.code()))
+				this.webEndPoint = detail.getEndpoint();
 		}
 	}
 }

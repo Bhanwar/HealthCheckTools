@@ -26,4 +26,7 @@ INSERT INTO `components` (`component_name`, `endpoint`, `qm_spoc`, `qa_spoc`, `a
 ('OMSADMIN','http://52.74.89.59:8080', 'mohit.bansal@snapdeal.com', 'nitin.gupta@snapdeal.com', uuid()),
 ('POMS','http://52.74.108.96:8080', 'ritesh.singh@snapdeal.com', 'sambhav.sharma@snapdeal.com', uuid()),
 ('QNA','http://54.254.136.180:8080', 'mohit.bansal@snapdeal.com', 'vikram.singh@snapdeal.com', uuid()),
-('SHIPFAR','http://54.251.152.42:11000', 'nishith.tripathi@snapdeal.com', 'kumar.sanjay@snapdeal.com', uuid());
+('SHIPFAR','http://54.251.152.42:11000', 'nishith.tripathi@snapdeal.com', 'kumar.sanjay@snapdeal.com', uuid()),
+('RMS','http://54.251.152.42:10360','jain.anuj@snapdeal.com','abhinav.vasisht@snapdeal.com',uuid()),
+('SELLERST','http://52.76.85.83:8080','juned.pathan@snapdeal.com','sayak.saha@snapdeal.com',uuid()),
+('WEB','http://54.169.156.29:7003/','gaurav.bansal@snapdeal.com','ankush.tayal@snapdeal.com',uuid());

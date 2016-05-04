@@ -29,7 +29,10 @@ public enum Component {
 	SHIPFAR("SHIPFAR", "Ship Far"),
 	OMSADMIN("OMSADMIN", "OMS Admin"),
 	POMS("POMS", "POMS"),
-	QNA("QNA", "QnA");
+	QNA("QNA", "QnA"),
+	RMS("RMS","RMS"),
+	SELLERST("SELLERST","SELLERST"),
+	WEB("WEB","WEB");
 	
 	private String code;
 	private String name;
