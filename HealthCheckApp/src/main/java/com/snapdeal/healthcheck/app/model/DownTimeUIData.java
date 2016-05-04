@@ -57,4 +57,9 @@ public class DownTimeUIData {
 		this.totalTime = totalTime;
 	}
 
+	@Override
+	public String toString() {
+		return "DownTimeUIData [id=" + id + ", leftMargin=" + leftMargin + ", width=" + width + ", downTime=" + downTime
+				+ ", upTime=" + upTime + ", totalTime=" + totalTime + "]";
+	}
 }

@@ -25,7 +25,7 @@ public class SaveReasonImpl implements SaveReason{
 	
 	@Override
 	public String saveUpdateReason(String data) {
-		String result = "";
+		String result = "Update FAILED. Contact admin!";
 		try {
 			JSONObject jsonData = new JSONObject(data);
 			String id = getJsonString(jsonData, "comp");
@@ -47,10 +47,10 @@ public class SaveReasonImpl implements SaveReason{
 					log.debug("Saving data in Mongo");
 					downTimeRepo.save(dataObj);
 					log.debug("Data saved");
+					return "Reason saved for component - " + compName;
 				} else {
 					return "Not Authorized!!";
 				}
-				result += "<br>Comp: " + dataObj.getComponentName();
 			}
 		}catch(Exception e){
 			log.error("Exception occured: ",e);

@@ -2,6 +2,8 @@ package com.snapdeal.healthcheck.app.scheduler;
 
 import static com.snapdeal.healthcheck.app.constants.AppConstant.currentExecDate;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.healthResult;
+import static com.snapdeal.healthcheck.app.constants.AppConstant.SNAPDEAL_ID;
+import static com.snapdeal.healthcheck.app.constants.AppConstant.MAIL_SIGN;
 import static com.snapdeal.healthcheck.app.constants.Formatter.dateFormatter;
 import static com.snapdeal.healthcheck.app.constants.Formatter.timeFormatter;
 
@@ -181,24 +183,18 @@ public class HealthCheckScheduler extends QuartzJobBean {
 	}
 	
 	private void sendServerUpMail(String compName, Date execDate) {
-		String msgSubject = compName + " server is down on " + envName;
-		String msgBody = "<html><h3>Your component: <i>"+ compName +"</i> is back up & running. Thanks for looking into it</h3>Thanks & Regards</html>";
+		String msgSubject = compName + " server is up & running on " + envName;
+		String msgBody = "<html><h3>Your component: <i>"+ compName +"</i> is back up & running. Thanks for looking into it</h3>"+MAIL_SIGN+"</html>";
 		sendMail(compName, msgSubject, msgBody);
 	}
 	
 	private void sendServerDownMail(String compName, Date execDate) {
-		String msgSubject = compName + " server is up & running on " + envName;
-		String msgBody = "<html><h3>Your component: <i>"+ compName +"</i> seems to be down. Please have a look at it.</h3>Thanks & Regards</html>";
+		String msgSubject = compName + " server is down on " + envName;
+		String msgBody = "<html><h3>Your component: <i>"+ compName +"</i> seems to be down. Please have a look at it.</h3>"+MAIL_SIGN+"</html>";
 		sendMail(compName, msgSubject, msgBody);
 	}
 	
 	private void sendMail(String compName, String msgSubject, String msgBody) {
-		log.debug("Trying to send mail");
-		if(compDetails == null)
-			log.error("Autowiring did not work!!");
-		else
-			log.debug("Autowiring worked!!");
-		
 		ComponentDetails comp = compDetails.getComponentDetails(compName);
 		if(comp == null) {
 			log.error("No component found with the name: " + compName);
@@ -207,16 +203,23 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			List<String> emailAddressCc = new ArrayList<>();
 			String[] list = comp.getQaSpoc().split(",");
 			for(int i=0;i<list.length;i++){
-				emailAddressTo.add(list[i]);
+				if(list[i].contains(SNAPDEAL_ID))
+					emailAddressTo.add(list[i]);
 			}
-			emailAddressCc.add(comp.getQmSpoc());
+			if(comp.getQmSpoc() != null && comp.getQmSpoc().contains(SNAPDEAL_ID))
+				emailAddressCc.add(comp.getQmSpoc());
 			String[] ccAdd = ccAddress.split(",");
 			for(int i=0;i<ccAdd.length;i++) {
-				emailAddressCc.add(ccAdd[i]);
+				if(ccAdd[i].contains(SNAPDEAL_ID))
+					emailAddressCc.add(ccAdd[i]);
 			}
 			log.debug("Sending mail to " + emailAddressTo);
-			EmailUtil mail = new EmailUtil(emailAddressTo, emailAddressCc, null, msgSubject, msgBody);
-			mail.sendHTMLEmail();
+			if(emailAddressTo.isEmpty()) {
+				log.warn("Daily Report was not sent as the TO Address list was empty!!");
+			} else {
+				EmailUtil mail = new EmailUtil(emailAddressTo, emailAddressCc, null, msgSubject, msgBody);
+				mail.sendHTMLEmail();
+			}
 		}
 	}
 	
