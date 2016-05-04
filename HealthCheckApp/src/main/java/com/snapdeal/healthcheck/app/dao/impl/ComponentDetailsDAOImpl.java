@@ -29,4 +29,9 @@ public class ComponentDetailsDAOImpl extends AbstractDao implements ComponentDet
 		return (ComponentDetails) criteria.uniqueResult();
 	}
 
+	@Override
+	public void saveComponentDetails(ComponentDetails compDetail) {
+		getSession().update(compDetail);
+	}
+
 }

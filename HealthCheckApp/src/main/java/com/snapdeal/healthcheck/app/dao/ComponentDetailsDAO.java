@@ -9,4 +9,6 @@ public interface ComponentDetailsDAO {
 	public List<ComponentDetails> getAllComponentDetails();
 
 	public ComponentDetails getComponentDetails(String compName);
+	
+	public void saveComponentDetails(ComponentDetails compDetail);
 }

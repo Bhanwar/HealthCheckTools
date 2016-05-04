@@ -20,7 +20,7 @@ public class MongoRepoService {
 	}
 	
 	public List<DownTimeData> downTimeFindAllForDate(String date) {
-		return downTimeRepo.findAllForDate(date);
+		return downTimeRepo.findAllDownForDate(date);
 	}
 	
 	public List<DownTimeData> findAllDownTimeData() {
