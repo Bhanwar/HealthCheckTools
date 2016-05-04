@@ -10,6 +10,5 @@ CREATE TABLE `components` (
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `component_name` (`component_name`),
-  UNIQUE KEY `authkey` (`authkey`)
+  UNIQUE KEY `component_name` (`component_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
