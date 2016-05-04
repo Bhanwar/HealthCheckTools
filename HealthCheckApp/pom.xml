@@ -14,18 +14,6 @@
 		<apache.log4j.version>2.1</apache.log4j.version>
 		<jackson.version>2.5.0</jackson.version>
 	</properties>
-	<repositories>
-		<repository>
-			<id>snapshots</id>
-			<name>libs-snapshot</name>
-			<url>http://server.development.com:8080/libs-snapshot-local</url>
-		</repository>
-		<repository>
-			<id>central</id>
-			<name>libs-release</name>
-			<url>http://server.development.com:8080/libs-release-local</url>
-		</repository>
-	</repositories>
 	<dependencies>
 		<!-- Spring Core -->
 		<dependency>
