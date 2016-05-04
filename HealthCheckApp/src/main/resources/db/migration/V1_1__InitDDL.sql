@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS `endpoint_details`;
+DROP TABLE IF EXISTS `components`;
 
 CREATE TABLE `components` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,

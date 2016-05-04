@@ -10,7 +10,7 @@
 		http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo.xsd">
 
 	<context:property-placeholder
-		location="classpath:healthCheck-scheduler-config.properties,classpath:healthCheck-db-config.properties" />
+		location="classpath:healthCheck-scheduler-config.properties,classpath:healthCheck-db-config.properties,classpath:healthCheck-getApi-configValues.properties" />
 	<context:component-scan base-package="com.snapdeal.healthcheck.app.*" />
 
 	<!-- Flyway configuration -->
@@ -45,6 +45,9 @@
 		class="com.snapdeal.healthcheck.app.model.HealthCheckData">
 	</beans:bean>
 
+	<beans:bean id="quartzDataObj" class="com.snapdeal.healthcheck.app.model.QuartzJobDataHolder">
+	</beans:bean>
+	
 	<beans:bean id="mongoService"
 		class="com.snapdeal.healthcheck.app.mongo.repositories.MongoRepoService">
 	</beans:bean>
@@ -115,6 +118,7 @@
 			<beans:map>
 				<beans:entry key="data" value-ref="healthCheckData" />
 				<beans:entry key="repoService" value-ref="mongoService" />
+				<beans:entry key="dataObjects" value-ref="quartzDataObj"></beans:entry>
 				<beans:entry key="toAddress" value-type="java.lang.String"
 					value="${to_mail_recepients}" />
 				<beans:entry key="ccAddress" value-type="java.lang.String"
