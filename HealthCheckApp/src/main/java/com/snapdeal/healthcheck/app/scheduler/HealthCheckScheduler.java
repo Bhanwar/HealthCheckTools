@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
 import com.snapdeal.healthcheck.app.bo.ComponentDetailsBO;
+import com.snapdeal.healthcheck.app.configurables.GetApiConfigValues;
 import com.snapdeal.healthcheck.app.enums.Component;
 import com.snapdeal.healthcheck.app.enums.DownTimeReasonCode;
 import com.snapdeal.healthcheck.app.model.ComponentDetails;
@@ -60,6 +61,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 
 	private QuartzJobDataHolder dataObjects;
 	private ComponentDetailsBO compDetails;
+	private GetApiConfigValues objGetConfigValues;
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private HealthCheckData data;
 	private String toAddress;
@@ -70,6 +72,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 	@Override
 	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
 		compDetails = dataObjects.getCompDetails();
+		objGetConfigValues = dataObjects.getObjGetConfig();
 		currentExecDate = new Date();
 		String date = dateFormatter.format(currentExecDate);
 		String time = timeFormatter.format(currentExecDate);
@@ -102,8 +105,8 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			compSer.submit(new UCMSTEHealthCheckImpl(data.getUCMSTemplateEndPoint()));
 			compSer.submit(new UCMSPHealthCheckImpl(data.getUcmsProcessorEndPoint()));
 			compSer.submit(new SHIPFARHealthCheckImpl(data.getShipFarEndPoint()));
-			compSer.submit(new OMSADMINHealthCheckImpl(data.getOMSAdminEndPoint()));
-			compSer.submit(new POMSHealthCheckImpl(data.getPomsEndPoint()));
+			compSer.submit(new OMSADMINHealthCheckImpl(data.getOMSAdminEndPoint(), objGetConfigValues));
+			compSer.submit(new POMSHealthCheckImpl(data.getPomsEndPoint(), objGetConfigValues));
 			compSer.submit(new QNAHealthCheckImpl(data.getQnaEndPoint()));
 			for (int i = 0; i < compCount; i++) {
 				try {

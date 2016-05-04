@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jayway.jsonpath.JsonPath;
+import com.snapdeal.healthcheck.app.configurables.GetApiConfigValues;
 import com.snapdeal.healthcheck.app.enums.Component;
 import com.snapdeal.healthcheck.app.model.HealthCheckResult;
 import com.snapdeal.healthcheck.app.utils.HttpCallResponse;
@@ -17,9 +18,11 @@ public class OMSADMINHealthCheckImpl implements Callable<HealthCheckResult>{
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	
 	private String endPoint;
+	private String suborder;
 	
-	public OMSADMINHealthCheckImpl(String endPoint) {
+	public OMSADMINHealthCheckImpl(String endPoint, GetApiConfigValues objGetConfigValues) {
 		this.endPoint = endPoint;
+		this.suborder = objGetConfigValues.getOmsAdminSuborderCode();
 	}
 	
 	@Override
@@ -28,7 +31,7 @@ public class OMSADMINHealthCheckImpl implements Callable<HealthCheckResult>{
 		String url = endPoint + "/service/oms/order/admin/getSuborderByCode";
 		HealthCheckResult result = new HealthCheckResult(Component.OMSADMIN.code());
 		log.debug("Checking if OMS Admin server is up on endpoint: " + endPoint);
-		HttpCallResponse resp = callPost(url, "{\"suborderCode\":\"41724832\",\"responseProtocol\":\"PROTOCOL_JSON\",\"requestProtocol\":\"PROTOCOL_JSON\"}");
+		HttpCallResponse resp = callPost(url, "{\"suborderCode\":\""+suborder+"\",\"responseProtocol\":\"PROTOCOL_JSON\",\"requestProtocol\":\"PROTOCOL_JSON\"}");
 		if (resp.getStatusCode() != null && resp.getStatusCode().equals("200 OK") && resp.getResponseBody() != null) {
 			isServerUp = JsonPath.read(resp.getResponseBody(), "$.successful");
 		}
