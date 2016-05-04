@@ -39,6 +39,7 @@ public class HealthCheckData {
 	private String qnaEndPoint;
 	private String sfMobileEndPoint;
 	private String kamEndPoint;
+	private String apiGatewayEndPoint;
 
 	public String getPromoEndPoint() {
 		return promoEndPoint;
@@ -147,6 +148,10 @@ public class HealthCheckData {
 	public String getKamEndPoint() {
 		return kamEndPoint;
 	}
+	
+	public String getApiGatewayEndPoint() {
+		return apiGatewayEndPoint;
+	}
 
 	public void get() {
 		List<ComponentDetails> listDetails = endpointDetails.getAllComponentDetails();
@@ -205,6 +210,8 @@ public class HealthCheckData {
 				this.sfMobileEndPoint = detail.getEndpoint();
 			else if(detail.getComponentName().equals(Component.KAM.code()))
 				this.kamEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.APIGATEWAY.code()))
+				this.apiGatewayEndPoint = detail.getEndpoint();
 		}
 	}
 }

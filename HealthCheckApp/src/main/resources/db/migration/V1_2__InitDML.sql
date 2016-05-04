@@ -28,4 +28,5 @@ INSERT INTO `components` (`component_name`, `endpoint`) VALUES
 ('QNA','http://54.254.136.180:8080'),
 ('SHIPFAR','http://54.251.152.42:11000'),
 ('SFMOBILE', 'hhttp://54.254.158.18:10670'),
-('KAM', 'http://52.76.183.136:8080');
+('KAM', 'http://52.76.183.136:8080'),
+('APIGATEWAY', 'http://52.74.145.234:3535');

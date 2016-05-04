@@ -29,6 +29,7 @@ import com.snapdeal.healthcheck.app.model.HealthCheckData;
 import com.snapdeal.healthcheck.app.model.HealthCheckResult;
 import com.snapdeal.healthcheck.app.model.QuartzJobDataHolder;
 import com.snapdeal.healthcheck.app.mongo.repositories.MongoRepoService;
+import com.snapdeal.healthcheck.app.services.impl.APIGatewayHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.CAMSHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.CARTHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.COCOFSHealthCheckImpl;
@@ -109,6 +110,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			compSer.submit(new QNAHealthCheckImpl(data.getQnaEndPoint()));
 			compSer.submit(new SFMobileHealthCheckImpl(data.getSFMobileEndPoint()));
 			compSer.submit(new KAMHealthCheckImpl(data.getKamEndPoint()));
+			compSer.submit(new APIGatewayHealthCheckImpl(data.getApiGatewayEndPoint()));
 			
 			for (int i = 0; i < compCount; i++) {
 				try {

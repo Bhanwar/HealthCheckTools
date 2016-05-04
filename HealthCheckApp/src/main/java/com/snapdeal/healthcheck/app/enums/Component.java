@@ -31,7 +31,8 @@ public enum Component {
 	POMS("POMS", "POMS"),
 	QNA("QNA", "QnA"),
 	SFMOBILE("SFMOBILE", "SF Mobile"),
-	KAM("KAM", "KAM");
+	KAM("KAM", "KAM"),
+	APIGATEWAY("APIGATEWAY", "API Gateway");
 
 	private String code;
 	private String name;
