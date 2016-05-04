@@ -31,6 +31,7 @@ import com.snapdeal.healthcheck.app.model.DownTimeUIData;
 import com.snapdeal.healthcheck.app.model.StartUpResult;
 import com.snapdeal.healthcheck.app.mongo.repositories.DownTimeDataRepository;
 import com.snapdeal.healthcheck.app.mongo.repositories.StartUpResultsRepository;
+import com.snapdeal.healthcheck.app.services.AdminTask;
 import com.snapdeal.healthcheck.app.services.GatherData;
 import com.snapdeal.healthcheck.app.services.SaveReason;
 
@@ -47,6 +48,9 @@ public class ServiceController {
 	
 	@Autowired
 	private GatherData dataObj;
+	
+	@Autowired
+	private AdminTask admin;
 	
 	@Autowired
 	private SaveReason updateReason;
@@ -106,6 +110,17 @@ public class ServiceController {
 		return reasonCodes;
 	}
 	
+	@RequestMapping(value = "/getComponentList", method=RequestMethod.GET)
+	@ResponseBody
+	public Map<String, String> getComponentList() {
+		Map<String, String> result = new HashMap<>();
+		Component[] comps = Component.values();
+		for(int i=0;i<comps.length;i++) {
+			result.put(comps[i].code(), comps[i].getName());
+		}
+		return result;
+	}
+	
 	@RequestMapping(value = "/updateReasonPage", method=RequestMethod.GET)
 	public String getUpdateReasonPage(ModelMap model) {
 		return "updateReason";
@@ -115,6 +130,17 @@ public class ServiceController {
 	@ResponseBody
 	public String updateReason(@RequestBody String data) {
 		return updateReason.saveUpdateReason(data);
+	}
+	
+	@RequestMapping(value = "/admin/updateAuthKey", method=RequestMethod.GET)
+	public String updateAuthKeyPage() {
+		return "authKeyUpdate";
+	}
+	
+	@RequestMapping(value = "/updateAuthKey", method=RequestMethod.POST)
+	@ResponseBody
+	public String updateAuthKey(@RequestBody String data) {
+		return admin.changePassword(data);
 	}
 	
 	@RequestMapping(value = "/", method=RequestMethod.GET)

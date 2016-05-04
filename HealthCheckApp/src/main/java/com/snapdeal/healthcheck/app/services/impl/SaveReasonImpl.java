@@ -59,12 +59,12 @@ public class SaveReasonImpl implements SaveReason{
 	}
 	
 	private String getJsonString(JSONObject jsonData, String key) {
-		String data = null;
-		data = jsonData.getString(key).trim();
+		String result = null;
+		String data = jsonData.getString(key).trim();
 		if(data!= null && !data.equals("")) {
-			return data;
+			result = data;
 		}
-		return data;
+		return result;
 	}
 
 }
