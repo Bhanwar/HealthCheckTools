@@ -90,5 +90,35 @@ public class HttpCall {
 		return response;
 	}
 	
+	public static HttpCallResponse callGetApplicatioJSON(String url) {
+		HttpURLConnection conn = null;
+		HttpCallResponse response = null;
+		try {
+			response = new HttpCallResponse();
+			URL urlToHit = new URL(url);
+			conn = (HttpURLConnection) urlToHit.openConnection();
+			conn.setRequestProperty("Content-Type", "application/json");
+			conn.setRequestMethod("GET");
+			response.setStatusCode(conn.getResponseCode() + " " + conn.getResponseMessage());
+			
+			if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+				BufferedReader br = new BufferedReader(new InputStreamReader(
+						(conn.getInputStream())));
+				String output;
+				StringBuilder result = new StringBuilder();
+				while ((output = br.readLine()) != null) {
+					result.append(output);
+				}
+				br.close();
+				response.setResponseBody(result.toString());
+			}
+		}catch(Exception e) {
+			log.error("Exception occured while doing get: " + e.getMessage(), e);
+		}finally {
+			if(conn!=null)
+				conn.disconnect();
+		}
+		return response;
+	}
 
 }
