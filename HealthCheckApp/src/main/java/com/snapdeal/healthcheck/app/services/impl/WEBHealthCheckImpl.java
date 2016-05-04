@@ -32,7 +32,7 @@ private final Logger log = LoggerFactory.getLogger(getClass());
 		log.debug("Checking if SELLER SELF TRAINING Admin server is up on endpoint: " + endPoint);
 		HttpCallResponse resp = callPost(url, 
 				"{\"responseProtocol\":\"PROTOCOL_JSON\", \"requestProtocol\":\"PROTOCOL_JSON\"}");
-		if (resp.getStatusCode() != null && resp.getStatusCode().equals("200 OK") && resp.getResponseBody() != null) {
+		if (resp.getStatusCode() != null && resp.getStatusCode().equals("200 OK") && resp.getResponseBody() != null && resp.getResponseBody().contains("healthy")) {
 			isServerUp = true;
 		}
 		System.out.println("Status code: " + resp.getStatusCode());
