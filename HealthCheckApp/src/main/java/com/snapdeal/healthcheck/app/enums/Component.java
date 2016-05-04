@@ -31,9 +31,10 @@ public enum Component {
 	POMS("POMS", "POMS"),
 	QNA("QNA", "QnA"),
 	RMS("RMS","RMS"),
-	SELLERST("SELLERST","SELLERST"),
+	SELLERST("SELLERST","Seller Self Training"),
 	WEB("WEB","WEB"),
-	MATRIX("MATRIX","MATRIX");	
+	MATRIX("MATRIX","MATRIX"),
+	SFMOBILEAPI("SFMOBILEAPI","SF-Mobile API");
 	
 	private String code;
 	private String name;
@@ -110,6 +111,8 @@ public enum Component {
 			return Component.RMS;
 		else if(Component.MATRIX.code().equalsIgnoreCase(code))
 			return Component.MATRIX;
+		else if(Component.SFMOBILEAPI.code().equalsIgnoreCase(code))
+			return Component.SFMOBILEAPI;
 		else
 			return null;
 	}

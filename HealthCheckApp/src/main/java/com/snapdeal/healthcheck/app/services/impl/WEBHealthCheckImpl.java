@@ -29,7 +29,7 @@ private final Logger log = LoggerFactory.getLogger(getClass());
 		String url = endPoint + "/web/healthcheck";
 		
 		HealthCheckResult result = new HealthCheckResult(Component.WEB.code());
-		log.debug("Checking if SELLER SELF TRAINING Admin server is up on endpoint: " + endPoint);
+		log.debug("Checking if WEB server is up on endpoint: " + endPoint);
 		HttpCallResponse resp = callPost(url, 
 				"{\"responseProtocol\":\"PROTOCOL_JSON\", \"requestProtocol\":\"PROTOCOL_JSON\"}");
 		if (resp.getStatusCode() != null && resp.getStatusCode().equals("200 OK") && resp.getResponseBody() != null && resp.getResponseBody().contains("healthy")) {

@@ -41,6 +41,12 @@ public class HealthCheckData {
 	private String sellerSelfTrainingEndPoint;
 	private String webEndPoint;
 	private String matrixEndPoint;
+	private String sfMobileAPIEndPoint;
+	
+	
+	public String getSfMobileAPIEndPoint() {
+		return sfMobileAPIEndPoint;
+	}
 	
 	
 	public String getMatrixEndPoint() {
@@ -219,6 +225,8 @@ public class HealthCheckData {
 				this.webEndPoint = detail.getEndpoint();
 			else if(detail.getComponentName().equals(Component.MATRIX.code()))
 				this.matrixEndPoint = detail.getEndpoint();
+			else if(detail.getComponentName().equals(Component.SFMOBILEAPI.code()))
+				this.sfMobileAPIEndPoint = detail.getEndpoint();
 		}
 	}
 }
