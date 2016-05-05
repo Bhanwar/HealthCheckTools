@@ -30,7 +30,7 @@ public class POMSHealthCheckImpl implements Callable<HealthCheckResult> {
 		boolean isServerUp = false;
 		String url = endPoint + "/service/poms/getRefundModes";
 		HealthCheckResult result = new HealthCheckResult(Component.POMS.code());
-		log.debug("Checking if OMS Admin server is up on endpoint: " + endPoint);
+		log.debug("Checking if POMS server is up on endpoint: " + endPoint);
 		HttpCallResponse resp = callPost(url,
 				"{\"responseProtocol\":\"PROTOCOL_JSON\", \"requestProtocol\":\"PROTOCOL_JSON\", \"suborderCodeList\":["
 						+ suborder + "],\"delivered\" : \"false\"}");
