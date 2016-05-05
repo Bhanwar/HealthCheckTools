@@ -29,7 +29,12 @@ public enum Component {
 	SHIPFAR("SHIPFAR", "Ship Far"),
 	OMSADMIN("OMSADMIN", "OMS Admin"),
 	POMS("POMS", "POMS"),
-	QNA("QNA", "QnA");
+	QNA("QNA", "QnA"),
+	RMS("RMS","RMS"),
+	SELLERST("SELLERST","Seller Self Training"),
+	WEB("WEB","WEB"),
+	MATRIX("MATRIX","MATRIX"),
+	SFMOBILEAPI("SFMOBILEAPI","SF-Mobile API");
 	
 	private String code;
 	private String name;
@@ -98,6 +103,16 @@ public enum Component {
 			return Component.UCMSTE;
 		else if(Component.UMS.code().equalsIgnoreCase(code))
 			return Component.UMS;
+		else if(Component.WEB.code().equalsIgnoreCase(code))
+			return Component.WEB;
+		else if(Component.SELLERST.code().equalsIgnoreCase(code))
+			return Component.SELLERST;
+		else if(Component.RMS.code().equalsIgnoreCase(code))
+			return Component.RMS;
+		else if(Component.MATRIX.code().equalsIgnoreCase(code))
+			return Component.MATRIX;
+		else if(Component.SFMOBILEAPI.code().equalsIgnoreCase(code))
+			return Component.SFMOBILEAPI;
 		else
 			return null;
 	}
