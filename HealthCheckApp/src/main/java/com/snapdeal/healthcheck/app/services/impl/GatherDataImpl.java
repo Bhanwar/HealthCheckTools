@@ -51,7 +51,7 @@ public class GatherDataImpl implements GatherData {
 				String totalTime = "NA";
 				DownTimeUIData uiData = new DownTimeUIData();
 				Date downTimeDate = downTime.getDownTime();
-				int leftMargin = 0;
+				double leftMargin = 0;
 				if (dateFormatter.format(downTimeDate).equals(date))
 					leftMargin = getPercentageForTime(downTimeDate);
 				String downTimeStr = timeFormatter.format(downTime.getDownTime()) + " "
@@ -61,7 +61,7 @@ public class GatherDataImpl implements GatherData {
 					upTime = timeFormatter.format(compExecTime) + " " + dateFormatter.format(compExecTime);
 					totalTime = downTime.getTotalDownTimeInMins();
 				}
-				int rightMargin = getPercentageForTime(compExecTime);
+				double rightMargin = getPercentageForTime(compExecTime);
 				uiData.setId(downTime.getId());
 				uiData.setLeftMargin(leftMargin);
 				uiData.setWidth(rightMargin - leftMargin);
@@ -78,18 +78,18 @@ public class GatherDataImpl implements GatherData {
 	}
 
 	@Override
-	public int getTimePercentage(Date execDate) {
+	public double getTimePercentage(Date execDate) {
 		return getPercentageForTime(execDate);
 	}
 
-	private int getPercentageForTime(Date currExecDate) {
+	private double getPercentageForTime(Date currExecDate) {
 		double data = 0;
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(currExecDate);
-		data = ((double) cal.get(Calendar.MINUTE) / 60 + (double) cal.get(Calendar.HOUR_OF_DAY)) / 24;
+		data = (((double) cal.get(Calendar.MINUTE) / 60 + (double) cal.get(Calendar.HOUR_OF_DAY)) / 24) * 100;
 		DecimalFormat df = new DecimalFormat("#.##");
 		df.setRoundingMode(RoundingMode.HALF_UP);
-		data = Double.valueOf(df.format(data)) * 100;
-		return (int) data;
+		data = Double.valueOf(df.format(data));
+		return data;
 	}
 }

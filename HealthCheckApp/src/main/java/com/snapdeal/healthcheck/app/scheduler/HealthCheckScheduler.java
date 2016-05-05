@@ -1,15 +1,16 @@
 package com.snapdeal.healthcheck.app.scheduler;
 
+import static com.snapdeal.healthcheck.app.constants.AppConstant.MAIL_SIGN;
+import static com.snapdeal.healthcheck.app.constants.AppConstant.SNAPDEAL_ID;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.currentExecDate;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.healthResult;
-import static com.snapdeal.healthcheck.app.constants.AppConstant.SNAPDEAL_ID;
-import static com.snapdeal.healthcheck.app.constants.AppConstant.MAIL_SIGN;
 import static com.snapdeal.healthcheck.app.constants.Formatter.dateFormatter;
 import static com.snapdeal.healthcheck.app.constants.Formatter.timeFormatter;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -24,7 +25,6 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 
 import com.snapdeal.healthcheck.app.bo.ComponentDetailsBO;
 import com.snapdeal.healthcheck.app.configurables.GetApiConfigValues;
-import com.snapdeal.healthcheck.app.enums.Component;
 import com.snapdeal.healthcheck.app.enums.DownTimeReasonCode;
 import com.snapdeal.healthcheck.app.model.ComponentDetails;
 import com.snapdeal.healthcheck.app.model.DownTimeData;
@@ -73,43 +73,52 @@ public class HealthCheckScheduler extends QuartzJobBean {
 
 	@Override
 	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
+		data.get();
 		compDetails = dataObjects.getCompDetails();
 		objGetConfigValues = dataObjects.getObjGetConfig();
 		currentExecDate = new Date();
 		String date = dateFormatter.format(currentExecDate);
 		String time = timeFormatter.format(currentExecDate);
-		int compCount = Component.values().length;
 		log.debug("Running scheduled task: " + currentExecDate);
+		List<Callable<HealthCheckResult>> compCallList = new ArrayList<>();
+		//Add new components here in this list to check is the server is up
+		compCallList.add(new CAMSHealthCheckImpl(data.getCamsEndPoint()));
+		compCallList.add(new COCOFSHealthCheckImpl(data.getCocofsEndPoint()));
+		compCallList.add(new IPMSHealthCheckImpl(data.getIpmsEndPoint()));
+		compCallList.add(new OMSHealthCheckImpl(data.getOmsEndPoint()));
+		compCallList.add(new OPMSHealthCheckImpl(data.getOpmsEndPoint()));
+		compCallList.add(new OPSHealthCheckImpl(data.getOpsEndPoint()));
+		compCallList.add(new SCOREHealthCheckImpl(data.getScoreEndPoint()));
+		compCallList.add(new PromoHealthCheckImpl(data.getPromoEndPoint()));
+		compCallList.add(new ERASHealthCheckImpl(data.getErasEndPoint()));
+		compCallList.add(new MobAPIHealthCheckImpl(data.getMobApiEndPoint()));
+		compCallList.add(new RNRHealthCheckImpl(data.getRNREndPoint()));
+		compCallList.add(new SEARCHHealthCheckImpl(data.getSearchEndPoint()));
+		compCallList.add(new UMSHealthCheckImpl(data.getUmsEndPoint()));
+		compCallList.add(new CARTHealthCheckImpl(data.getCartEndPoint()));
+		compCallList.add(new SPMSPMNTHealthCheckImpl(data.getSpmsEndPoint()));
+		compCallList.add(new SCOREADMINHealthCheckImpl(data.getScoreAdminEndPoint()));
+		compCallList.add(new FILMSUIHealthCheckImpl(data.getFilmsUIEndPoint()));
+		compCallList.add(new SellerToolsHealthCheckImpl(data.getSellerToolsEndPoint()));
+		compCallList.add(new SNSHealthCheckImpl(data.getSNSEndPoint()));
+		compCallList.add(new UCMSTEHealthCheckImpl(data.getUCMSTemplateEndPoint()));
+		compCallList.add(new UCMSPHealthCheckImpl(data.getUcmsProcessorEndPoint()));
+		compCallList.add(new SHIPFARHealthCheckImpl(data.getShipFarEndPoint()));
+		compCallList.add(new OMSADMINHealthCheckImpl(data.getOMSAdminEndPoint(), objGetConfigValues));
+		compCallList.add(new POMSHealthCheckImpl(data.getPomsEndPoint(), objGetConfigValues));
+		compCallList.add(new QNAHealthCheckImpl(data.getQnaEndPoint()));
+		//End of components list
+		
+		
 		ExecutorService exec = null;
 		try {
-			data.get();
-			exec = Executors.newCachedThreadPool();
+			int compCount = compCallList.size();
+			exec = Executors.newFixedThreadPool(compCount);
 			CompletionService<HealthCheckResult> compSer = new ExecutorCompletionService<HealthCheckResult>(exec);
-			compSer.submit(new CAMSHealthCheckImpl(data.getCamsEndPoint()));
-			compSer.submit(new COCOFSHealthCheckImpl(data.getCocofsEndPoint()));
-			compSer.submit(new IPMSHealthCheckImpl(data.getIpmsEndPoint()));
-			compSer.submit(new OMSHealthCheckImpl(data.getOmsEndPoint()));
-			compSer.submit(new OPMSHealthCheckImpl(data.getOpmsEndPoint()));
-			compSer.submit(new OPSHealthCheckImpl(data.getOpsEndPoint()));
-			compSer.submit(new SCOREHealthCheckImpl(data.getScoreEndPoint()));
-			compSer.submit(new PromoHealthCheckImpl(data.getPromoEndPoint()));
-			compSer.submit(new ERASHealthCheckImpl(data.getErasEndPoint()));
-			compSer.submit(new MobAPIHealthCheckImpl(data.getMobApiEndPoint()));
-			compSer.submit(new RNRHealthCheckImpl(data.getRNREndPoint()));
-			compSer.submit(new SEARCHHealthCheckImpl(data.getSearchEndPoint()));
-			compSer.submit(new UMSHealthCheckImpl(data.getUmsEndPoint()));
-			compSer.submit(new CARTHealthCheckImpl(data.getCartEndPoint()));
-			compSer.submit(new SPMSPMNTHealthCheckImpl(data.getSpmsEndPoint()));
-			compSer.submit(new SCOREADMINHealthCheckImpl(data.getScoreAdminEndPoint()));
-			compSer.submit(new FILMSUIHealthCheckImpl(data.getFilmsUIEndPoint()));
-			compSer.submit(new SellerToolsHealthCheckImpl(data.getSellerToolsEndPoint()));
-			compSer.submit(new SNSHealthCheckImpl(data.getSNSEndPoint()));
-			compSer.submit(new UCMSTEHealthCheckImpl(data.getUCMSTemplateEndPoint()));
-			compSer.submit(new UCMSPHealthCheckImpl(data.getUcmsProcessorEndPoint()));
-			compSer.submit(new SHIPFARHealthCheckImpl(data.getShipFarEndPoint()));
-			compSer.submit(new OMSADMINHealthCheckImpl(data.getOMSAdminEndPoint(), objGetConfigValues));
-			compSer.submit(new POMSHealthCheckImpl(data.getPomsEndPoint(), objGetConfigValues));
-			compSer.submit(new QNAHealthCheckImpl(data.getQnaEndPoint()));
+			for(Callable<HealthCheckResult> compToCall : compCallList) {
+				compSer.submit(compToCall);
+			}
+			
 			for (int i = 0; i < compCount; i++) {
 				try {
 					HealthCheckResult result = compSer.take().get();
@@ -118,14 +127,17 @@ public class HealthCheckScheduler extends QuartzJobBean {
 					result.setExecDateTime(currentExecDate);
 					log.debug(result.toString());
 					if (healthResult.get(result.getComponentName()) != result.isServerUp()) {
+						log.debug("Status has changed for comp: " + result.getComponentName() + ". Will update mongo and send mail");
+						ExecutorService execMail = Executors.newFixedThreadPool(1);
 						final HealthCheckResult updateRes = result;
 						final Date updateDate = currentExecDate;
-						exec.submit(new Runnable() {
+						execMail.submit(new Runnable() {
 							@Override
 							public void run() {
 								updateAndSendMail(updateRes.getComponentName(), updateRes.isServerUp(), updateDate);
 							}
 						});
+						execMail.shutdown();
 					}
 					healthResult.put(result.getComponentName(), result.isServerUp());
 				} catch (InterruptedException | ExecutionException e) {

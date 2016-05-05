@@ -49,30 +49,30 @@
 					</tr>
 					<tr>
 						<th bgcolor="#FFFFFF" class="tableHdr dashTable">
-							<div style="width: 4.1%; float: left; text-align: left">0</div>
-							<div style="width: 4.1%; float: left; text-align: left">1</div>
-							<div style="width: 4.1%; float: left; text-align: left">2</div>
-							<div style="width: 4.1%; float: left; text-align: left">3</div>
-							<div style="width: 4.1%; float: left; text-align: left">4</div>
-							<div style="width: 4.1%; float: left; text-align: left">5</div>
-							<div style="width: 4.1%; float: left; text-align: left">6</div>
-							<div style="width: 4.1%; float: left; text-align: left">7</div>
-							<div style="width: 4.1%; float: left; text-align: left">8</div>
-							<div style="width: 4.1%; float: left; text-align: left">9</div>
-							<div style="width: 4.1%; float: left; text-align: left">10</div>
-							<div style="width: 4.1%; float: left; text-align: left">11</div>
-							<div style="width: 4.1%; float: left; text-align: left">12</div>
-							<div style="width: 4.1%; float: left; text-align: left">13</div>
-							<div style="width: 4.1%; float: left; text-align: left">14</div>
-							<div style="width: 4.1%; float: left; text-align: left">15</div>
-							<div style="width: 4.1%; float: left; text-align: left">16</div>
-							<div style="width: 4.1%; float: left; text-align: left">17</div>
-							<div style="width: 4.1%; float: left; text-align: left">18</div>
-							<div style="width: 4.1%; float: left; text-align: left">19</div>
-							<div style="width: 4.1%; float: left; text-align: left">20</div>
-							<div style="width: 4.1%; float: left; text-align: left">21</div>
-							<div style="width: 4.1%; float: left; text-align: left">22</div>
-							<div style="width: 4.1%; float: left; text-align: left">23</div>
+							<div style="width: 4.17%; float: left; text-align: left">0</div>
+							<div style="width: 4.16%; float: left; text-align: left">1</div>
+							<div style="width: 4.17%; float: left; text-align: left">2</div>
+							<div style="width: 4.17%; float: left; text-align: left">3</div>
+							<div style="width: 4.16%; float: left; text-align: left">4</div>
+							<div style="width: 4.17%; float: left; text-align: left">5</div>
+							<div style="width: 4.17%; float: left; text-align: left">6</div>
+							<div style="width: 4.16%; float: left; text-align: left">7</div>
+							<div style="width: 4.17%; float: left; text-align: left">8</div>
+							<div style="width: 4.17%; float: left; text-align: left">9</div>
+							<div style="width: 4.16%; float: left; text-align: left">10</div>
+							<div style="width: 4.17%; float: left; text-align: left">11</div>
+							<div style="width: 4.17%; float: left; text-align: left">12</div>
+							<div style="width: 4.16%; float: left; text-align: left">13</div>
+							<div style="width: 4.17%; float: left; text-align: left">14</div>
+							<div style="width: 4.17%; float: left; text-align: left">15</div>
+							<div style="width: 4.16%; float: left; text-align: left">16</div>
+							<div style="width: 4.17%; float: left; text-align: left">17</div>
+							<div style="width: 4.17%; float: left; text-align: left">18</div>
+							<div style="width: 4.16%; float: left; text-align: left">19</div>
+							<div style="width: 4.17%; float: left; text-align: left">20</div>
+							<div style="width: 4.17%; float: left; text-align: left">21</div>
+							<div style="width: 4.16%; float: left; text-align: left">22</div>
+							<div style="width: 4.17%; float: left; text-align: left">23</div>
 						</th>
 					</tr>
 				</thead>

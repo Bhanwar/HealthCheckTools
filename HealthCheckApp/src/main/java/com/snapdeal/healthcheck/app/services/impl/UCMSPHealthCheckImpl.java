@@ -30,7 +30,7 @@ public class UCMSPHealthCheckImpl implements Callable<HealthCheckResult>{
 		log.debug("Checking if UCMS Processor server is up on endpoint: " + endPoint);
 		HttpCallResponse resp = callGet(url);
 		if (resp.getStatusCode() != null && resp.getStatusCode().equals("200 OK") && resp.getResponseBody() != null) {
-			isServerUp = JsonPath.read(resp.getResponseBody(), "$.topologies[*].status").toString().equals("ACTIVE");
+			isServerUp = JsonPath.read(resp.getResponseBody(), "$.topologies[0].status").toString().equals("ACTIVE");
 		}
 		log.debug("Status code: " + resp.getStatusCode());
 		log.debug("Response Body: " + resp.getResponseBody());

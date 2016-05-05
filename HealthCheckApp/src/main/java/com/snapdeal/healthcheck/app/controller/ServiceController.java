@@ -148,7 +148,7 @@ public class ServiceController {
 	public String homePage(ModelMap model) {
 		Date currExecDate = AppConstant.currentExecDate;
 		Map<String, List<DownTimeUIData>> data = dataObj.getDataForHomePage(currExecDate);
-		int timePercentage = dataObj.getTimePercentage(currExecDate);
+		double timePercentage = dataObj.getTimePercentage(currExecDate);
 		model.addAttribute("total", data.size());
 		model.addAttribute("dateTime", currExecDate);
 		model.addAttribute("data", data);
