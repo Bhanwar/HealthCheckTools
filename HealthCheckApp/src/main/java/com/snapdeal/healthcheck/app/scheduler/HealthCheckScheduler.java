@@ -57,6 +57,10 @@ import com.snapdeal.healthcheck.app.services.impl.SellerToolsHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.UCMSPHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.UCMSTEHealthCheckImpl;
 import com.snapdeal.healthcheck.app.services.impl.UMSHealthCheckImpl;
+import com.snapdeal.healthcheck.app.services.impl.RMSHealthCheckImpl;
+import com.snapdeal.healthcheck.app.services.impl.SELLERSTHealthCheckImpl;
+import com.snapdeal.healthcheck.app.services.impl.WEBHealthCheckImpl;
+import com.snapdeal.healthcheck.app.services.impl.MATRIXHealthCheckImpl;
 import com.snapdeal.healthcheck.app.utils.EmailUtil;
 
 public class HealthCheckScheduler extends QuartzJobBean {
@@ -107,6 +111,10 @@ public class HealthCheckScheduler extends QuartzJobBean {
 		compCallList.add(new OMSADMINHealthCheckImpl(data.getOMSAdminEndPoint(), objGetConfigValues));
 		compCallList.add(new POMSHealthCheckImpl(data.getPomsEndPoint(), objGetConfigValues));
 		compCallList.add(new QNAHealthCheckImpl(data.getQnaEndPoint()));
+		compCallList.add(new RMSHealthCheckImpl(data.getRMSEndPoint()));
+		compCallList.add(new SELLERSTHealthCheckImpl(data.getSellerSelfTrainingEndPoint(), objGetConfigValues));
+		compCallList.add(new WEBHealthCheckImpl(data.getWebEndPoint()));
+		compCallList.add(new MATRIXHealthCheckImpl(data.getMatrixEndPoint()));
 		//End of components list
 		
 		
