@@ -10,5 +10,5 @@ public interface GatherData {
 
 	public Map<String, List<DownTimeUIData>> getDataForHomePage(Date execDate);
 	
-	public int getTimePercentage(Date execDate);
+	public double getTimePercentage(Date execDate);
 }

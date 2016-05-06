@@ -4,7 +4,14 @@ public class HttpCallResponse {
 
 	String statusCode;
 	String responseBody;
+	String httpCallException;
 	
+	public String getHttpCallException() {
+		return httpCallException;
+	}
+	public void setHttpCallException(String httpCallException) {
+		this.httpCallException = httpCallException;
+	}
 	public String getStatusCode() {
 		return statusCode;
 	}

@@ -34,6 +34,31 @@ public class ComponentDetails {
 	@Column(name = "authkey")
 	private String authKey;
 	
+	@Column(name = "health_check_api")
+	private String healthCheckApi;
+	@Column(name = "health_check_api_call_type")
+	private String healthCheckApiCallType;
+	@Column(name = "health_check_api_resp")
+	private String healthCheckApiResponse;
+	
+	@Column(name = "first_get_api")
+	private String firstGetApi;
+	@Column(name = "first_get_api_call_type")
+	private String firstGetApiCallType;
+	@Column(name = "first_get_api_req_json")
+	private String firstGetApiReqJson;
+	@Column(name = "first_get_api_resp")
+	private String firstGetApiResponce;
+	
+	@Column(name = "second_get_api")
+	private String secondGetApi;
+	@Column(name = "second_get_api_call_type")
+	private String secondGetApiCallType;
+	@Column(name = "second_get_api_req_json")
+	private String secondGetApiReqJson;
+	@Column(name = "second_get_api_resp")
+	private String secondGetApiResponce;
+	
 	@Column(name = "created")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date created;
@@ -92,6 +117,94 @@ public class ComponentDetails {
 
 	public Date getCreated() {
 		return created;
+	}
+
+	public String getHealthCheckApi() {
+		return healthCheckApi;
+	}
+
+	public void setHealthCheckApi(String healthCheckApi) {
+		this.healthCheckApi = healthCheckApi;
+	}
+
+	public String getHealthCheckApiCallType() {
+		return healthCheckApiCallType;
+	}
+
+	public void setHealthCheckApiCallType(String healthCheckApiCallType) {
+		this.healthCheckApiCallType = healthCheckApiCallType;
+	}
+
+	public String getHealthCheckApiResponse() {
+		return healthCheckApiResponse;
+	}
+
+	public void setHealthCheckApiResponse(String healthCheckApiResponse) {
+		this.healthCheckApiResponse = healthCheckApiResponse;
+	}
+
+	public String getFirstGetApi() {
+		return firstGetApi;
+	}
+
+	public void setFirstGetApi(String firstGetApi) {
+		this.firstGetApi = firstGetApi;
+	}
+
+	public String getFirstGetApiCallType() {
+		return firstGetApiCallType;
+	}
+
+	public void setFirstGetApiCallType(String firstGetApiCallType) {
+		this.firstGetApiCallType = firstGetApiCallType;
+	}
+
+	public String getFirstGetApiReqJson() {
+		return firstGetApiReqJson;
+	}
+
+	public void setFirstGetApiReqJson(String firstGetApiReqJson) {
+		this.firstGetApiReqJson = firstGetApiReqJson;
+	}
+
+	public String getFirstGetApiResponce() {
+		return firstGetApiResponce;
+	}
+
+	public void setFirstGetApiResponce(String firstGetApiResponce) {
+		this.firstGetApiResponce = firstGetApiResponce;
+	}
+
+	public String getSecondGetApi() {
+		return secondGetApi;
+	}
+
+	public void setSecondGetApi(String secondGetApi) {
+		this.secondGetApi = secondGetApi;
+	}
+
+	public String getSecondGetApiCallType() {
+		return secondGetApiCallType;
+	}
+
+	public void setSecondGetApiCallType(String secondGetApiCallType) {
+		this.secondGetApiCallType = secondGetApiCallType;
+	}
+
+	public String getSecondGetApiReqJson() {
+		return secondGetApiReqJson;
+	}
+
+	public void setSecondGetApiReqJson(String secondGetApiReqJson) {
+		this.secondGetApiReqJson = secondGetApiReqJson;
+	}
+
+	public String getSecondGetApiResponce() {
+		return secondGetApiResponce;
+	}
+
+	public void setSecondGetApiResponce(String secondGetApiResponce) {
+		this.secondGetApiResponce = secondGetApiResponce;
 	}
 
 	public void setCreated(Date created) {

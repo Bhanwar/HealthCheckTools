@@ -80,7 +80,7 @@ body {
 }
 
 div.percentgraph {
-	background-color: #67d467;
+	background-color: #83B128;
 	border: #808080 0px solid;
 	height: 1.3em;
 	margin: 0px;
@@ -118,7 +118,7 @@ table.percentgraph td.percentgraph {
 }
 
 div.redbar {
-	background-color: #c04e4e;
+	background-color: #CC3300;
 	height: 1.3em;
 	margin: 0px;
 	padding: 0px;

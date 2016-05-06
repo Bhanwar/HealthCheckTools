@@ -1,13 +1,17 @@
 package com.snapdeal.healthcheck.app.controller;
 
+import static com.snapdeal.healthcheck.app.constants.AppConstant.componentNames;
+import static com.snapdeal.healthcheck.app.constants.AppConstant.currentExecDate;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.healthResult;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -24,7 +28,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.snapdeal.healthcheck.app.constants.AppConstant;
 import com.snapdeal.healthcheck.app.constants.Formatter;
-import com.snapdeal.healthcheck.app.enums.Component;
 import com.snapdeal.healthcheck.app.enums.DownTimeReasonCode;
 import com.snapdeal.healthcheck.app.model.DownTimeData;
 import com.snapdeal.healthcheck.app.model.DownTimeUIData;
@@ -57,16 +60,9 @@ public class ServiceController {
 	
 	@PostConstruct
 	public void init() {
-		healthResult = new HashMap<>();
-		log.debug("Fetching data from Mongo");
-		List<StartUpResult> listComp = startUpDataRepo.findAll();
-		createInitialData();
-		if(!listComp.isEmpty()) {
-			log.debug("Got data from mongo, initializing. Total count: " + listComp.size());
-			for(StartUpResult res : listComp) {
-				healthResult.put(res.getComponentName(), res.isServerUp());
-			}
-		}
+		currentExecDate = new Date();
+		componentNames = new HashSet<>();
+		//need to make this as cron
 		// objSharePassword.sharePasswordToQms();
 	}
 	
@@ -113,13 +109,8 @@ public class ServiceController {
 	
 	@RequestMapping(value = "/getComponentList", method=RequestMethod.GET)
 	@ResponseBody
-	public Map<String, String> getComponentList() {
-		Map<String, String> result = new HashMap<>();
-		Component[] comps = Component.values();
-		for(int i=0;i<comps.length;i++) {
-			result.put(comps[i].code(), comps[i].getName());
-		}
-		return result;
+	public Set<String> getComponentList() {
+		return componentNames;	
 	}
 	
 	@RequestMapping(value = "/updateReasonPage", method=RequestMethod.GET)
@@ -148,19 +139,12 @@ public class ServiceController {
 	public String homePage(ModelMap model) {
 		Date currExecDate = AppConstant.currentExecDate;
 		Map<String, List<DownTimeUIData>> data = dataObj.getDataForHomePage(currExecDate);
-		int timePercentage = dataObj.getTimePercentage(currExecDate);
+		double timePercentage = dataObj.getTimePercentage(currExecDate);
 		model.addAttribute("total", data.size());
 		model.addAttribute("dateTime", currExecDate);
 		model.addAttribute("data", data);
 		model.addAttribute("dateStr", Formatter.dateFormatter.format(currExecDate));
 		model.addAttribute("timePercentage", timePercentage);
 		return "home";
-	}
-	
-	private void createInitialData() {
-		Component[] comps = Component.values();
-		for(int i=0;i<comps.length;i++) {
-			healthResult.put(comps[i].code(), true);
-		}	
 	}
 }

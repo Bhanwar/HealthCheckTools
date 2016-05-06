@@ -144,13 +144,13 @@
 								});
 					});
 
-	function updateOptions(updateMap) {
+	function updateOptions(updateSet) {
 		console.log("Creating comp list..");
 		var selectList = document.getElementById('comp-select');
-		for ( var key in updateMap) {
+		for ( var i in updateMap) {
 			var option = document.createElement('option');
-			option.value = key;
-			option.text = updateMap[key];
+			option.value = updateSet[i];
+			option.text = updateSet[i];
 			selectList.appendChild(option);
 		}
 		$('#myLoading').modal('hide');

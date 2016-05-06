@@ -35,7 +35,7 @@ public class ReportScheduler extends QuartzJobBean {
 		Date currentDate = new Date();
 		String date = dateFormatter.format(currentDate);
 		String time = timeFormatter.format(AppConstant.currentExecDate);
-		String header = "<html><h2>Daily report for date: "+date+", as on: "+time+"</h2>";
+		String header = "<html><h2>Health Check Daily report for date: "+date+", as on: "+time+"</h2><h2>Environment: " + envName + "</h2>";
 		StringBuilder html = new StringBuilder(header);
 		List<DownTimeData> list = repoService.downTimeFindAllForDate(date);
 		Map<String, List<DownTimeData>> dwnTymDataMap = new HashMap<String, List<DownTimeData>>();
@@ -105,7 +105,7 @@ public class ReportScheduler extends QuartzJobBean {
 		if(emailAddressTo.isEmpty()) {
 			log.warn("Daily Report was not sent as the TO Address list was empty!!");
 		} else {
-			EmailUtil mail = new EmailUtil(emailAddressTo, emailAddressCc, null, envName + " health daily report", html.toString());
+			EmailUtil mail = new EmailUtil(emailAddressTo, emailAddressCc, null, envName + " health daily report - " + date, html.toString());
 			mail.sendHTMLEmail();
 		}
 	}
