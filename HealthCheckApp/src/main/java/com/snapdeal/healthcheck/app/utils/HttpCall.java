@@ -17,10 +17,9 @@ public class HttpCall {
 	
 	public static HttpCallResponse callPost(String url, String json) {
 		HttpURLConnection conn = null;
-		HttpCallResponse response = null;
+		HttpCallResponse response = new HttpCallResponse();
 		OutputStream os = null;
 		try {
-			response = new HttpCallResponse();
 			URL urlToHit = new URL(url);
 			conn = (HttpURLConnection) urlToHit.openConnection();
 			conn.setDoOutput(true);
@@ -55,6 +54,7 @@ public class HttpCall {
 			}
 		}catch(Exception e) {
 			log.error("Exception occured while doing post: " + e.getMessage(), e);
+			response.setHttpCallException(e.getMessage());
 		}finally {
 			if(os!=null)
 				try {
@@ -71,9 +71,8 @@ public class HttpCall {
 	
 	public static HttpCallResponse callGet(String url) {
 		HttpURLConnection conn = null;
-		HttpCallResponse response = null;
+		HttpCallResponse response = new HttpCallResponse();
 		try {
-			response = new HttpCallResponse();
 			URL urlToHit = new URL(url);
 			try {
 				conn = (HttpURLConnection) urlToHit.openConnection();
@@ -102,6 +101,7 @@ public class HttpCall {
 			}
 		}catch(Exception e) {
 			log.error("Exception occured while doing get: " + e.getMessage(), e);
+			response.setHttpCallException(e.getMessage());
 		}finally {
 			if(conn!=null)
 				conn.disconnect();
@@ -111,9 +111,8 @@ public class HttpCall {
 	
 	public static HttpCallResponse callGetApplicatioJSON(String url) {
 		HttpURLConnection conn = null;
-		HttpCallResponse response = null;
+		HttpCallResponse response = new HttpCallResponse();
 		try {
-			response = new HttpCallResponse();
 			URL urlToHit = new URL(url);
 			try {
 				conn = (HttpURLConnection) urlToHit.openConnection();
@@ -144,6 +143,7 @@ public class HttpCall {
 			}
 		}catch(Exception e) {
 			log.error("Exception occured while doing get: " + e.getMessage(), e);
+			response.setHttpCallException(e.getMessage());
 		}finally {
 			if(conn!=null)
 				conn.disconnect();

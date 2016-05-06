@@ -1,5 +1,6 @@
 package com.snapdeal.healthcheck.app.services.impl;
 
+import static com.snapdeal.healthcheck.app.constants.AppConstant.componentNames;
 import static com.snapdeal.healthcheck.app.constants.Formatter.dateFormatter;
 import static com.snapdeal.healthcheck.app.constants.Formatter.timeFormatter;
 
@@ -16,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.snapdeal.healthcheck.app.enums.Component;
 import com.snapdeal.healthcheck.app.model.DownTimeData;
 import com.snapdeal.healthcheck.app.model.DownTimeUIData;
 import com.snapdeal.healthcheck.app.mongo.repositories.DownTimeDataRepository;
@@ -34,14 +34,13 @@ public class GatherDataImpl implements GatherData {
 	public Map<String, List<DownTimeUIData>> getDataForHomePage(Date currExecDate) {
 		log.debug("Gathering data for UI");
 		String date = dateFormatter.format(currExecDate);
-		Component[] comps = Component.values();
+		
 		Map<String, List<DownTimeUIData>> data = new HashMap<String, List<DownTimeUIData>>();
 		List<DownTimeData> list = downTimeRepo.findAllExecForDate(date);
 		
-		for (int i = 0; i < comps.length; i++) {
-			String componentName = comps[i].getName();
+		for (String compName : componentNames) {
 			List<DownTimeUIData> dataList = new ArrayList<>();
-			data.put(componentName, dataList);
+			data.put(compName, dataList);
 		}
 
 		if (!list.isEmpty()) {
@@ -68,7 +67,7 @@ public class GatherDataImpl implements GatherData {
 				uiData.setUpTime(upTime);
 				uiData.setTotalTime(totalTime);
 				uiData.setDownTime(downTimeStr);
-				String mapKey = Component.getValueOf(downTime.getComponentName()).getName();
+				String mapKey = downTime.getComponentName();
 				List<DownTimeUIData> dataList = data.get(mapKey);
 				dataList.add(uiData);
 				data.put(mapKey, dataList);

@@ -1,6 +1,7 @@
 package com.snapdeal.healthcheck.app.model;
 
 import java.util.Date;
+import java.util.Set;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -22,7 +23,7 @@ public class DownTimeData {
 	private String description;
 	private String startDate;
 	private String endDate;
-	private String execDate;
+	private Set<String> execDate;
 	
 	public DownTimeReasonCode getReasonCode() {
 		return reasonCode;
@@ -81,13 +82,13 @@ public class DownTimeData {
 	public void setEndDate(String endDate) {
 		this.endDate = endDate;
 	}
-	public String getExecDate() {
+	
+	public Set<String> getExecDate() {
 		return execDate;
 	}
-	public void setExecDate(String execDate) {
+	public void setExecDate(Set<String> execDate) {
 		this.execDate = execDate;
 	}
-	
 	@Override
 	public String toString() {
 		return "DownTimeData [componentName=" + componentName + ", downTime=" + downTime + ", upTime=" + upTime

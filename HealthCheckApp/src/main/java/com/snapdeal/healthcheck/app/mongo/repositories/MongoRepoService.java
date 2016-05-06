@@ -5,11 +5,15 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.snapdeal.healthcheck.app.model.DownTimeData;
+import com.snapdeal.healthcheck.app.model.StartUpResult;
 
 public class MongoRepoService {
 
 	@Autowired
 	private DownTimeDataRepository downTimeRepo;
+	
+	@Autowired
+	private StartUpResultsRepository startUpDataRepo;
 	
 	public void save(DownTimeData data) {
 		downTimeRepo.save(data);
@@ -27,4 +31,7 @@ public class MongoRepoService {
 		return downTimeRepo.findAllDownTimeData("NO");
 	}
 	
+	public List<StartUpResult> getStartUpData() {
+		 return startUpDataRepo.findAll();
+	}
 }
