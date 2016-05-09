@@ -4,7 +4,7 @@
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
+        <property name="java-output-path" value="/HealthCheckApp/build/classes"/>
         <property name="context-root" value="healthCheck"/>
-        <property name="java-output-path" value="/HealthCheckApp/target/classes"/>
     </wb-module>
 </project-modules>

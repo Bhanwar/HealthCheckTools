@@ -8,7 +8,7 @@ public class QuartzJobDataHolder {
 	
 	@Autowired
 	private ComponentDetailsBO compDetails;
-
+	
 	public ComponentDetailsBO getCompDetails() {
 		return compDetails;
 	}

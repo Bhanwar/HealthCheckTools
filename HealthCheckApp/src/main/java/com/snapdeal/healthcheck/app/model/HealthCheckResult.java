@@ -16,7 +16,52 @@ public class HealthCheckResult {
 	private String execDate;
 	private String execTime;
 	private Date execDateTime;
+	private String failedURL;
+	private String failedReqJson;
+	private String failedExpResp;
+	private String failedActualResp;
+	private String failedHttpCallException;
 	
+	public String getFailedURL() {
+		return failedURL;
+	}
+
+	public void setFailedURL(String failedURL) {
+		this.failedURL = failedURL;
+	}
+
+	public String getFailedReqJson() {
+		return failedReqJson;
+	}
+
+	public void setFailedReqJson(String failedReqJson) {
+		this.failedReqJson = failedReqJson;
+	}
+
+	public String getFailedExpResp() {
+		return failedExpResp;
+	}
+
+	public void setFailedExpResp(String failedExpResp) {
+		this.failedExpResp = failedExpResp;
+	}
+
+	public String getFailedActualResp() {
+		return failedActualResp;
+	}
+
+	public void setFailedActualResp(String failedActualResp) {
+		this.failedActualResp = failedActualResp;
+	}
+
+	public String getFailedHttpCallException() {
+		return failedHttpCallException;
+	}
+
+	public void setFailedHttpCallException(String failedHttpCallException) {
+		this.failedHttpCallException = failedHttpCallException;
+	}
+
 	public HealthCheckResult(String componentName) {
 		this.componentName = componentName;
 	}

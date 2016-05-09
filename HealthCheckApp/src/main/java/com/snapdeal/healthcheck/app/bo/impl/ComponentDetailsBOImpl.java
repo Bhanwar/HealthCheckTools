@@ -28,5 +28,10 @@ public class ComponentDetailsBOImpl implements ComponentDetailsBO{
 		return dao.getComponentDetails(compName);
 	}
 
+	@Override
+	public void saveComponentDetails(ComponentDetails compDetail) {
+		dao.saveComponentDetails(compDetail);
+	}
+
 
 }

@@ -3,25 +3,25 @@ package com.snapdeal.healthcheck.app.model;
 public class DownTimeUIData {
 	
 	String id;
-	int leftMargin;
-	int width;
+	double leftMargin;
+	double width;
 	String downTime;
 	String upTime;
 	String totalTime;
 
-	public int getLeftMargin() {
+	public double getLeftMargin() {
 		return leftMargin;
 	}
 
-	public void setLeftMargin(int leftMargin) {
+	public void setLeftMargin(double leftMargin) {
 		this.leftMargin = leftMargin;
 	}
 
-	public int getWidth() {
+	public double getWidth() {
 		return width;
 	}
 
-	public void setWidth(int width) {
+	public void setWidth(double width) {
 		this.width = width;
 	}
 
@@ -57,4 +57,9 @@ public class DownTimeUIData {
 		this.totalTime = totalTime;
 	}
 
+	@Override
+	public String toString() {
+		return "DownTimeUIData [id=" + id + ", leftMargin=" + leftMargin + ", width=" + width + ", downTime=" + downTime
+				+ ", upTime=" + upTime + ", totalTime=" + totalTime + "]";
+	}
 }

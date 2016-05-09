@@ -1,6 +1,7 @@
 package com.snapdeal.healthcheck.app.model;
 
 import java.util.Date;
+import java.util.Set;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -22,13 +23,48 @@ public class DownTimeData {
 	private String description;
 	private String startDate;
 	private String endDate;
-	private String execDate;
+	private Set<String> execDate;
+	private String failedUrl;
+	private String failedReqJson;
+	private String failedResp;
+	private String failedExpResp;
+	private String failedHttpException;
 	
 	public DownTimeReasonCode getReasonCode() {
 		return reasonCode;
 	}
 	public String getId() {
 		return id;
+	}
+	public String getFailedUrl() {
+		return failedUrl;
+	}
+	public void setFailedUrl(String failedUrl) {
+		this.failedUrl = failedUrl;
+	}
+	public String getFailedReqJson() {
+		return failedReqJson;
+	}
+	public void setFailedReqJson(String failedReqJson) {
+		this.failedReqJson = failedReqJson;
+	}
+	public String getFailedResp() {
+		return failedResp;
+	}
+	public void setFailedResp(String failedResp) {
+		this.failedResp = failedResp;
+	}
+	public String getFailedExpResp() {
+		return failedExpResp;
+	}
+	public void setFailedExpResp(String failedExpResp) {
+		this.failedExpResp = failedExpResp;
+	}
+	public String getFailedHttpException() {
+		return failedHttpException;
+	}
+	public void setFailedHttpException(String failedHttpException) {
+		this.failedHttpException = failedHttpException;
 	}
 	public void setReasonCode(DownTimeReasonCode reasonCode) {
 		this.reasonCode = reasonCode;
@@ -81,13 +117,13 @@ public class DownTimeData {
 	public void setEndDate(String endDate) {
 		this.endDate = endDate;
 	}
-	public String getExecDate() {
+	
+	public Set<String> getExecDate() {
 		return execDate;
 	}
-	public void setExecDate(String execDate) {
+	public void setExecDate(Set<String> execDate) {
 		this.execDate = execDate;
 	}
-	
 	@Override
 	public String toString() {
 		return "DownTimeData [componentName=" + componentName + ", downTime=" + downTime + ", upTime=" + upTime

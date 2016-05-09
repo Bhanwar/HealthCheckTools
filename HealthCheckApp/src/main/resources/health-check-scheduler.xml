@@ -41,11 +41,9 @@
 
 	<mongo:repositories base-package="com.snapdeal.healthcheck.app.mongo.repositories" />
 
-	<beans:bean id="healthCheckData"
-		class="com.snapdeal.healthcheck.app.model.HealthCheckData">
+	<beans:bean id="quartzDataObj" class="com.snapdeal.healthcheck.app.model.QuartzJobDataHolder">
 	</beans:bean>
-
-	<beans:bean id="quartzDataObj" class="com.snapdeal.healthcheck.app.model.QuartzJobDataHolder"></beans:bean>
+	
 	<beans:bean id="mongoService"
 		class="com.snapdeal.healthcheck.app.mongo.repositories.MongoRepoService">
 	</beans:bean>
@@ -114,7 +112,6 @@
 		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<beans:property name="schedulerContextAsMap">
 			<beans:map>
-				<beans:entry key="data" value-ref="healthCheckData" />
 				<beans:entry key="repoService" value-ref="mongoService" />
 				<beans:entry key="dataObjects" value-ref="quartzDataObj"></beans:entry>
 				<beans:entry key="toAddress" value-type="java.lang.String"
