@@ -24,12 +24,47 @@ public class DownTimeData {
 	private String startDate;
 	private String endDate;
 	private Set<String> execDate;
+	private String failedUrl;
+	private String failedReqJson;
+	private String failedResp;
+	private String failedExpResp;
+	private String failedHttpException;
 	
 	public DownTimeReasonCode getReasonCode() {
 		return reasonCode;
 	}
 	public String getId() {
 		return id;
+	}
+	public String getFailedUrl() {
+		return failedUrl;
+	}
+	public void setFailedUrl(String failedUrl) {
+		this.failedUrl = failedUrl;
+	}
+	public String getFailedReqJson() {
+		return failedReqJson;
+	}
+	public void setFailedReqJson(String failedReqJson) {
+		this.failedReqJson = failedReqJson;
+	}
+	public String getFailedResp() {
+		return failedResp;
+	}
+	public void setFailedResp(String failedResp) {
+		this.failedResp = failedResp;
+	}
+	public String getFailedExpResp() {
+		return failedExpResp;
+	}
+	public void setFailedExpResp(String failedExpResp) {
+		this.failedExpResp = failedExpResp;
+	}
+	public String getFailedHttpException() {
+		return failedHttpException;
+	}
+	public void setFailedHttpException(String failedHttpException) {
+		this.failedHttpException = failedHttpException;
 	}
 	public void setReasonCode(DownTimeReasonCode reasonCode) {
 		this.reasonCode = reasonCode;

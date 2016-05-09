@@ -6,7 +6,6 @@ import static com.snapdeal.healthcheck.app.constants.AppConstant.componentNames;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.currentExecDate;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.healthResult;
 import static com.snapdeal.healthcheck.app.constants.Formatter.dateFormatter;
-import static com.snapdeal.healthcheck.app.constants.Formatter.timeFormatter;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -53,13 +52,11 @@ public class HealthCheckScheduler extends QuartzJobBean {
 		compDetails = dataObjects.getCompDetails();
 		List<ComponentDetails> components = compDetails.getAllComponentDetails();
 		currentExecDate = new Date();
-		String date = dateFormatter.format(currentExecDate);
-		String time = timeFormatter.format(currentExecDate);
 		log.debug("Running scheduled task: " + currentExecDate);
 		List<Callable<HealthCheckResult>> compCallList = new ArrayList<>();
 		for (ComponentDetails comp : components) {
 			componentNames.add(comp.getComponentName());
-			compCallList.add(new EnvHealthCheckImpl(comp));
+			compCallList.add(new EnvHealthCheckImpl(comp,repoService));
 		}
 	
 		//Initialize result from mongo
@@ -91,15 +88,10 @@ public class HealthCheckScheduler extends QuartzJobBean {
 				for (int i = 0; i < compCount; i++) {
 					try {
 						HealthCheckResult result = compSer.take().get();
-						result.setExecDate(date);
-						result.setExecTime(time);
-						result.setExecDateTime(currentExecDate);
 						log.debug(result.toString());
 						ExecutorService execMail = Executors.newFixedThreadPool(1);
 						if (healthResult.get(result.getComponentName()) != result.isServerUp()) {
-							log.debug("Status has changed for comp: " + result.getComponentName()
-									+ ". Will update mongo and send mail");
-
+							log.debug("Status has changed for comp: " + result.getComponentName());
 							final HealthCheckResult updateRes = result;
 							final Date updateDate = currentExecDate;
 							execMail.submit(new Runnable() {
@@ -153,9 +145,14 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			data.setDownTime(execDate);
 			data.setServerUp("NO");
 			data.setReasonCode(DownTimeReasonCode.NOTSET);
+			data.setFailedUrl(result.getFailedURL());
+			data.setFailedExpResp(result.getFailedExpResp());
+			data.setFailedHttpException(result.getFailedHttpCallException());
+			data.setFailedReqJson(result.getFailedReqJson());
+			data.setFailedResp(result.getFailedActualResp());
 			log.debug("Saving down time data in Mongo");
 			repoService.save(data);
-			sendServerDownMail(compName, execDate);
+			sendServerDownMail(compName, result, execDate);
 		}
 	}
 
@@ -164,7 +161,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 		List<DownTimeData> allDownServers = repoService.findAllDownTimeData();
 		if (!allDownServers.isEmpty()) {
 			for (DownTimeData downData : allDownServers) {
-				if (!downData.getExecDate().equals(currentExecDate)) {
+				if (!downData.getExecDate().contains(currentExecDate)) {
 					log.debug("Updating current exec date for down time comp: " + downData.getComponentName());
 					Set<String> execDates = downData.getExecDate();
 					execDates.add(currentExecDate);
@@ -182,11 +179,19 @@ public class HealthCheckScheduler extends QuartzJobBean {
 		sendMail(compName, msgSubject, msgBody);
 	}
 
-	private void sendServerDownMail(String compName, Date execDate) {
+	private void sendServerDownMail(String compName, HealthCheckResult result, Date execDate) {
 		String msgSubject = compName + " server is down on " + envName;
 		String msgBody = "<html><h3>Your component: <i>" + compName
-				+ "</i> seems to be down. Please have a look at it.</h3>" + MAIL_SIGN + "</html>";
-		sendMail(compName, msgSubject, msgBody);
+				+ "</i> seems to be down. Please have a look at it.</h3>";
+		
+		StringBuilder msg = new StringBuilder(msgBody);
+		msg.append("<br>URL: " + result.getFailedURL());
+		msg.append("<br>Request JSON: " + result.getFailedReqJson());
+		msg.append("<br>Response: " + result.getFailedActualResp());
+		msg.append("<br>Expected token in response: " + result.getFailedExpResp());
+		msg.append("<br>Http Call Exception: " + result.getFailedHttpCallException());
+		msg.append("<br>" + MAIL_SIGN + "</html>");
+		sendMail(compName, msgSubject, msg.toString());
 	}
 
 	private void sendMail(String compName, String msgSubject, String msgBody) {

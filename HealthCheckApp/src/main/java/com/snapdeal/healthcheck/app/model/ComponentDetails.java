@@ -218,4 +218,18 @@ public class ComponentDetails {
 	public void setUpdated(Date updated) {
 		this.updated = updated;
 	}
+
+	@Override
+	public String toString() {
+		return "ComponentDetails [id=" + id + ", componentName=" + componentName + ", qmSpoc=" + qmSpoc + ", qaSpoc="
+				+ qaSpoc + ", endpoint=" + endpoint + ", authKey=" + authKey + ", healthCheckApi=" + healthCheckApi
+				+ ", healthCheckApiCallType=" + healthCheckApiCallType + ", healthCheckApiResponse="
+				+ healthCheckApiResponse + ", firstGetApi=" + firstGetApi + ", firstGetApiCallType="
+				+ firstGetApiCallType + ", firstGetApiReqJson=" + firstGetApiReqJson + ", firstGetApiResponce="
+				+ firstGetApiResponce + ", secondGetApi=" + secondGetApi + ", secondGetApiCallType="
+				+ secondGetApiCallType + ", secondGetApiReqJson=" + secondGetApiReqJson + ", secondGetApiResponce="
+				+ secondGetApiResponce + "]";
+	}
+	
+	
 }

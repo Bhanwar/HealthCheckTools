@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.snapdeal.healthcheck.app.model.ConnTimedOutComp;
 import com.snapdeal.healthcheck.app.model.DownTimeData;
 import com.snapdeal.healthcheck.app.model.StartUpResult;
 
@@ -14,6 +15,9 @@ public class MongoRepoService {
 	
 	@Autowired
 	private StartUpResultsRepository startUpDataRepo;
+	
+	@Autowired
+	private ConnTimedOutRepository connTimedOutRepo;
 	
 	public void save(DownTimeData data) {
 		downTimeRepo.save(data);
@@ -33,5 +37,17 @@ public class MongoRepoService {
 	
 	public List<StartUpResult> getStartUpData() {
 		 return startUpDataRepo.findAll();
+	}
+	
+	public ConnTimedOutComp findIfConnTimedOut(String compName) {
+		return connTimedOutRepo.findIfConnTimedOut(compName);
+	}
+	
+	public void delete(ConnTimedOutComp data) {
+		connTimedOutRepo.delete(data);
+	}
+	
+	public void save(ConnTimedOutComp data) {
+		connTimedOutRepo.save(data);
 	}
 }

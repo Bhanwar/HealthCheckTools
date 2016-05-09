@@ -11,6 +11,7 @@ public class AppConstant {
 	
 	public static Date currentExecDate;
 	public static final String SNAPDEAL_ID = "@snapdeal.com";
+	public static final String CONNECTION_TIMED_OUT = "Connection timed out";
 	public static Map<String, Boolean> healthResult;
 	public static Set<String> componentNames;
 	public static Map<String, List<DownTimeUIData>> uiData = null;

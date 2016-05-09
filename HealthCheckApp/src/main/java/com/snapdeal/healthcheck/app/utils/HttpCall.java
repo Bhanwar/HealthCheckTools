@@ -7,7 +7,7 @@ import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
+import static com.snapdeal.healthcheck.app.constants.AppConstant.CONNECTION_TIMED_OUT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +30,7 @@ public class HttpCall {
 			try {
 				os = conn.getOutputStream();
 			} catch (ConnectException e) {
-				if (e.getMessage().equals("Connection timed out")) {
+				if (e.getMessage().equals(CONNECTION_TIMED_OUT)) {
 					log.warn("Connection timed out while doing post, retrying POST call." + e.getMessage());
 					os = conn.getOutputStream();
 				} else
@@ -79,7 +79,7 @@ public class HttpCall {
 				conn.setRequestMethod("GET");
 				response.setStatusCode(conn.getResponseCode() + " " + conn.getResponseMessage());
 			} catch (ConnectException e) {
-				if (e.getMessage().equals("Connection timed out")) {
+				if (e.getMessage().equals(CONNECTION_TIMED_OUT)) {
 					log.warn("Connection timed out while doing post, retrying GET call." + e.getMessage());
 					conn = (HttpURLConnection) urlToHit.openConnection();
 					conn.setRequestMethod("GET");
@@ -120,7 +120,7 @@ public class HttpCall {
 				conn.setRequestMethod("GET");
 				response.setStatusCode(conn.getResponseCode() + " " + conn.getResponseMessage());
 			} catch (ConnectException e) {
-				if (e.getMessage().equals("Connection timed out")) {
+				if (e.getMessage().equals(CONNECTION_TIMED_OUT)) {
 					log.warn("Connection timed out while doing post, retrying GET call." + e.getMessage());
 					conn = (HttpURLConnection) urlToHit.openConnection();
 					conn.setRequestProperty("Content-Type", "application/json");

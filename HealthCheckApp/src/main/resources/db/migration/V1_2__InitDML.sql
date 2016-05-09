@@ -1,0 +1,3 @@
+INSERT INTO `components` (`component_name`,`qm_spoc`,`qa_spoc`,`authkey`,`endpoint`,`health_check_api`,`health_check_api_call_type`,`health_check_api_resp`, `first_get_api`, `first_get_api_call_type`, `first_get_api_req_json`, `first_get_api_resp`, `second_get_api`, `second_get_api_call_type`, `second_get_api_req_json`, `second_get_api_resp`)
+VALUES
+('OMS','rajeev.agile@snapdeal.com','rajeev.agile@snapdeal.com', uuid(),'http://52.74.88.101:8080','/omsHealthCheck?pwd=snapdeal','GET','I am alive!', '/service/oms/order/getAllOrderParameters', 'POST', '{"responseProtocol":"PROTOCOL_JSON","requestProtocol":"PROTOCOL_JSON"}','tst','/service/oms/order/getAllOrderCancellationParams','POST','{"responseProtocol":"PROTOCOL_JSON","requestProtocol":"PROTOCOL_JSON"}','');
