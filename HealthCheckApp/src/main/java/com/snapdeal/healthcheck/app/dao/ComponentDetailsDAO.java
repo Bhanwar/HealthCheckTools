@@ -11,4 +11,6 @@ public interface ComponentDetailsDAO {
 	public ComponentDetails getComponentDetails(String compName);
 	
 	public void saveComponentDetails(ComponentDetails compDetail);
+	
+	public void updateComponentDetails(ComponentDetails compDetail);
 }

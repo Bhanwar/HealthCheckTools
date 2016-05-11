@@ -3,7 +3,8 @@ package com.snapdeal.healthcheck.app.controller;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.componentNames;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.currentExecDate;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.healthResult;
-
+import static com.snapdeal.healthcheck.app.constants.Formatter.dateFormatter;
+import static com.snapdeal.healthcheck.app.constants.Formatter.timeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -62,8 +63,6 @@ public class ServiceController {
 	public void init() {
 		currentExecDate = new Date();
 		componentNames = new HashSet<>();
-		//need to make this as cron
-		// objSharePassword.sharePasswordToQms();
 	}
 	
 	@PreDestroy
@@ -84,14 +83,21 @@ public class ServiceController {
 		return "I am up and running..!! " + AppConstant.currentExecDate;
 	}
 	
+	@RequestMapping(value = "/latest", method=RequestMethod.GET)
+	@ResponseBody
+	public String latest() {
+		return "Result: " + AppConstant.healthResult;
+	}
+	
 	@RequestMapping(value = "/getUpdateList", method=RequestMethod.GET)
 	@ResponseBody
 	public Map<String, String> getUpdateList() {
 		Map<String, String> result = new HashMap<>();
 		List<DownTimeData> dataList = downTimeRepo.findAllDownTimeDataToUpdateReason();
-		for(DownTimeData data : dataList)
-			result.put(data.getId(),data.getComponentName() + " " + data.getStartDate());
-		
+		for(DownTimeData data : dataList) {
+			Date startDate = data.getDownTime();
+			result.put(data.getId(),data.getComponentName() + " - " + dateFormatter.format(startDate) + " " + timeFormatter.format(startDate));
+		}
 		return result;
 	}
 	
@@ -129,10 +135,27 @@ public class ServiceController {
 		return "authKeyUpdate";
 	}
 	
+	@RequestMapping(value = "/admin/addUpdateComp", method=RequestMethod.GET)
+	public String addUpdateCompPage() {
+		return "addUpdateComp";
+	}
+	
 	@RequestMapping(value = "/updateAuthKey", method=RequestMethod.POST)
 	@ResponseBody
 	public String updateAuthKey(@RequestBody String data) {
 		return admin.changePassword(data);
+	}
+	
+	@RequestMapping(value = "/checkComp", method=RequestMethod.POST)
+	@ResponseBody
+	public Map<Boolean, String> checkComp(@RequestBody String data) {
+		return admin.checkComponent(data);
+	}
+	
+	@RequestMapping(value = "/addUpdateComp", method=RequestMethod.POST)
+	@ResponseBody
+	public String addUpdateComp(@RequestBody String data) {
+		return admin.addUpdateComponent(data);
 	}
 	
 	@RequestMapping(value = "/", method=RequestMethod.GET)

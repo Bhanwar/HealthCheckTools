@@ -49,32 +49,34 @@ public class HealthCheckScheduler extends QuartzJobBean {
 
 	@Override
 	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
+		currentExecDate = new Date();
 		compDetails = dataObjects.getCompDetails();
 		List<ComponentDetails> components = compDetails.getAllComponentDetails();
-		currentExecDate = new Date();
 		log.debug("Running scheduled task: " + currentExecDate);
 		List<Callable<HealthCheckResult>> compCallList = new ArrayList<>();
-		for (ComponentDetails comp : components) {
-			componentNames.add(comp.getComponentName());
-			compCallList.add(new EnvHealthCheckImpl(comp,repoService));
-		}
-	
-		//Initialize result from mongo
-		if(healthResult == null) {
+		// Initialize result from mongo
+		if (healthResult == null) {
 			healthResult = new HashMap<>();
-			for(ComponentDetails comp : components) {
+			for (ComponentDetails comp : components) {
 				healthResult.put(comp.getComponentName(), true);
 			}
 			log.debug("Fetching data from Mongo");
 			List<StartUpResult> listComp = repoService.getStartUpData();
-			if(!listComp.isEmpty()) {
+			if (!listComp.isEmpty()) {
 				log.debug("Got data from mongo, initializing. Total count: " + listComp.size());
-				for(StartUpResult res : listComp) {
+				for (StartUpResult res : listComp) {
 					healthResult.put(res.getComponentName(), res.isServerUp());
 				}
 			}
 		}
 		
+		for (ComponentDetails comp : components) {
+			componentNames.add(comp.getComponentName());
+			compCallList.add(new EnvHealthCheckImpl(comp, repoService));
+			if(healthResult.get(comp.getComponentName()) == null)
+				healthResult.put(comp.getComponentName(), true);
+		}
+
 		ExecutorService exec = null;
 		if (!compCallList.isEmpty()) {
 			try {
@@ -86,8 +88,9 @@ public class HealthCheckScheduler extends QuartzJobBean {
 				}
 
 				for (int i = 0; i < compCount; i++) {
+					HealthCheckResult result = null;
 					try {
-						HealthCheckResult result = compSer.take().get();
+						result = compSer.take().get();
 						log.debug(result.toString());
 						ExecutorService execMail = Executors.newFixedThreadPool(1);
 						if (healthResult.get(result.getComponentName()) != result.isServerUp()) {
@@ -116,12 +119,14 @@ public class HealthCheckScheduler extends QuartzJobBean {
 					exec.shutdown();
 			}
 		}
+		dataObjects.shareAuthKeysToQMs();
 	}
 
 	private void updateAndSendMail(HealthCheckResult result, Date execDate) {
 		DownTimeData data = null;
 		boolean isServerUp = result.isServerUp();
 		String compName = result.getComponentName();
+		String execDateStr = dateFormatter.format(execDate);
 		if (isServerUp) {
 			log.debug(compName + " Server is UP!!");
 			data = repoService.findUpTimeUpdate(compName);
@@ -130,7 +135,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			log.debug("Total down time: " + totalTimeMins);
 			data.setTotalDownTimeInMins(Long.toString(totalTimeMins));
 			data.setServerUp("YES");
-			data.setEndDate(dateFormatter.format(execDate));
+			data.setEndDate(execDateStr);
 			log.debug("Updating down time data in Mongo");
 			repoService.save(data);
 			sendServerUpMail(compName, execDate);
@@ -138,9 +143,9 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			log.debug(compName + " Server is DOWN!!");
 			data = new DownTimeData();
 			data.setComponentName(compName);
-			data.setStartDate(dateFormatter.format(execDate));
+			data.setStartDate(execDateStr);
 			Set<String> execDates = new HashSet<>();
-			execDates.add(dateFormatter.format(execDate));
+			execDates.add(execDateStr);
 			data.setExecDate(execDates);
 			data.setDownTime(execDate);
 			data.setServerUp("NO");
@@ -150,6 +155,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			data.setFailedHttpException(result.getFailedHttpCallException());
 			data.setFailedReqJson(result.getFailedReqJson());
 			data.setFailedResp(result.getFailedActualResp());
+			data.setFailedStatusCode(result.getFailedStatusCode());
 			log.debug("Saving down time data in Mongo");
 			repoService.save(data);
 			sendServerDownMail(compName, result, execDate);
@@ -173,24 +179,27 @@ public class HealthCheckScheduler extends QuartzJobBean {
 	}
 
 	private void sendServerUpMail(String compName, Date execDate) {
-		String msgSubject = compName + " server is up & running on " + envName;
+		String msgSubject = compName + " server is up & running on " + envName + " - " + execDate;
 		String msgBody = "<html><h3>Your component: <i>" + compName
-				+ "</i> is back up & running. Thanks for looking into it</h3>" + MAIL_SIGN + "</html>";
+				+ "</i> is back up & running. Thanks for looking into it</h3>" + "<br><br>@${QMSPOC}<br>"
+				+ "Use the below link to update the server downtime reason,<br>http://tm.snapdeal.io:9090/healthCheck/updateReasonPage"
+				+ "<br>" + MAIL_SIGN + "</html>";
 		sendMail(compName, msgSubject, msgBody);
 	}
 
 	private void sendServerDownMail(String compName, HealthCheckResult result, Date execDate) {
-		String msgSubject = compName + " server is down on " + envName;
+		String msgSubject = compName + " server is down on " + envName + " - " + execDate;
 		String msgBody = "<html><h3>Your component: <i>" + compName
 				+ "</i> seems to be down. Please have a look at it.</h3>";
-		
+
 		StringBuilder msg = new StringBuilder(msgBody);
-		msg.append("<br>URL: " + result.getFailedURL());
-		msg.append("<br>Request JSON: " + result.getFailedReqJson());
-		msg.append("<br>Response: " + result.getFailedActualResp());
-		msg.append("<br>Expected token in response: " + result.getFailedExpResp());
-		msg.append("<br>Http Call Exception: " + result.getFailedHttpCallException());
-		msg.append("<br>" + MAIL_SIGN + "</html>");
+		msg.append("<br><b>URL: </b>" + getStringForHtml(result.getFailedURL()));
+		msg.append("<br><b>Request JSON: </b>" + getStringForHtml(result.getFailedReqJson()));
+		msg.append("<br><b>Status code: </b>" + getStringForHtml(result.getFailedStatusCode()));
+		msg.append("<br><b>Response: </b>" + getStringForHtml(result.getFailedActualResp()));
+		msg.append("<br><b>Expected token in response: </b>" + getStringForHtml(result.getFailedExpResp()));
+		msg.append("<br><b>Http Call Exception: </b>" + getStringForHtml(result.getFailedHttpCallException()));
+		msg.append("<br><br><br>" + MAIL_SIGN + "</html>");
 		sendMail(compName, msgSubject, msg.toString());
 	}
 
@@ -206,21 +215,33 @@ public class HealthCheckScheduler extends QuartzJobBean {
 				if (list[i].contains(SNAPDEAL_ID))
 					emailAddressTo.add(list[i]);
 			}
-			if (comp.getQmSpoc() != null && comp.getQmSpoc().contains(SNAPDEAL_ID))
+			if (comp.getQmSpoc() != null && comp.getQmSpoc().contains(SNAPDEAL_ID)) {
 				emailAddressCc.add(comp.getQmSpoc());
+				msgBody = msgBody.replace("${QMSPOC}", comp.getQmSpoc());
+			}
 			String[] ccAdd = ccAddress.split(",");
 			for (int i = 0; i < ccAdd.length; i++) {
 				if (ccAdd[i].contains(SNAPDEAL_ID))
 					emailAddressCc.add(ccAdd[i]);
 			}
-			log.debug("Sending mail to " + emailAddressTo);
+			log.debug("Sending mail to " + emailAddressTo + ", cc: " + emailAddressCc);
 			if (emailAddressTo.isEmpty()) {
 				log.warn("Daily Report was not sent as the TO Address list was empty!!");
 			} else {
 				EmailUtil mail = new EmailUtil(emailAddressTo, emailAddressCc, null, msgSubject, msgBody);
-				mail.sendHTMLEmail();
+				boolean mailSent = true;
+				do {
+					mailSent = mail.sendHTMLEmail();
+				} while (!mailSent);
 			}
 		}
+	}
+
+	private String getStringForHtml(String data) {
+		if (data == null)
+			return "";
+		else
+			return data;
 	}
 
 	public String getToAddress() {

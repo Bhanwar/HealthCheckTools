@@ -19,7 +19,7 @@ public class ComponentDetails {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
-	@Column(name = "component_name")
+	@Column(name = "component_name", nullable = false, unique = true)
 	private String componentName;
 	
 	@Column(name = "qm_spoc")
@@ -33,6 +33,9 @@ public class ComponentDetails {
 	
 	@Column(name = "authkey")
 	private String authKey;
+	
+	@Column(name = "authkey_shared")
+	private String authKeyShared;
 	
 	@Column(name = "health_check_api")
 	private String healthCheckApi;
@@ -77,6 +80,14 @@ public class ComponentDetails {
 
 	public String getAuthKey() {
 		return authKey;
+	}
+
+	public String getAuthKeyShared() {
+		return authKeyShared;
+	}
+
+	public void setAuthKeyShared(String authKeyShared) {
+		this.authKeyShared = authKeyShared;
 	}
 
 	public void setAuthKey(String authKey) {

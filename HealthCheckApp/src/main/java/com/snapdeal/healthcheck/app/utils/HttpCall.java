@@ -4,10 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import static com.snapdeal.healthcheck.app.constants.AppConstant.CONNECTION_TIMED_OUT;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,17 +24,7 @@ public class HttpCall {
 			conn.setDoOutput(true);
 			conn.setRequestProperty("Content-Type", "application/json");
 			conn.setRequestMethod("POST");
-			log.debug("URL: " + url);
-			log.debug("Request JSON: " + json);
-			try {
-				os = conn.getOutputStream();
-			} catch (ConnectException e) {
-				if (e.getMessage().equals(CONNECTION_TIMED_OUT)) {
-					log.warn("Connection timed out while doing post, retrying POST call." + e.getMessage());
-					os = conn.getOutputStream();
-				} else
-					throw e;
-			} 
+			os = conn.getOutputStream();
 			os.write(json.getBytes());
 			os.flush();
 			
@@ -74,19 +63,9 @@ public class HttpCall {
 		HttpCallResponse response = new HttpCallResponse();
 		try {
 			URL urlToHit = new URL(url);
-			try {
-				conn = (HttpURLConnection) urlToHit.openConnection();
-				conn.setRequestMethod("GET");
-				response.setStatusCode(conn.getResponseCode() + " " + conn.getResponseMessage());
-			} catch (ConnectException e) {
-				if (e.getMessage().equals(CONNECTION_TIMED_OUT)) {
-					log.warn("Connection timed out while doing post, retrying GET call." + e.getMessage());
-					conn = (HttpURLConnection) urlToHit.openConnection();
-					conn.setRequestMethod("GET");
-					response.setStatusCode(conn.getResponseCode() + " " + conn.getResponseMessage());
-				} else
-					throw e;	
-			}
+			conn = (HttpURLConnection) urlToHit.openConnection();
+			conn.setRequestMethod("GET");
+			response.setStatusCode(conn.getResponseCode() + " " + conn.getResponseMessage());
 			
 			if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
 				BufferedReader br = new BufferedReader(new InputStreamReader(
@@ -114,21 +93,10 @@ public class HttpCall {
 		HttpCallResponse response = new HttpCallResponse();
 		try {
 			URL urlToHit = new URL(url);
-			try {
-				conn = (HttpURLConnection) urlToHit.openConnection();
-				conn.setRequestProperty("Content-Type", "application/json");
-				conn.setRequestMethod("GET");
-				response.setStatusCode(conn.getResponseCode() + " " + conn.getResponseMessage());
-			} catch (ConnectException e) {
-				if (e.getMessage().equals(CONNECTION_TIMED_OUT)) {
-					log.warn("Connection timed out while doing post, retrying GET call." + e.getMessage());
-					conn = (HttpURLConnection) urlToHit.openConnection();
-					conn.setRequestProperty("Content-Type", "application/json");
-					conn.setRequestMethod("GET");
-					response.setStatusCode(conn.getResponseCode() + " " + conn.getResponseMessage());
-				} else 
-					throw e;
-			}
+			conn = (HttpURLConnection) urlToHit.openConnection();
+			conn.setRequestProperty("Content-Type", "application/json");
+			conn.setRequestMethod("GET");
+			response.setStatusCode(conn.getResponseCode() + " " + conn.getResponseMessage());
 			
 			if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
 				BufferedReader br = new BufferedReader(new InputStreamReader(
@@ -142,7 +110,7 @@ public class HttpCall {
 				response.setResponseBody(result.toString());
 			}
 		}catch(Exception e) {
-			log.error("Exception occured while doing get: " + e.getMessage(), e);
+			log.error("Exception occured while doing get with JSON: " + e.getMessage(), e);
 			response.setHttpCallException(e.getMessage());
 		}finally {
 			if(conn!=null)

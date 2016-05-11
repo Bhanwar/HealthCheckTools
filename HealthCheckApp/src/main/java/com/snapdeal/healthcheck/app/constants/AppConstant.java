@@ -15,5 +15,5 @@ public class AppConstant {
 	public static Map<String, Boolean> healthResult;
 	public static Set<String> componentNames;
 	public static Map<String, List<DownTimeUIData>> uiData = null;
-	public static final String MAIL_SIGN = "Thanks & Regards<br>Health Check App<br><br>NOTE: This is a system generated mail. Please DO NOT reply back to this mail."; 
+	public static final String MAIL_SIGN = "<br>Thanks & Regards<br>Health Check App<br><br>NOTE: This is a system generated mail. Please DO NOT reply back to this mail."; 
 }

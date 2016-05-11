@@ -11,7 +11,7 @@ import com.snapdeal.healthcheck.app.bo.ComponentDetailsBO;
 import com.snapdeal.healthcheck.app.dao.ComponentDetailsDAO;
 import com.snapdeal.healthcheck.app.model.ComponentDetails;
 
-@Service("endpointDetailsService")
+@Service("componentDetailsService")
 @Transactional
 public class ComponentDetailsBOImpl implements ComponentDetailsBO{
 
@@ -31,6 +31,11 @@ public class ComponentDetailsBOImpl implements ComponentDetailsBO{
 	@Override
 	public void saveComponentDetails(ComponentDetails compDetail) {
 		dao.saveComponentDetails(compDetail);
+	}
+
+	@Override
+	public void updateComponentDetails(ComponentDetails compDetail) {
+		dao.updateComponentDetails(compDetail);
 	}
 
 
