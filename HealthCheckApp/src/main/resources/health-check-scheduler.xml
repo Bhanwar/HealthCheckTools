@@ -41,9 +41,10 @@
 
 	<mongo:repositories base-package="com.snapdeal.healthcheck.app.mongo.repositories" />
 
-	<beans:bean id="quartzDataObj" class="com.snapdeal.healthcheck.app.model.QuartzJobDataHolder">
+	<beans:bean id="quartzDataObj"
+		class="com.snapdeal.healthcheck.app.model.QuartzJobDataHolder">
 	</beans:bean>
-	
+
 	<beans:bean id="mongoService"
 		class="com.snapdeal.healthcheck.app.mongo.repositories.MongoRepoService">
 	</beans:bean>
@@ -90,7 +91,8 @@
 
 		<beans:property name="hibernateProperties">
 			<beans:props>
-				<beans:prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</beans:prop>
+				<beans:prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect
+				</beans:prop>
 				<beans:prop key="hibernate.show_sql">true</beans:prop>
 			</beans:props>
 		</beans:property>
