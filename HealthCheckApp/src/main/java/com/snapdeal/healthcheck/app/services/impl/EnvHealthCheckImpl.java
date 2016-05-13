@@ -4,10 +4,6 @@ import static com.snapdeal.healthcheck.app.constants.AppConstant.CONNECTION_TIME
 import static com.snapdeal.healthcheck.app.constants.AppConstant.currentExecDate;
 import static com.snapdeal.healthcheck.app.constants.Formatter.dateFormatter;
 import static com.snapdeal.healthcheck.app.constants.Formatter.timeFormatter;
-import static com.snapdeal.healthcheck.app.utils.HttpCall.callGet;
-import static com.snapdeal.healthcheck.app.utils.HttpCall.callGetApplicatioJSON;
-import static com.snapdeal.healthcheck.app.utils.HttpCall.callPost;
-
 import java.util.Date;
 import java.util.concurrent.Callable;
 
@@ -19,6 +15,7 @@ import com.snapdeal.healthcheck.app.model.ConnTimedOutComp;
 import com.snapdeal.healthcheck.app.model.HealthCheckResult;
 import com.snapdeal.healthcheck.app.mongo.repositories.MongoRepoService;
 import com.snapdeal.healthcheck.app.utils.HttpCallResponse;
+import com.snapdeal.healthcheck.app.utils.RestUtil;
 
 public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 
@@ -46,49 +43,33 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 		HttpCallResponse response = null;
 		Date resultDate = currentExecDate;
 		String url = null;
+		String callType = null;
+		String headers = null;
 		String reqJson = null;
 		String actualStatusCode = null;
+		String statusCode = "200 OK";
 		String actualResp = null;
 		String expectedResp = null;
 		String htmlCallException = null;
-		String statusCode = "200 OK";
 		log.debug("Checking health for component: " + compName);
 		log.debug(logSuffix + "Comp details - " + component);
-		
+
 		// Health check
 		if (component.getHealthCheckApi() != null && component.getHealthCheckApiCallType() != null
 				&& component.getHealthCheckApiResponse() != null) {
 			response = null;
 			apiExist = true;
 			url = component.getEndpoint() + component.getHealthCheckApi();
+			callType = component.getHealthCheckApiCallType();
 			log.debug(logSuffix + "Health Check URL - " + url);
-			if (component.getHealthCheckApiCallType().equals("GET")) {
-				response = callGet(url);
-				if(response.getStatusCode() == null || !response.getStatusCode().equals(statusCode)) {
-					log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {}
-					response = callGet(url);
-				}
-			} else if (component.getHealthCheckApiCallType().equals("GETJSON")) {
-				response = callGetApplicatioJSON(url);
-				if(response.getStatusCode() == null || !response.getStatusCode().equals(statusCode)) {
-					log.debug(logSuffix + "Retrying Http Call GET with Json..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {}
-					response = callGetApplicatioJSON(url);
-				}
-			} else if (component.getHealthCheckApiCallType().equals("POST")) {
-				response = callPost(url, "");
-				if(response.getStatusCode() == null || !response.getStatusCode().equals(statusCode)) {
-					log.debug(logSuffix + "Retrying Http Call POST..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {}
-					response = callPost(url, "");
-				}
+
+			response = RestUtil.fetchResponse(url, callType, headers, reqJson);
+			if(response.getStatusCode() == null || !response.getStatusCode().equals(statusCode)) {
+				log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {}
+				response = RestUtil.fetchResponse(url, callType, headers, reqJson);
 			}
 			expectedResp = component.getHealthCheckApiResponse();
 			htmlCallException = response.getHttpCallException();
@@ -111,39 +92,18 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 
 			response = null;
 			apiExist = true;
-			reqJson = component.getFirstGetApiReqJson();
-			if(reqJson == null)
-				reqJson = "";
-			
 			url = component.getEndpoint() + component.getFirstGetApi();
+			callType = component.getFirstGetApiCallType();
+			reqJson = component.getFirstGetApiReqJson();
 			log.debug(logSuffix + "First Get API URL - " + url);
-			if (component.getFirstGetApiCallType().equals("GET")) {
-				response = callGet(url);
-				if(response.getStatusCode() == null || !response.getStatusCode().equals(statusCode)) {
-					log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {}
-					response = callGet(url);
-				}
-			} else if (component.getFirstGetApiCallType().equals("GETJSON")) {
-				response = callGetApplicatioJSON(url);
-				if(response.getStatusCode() == null || !response.getStatusCode().equals(statusCode)) {
-					log.debug(logSuffix + "Retrying Http Call GET with Json..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {}
-					response =  callGetApplicatioJSON(url);
-				}
-			} else if (component.getFirstGetApiCallType().equals("POST")) {
-				response = callPost(url, reqJson);
-				if(response.getStatusCode() == null || !response.getStatusCode().equals(statusCode)) {
-					log.debug(logSuffix + "Retrying Http Call POST..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {}
-					response = callPost(url, reqJson);
-				}
+
+			response = RestUtil.fetchResponse(url, callType, headers, reqJson);
+			if(response.getStatusCode() == null || !response.getStatusCode().equals(statusCode)) {
+				log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {}
+				response = RestUtil.fetchResponse(url, callType, headers, reqJson);
 			}
 			expectedResp = component.getFirstGetApiResponce();
 			htmlCallException = response.getHttpCallException();
@@ -167,39 +127,18 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 
 			response = null;
 			apiExist = true;
-			reqJson = component.getSecondGetApiReqJson();
-			if(reqJson == null)
-				reqJson = "";
-			
 			url = component.getEndpoint() + component.getSecondGetApi();
+			callType = component.getSecondGetApiCallType();
+			reqJson = component.getSecondGetApiReqJson();
 			log.debug(logSuffix + "Second Get API URL - " + url);
-			if (component.getSecondGetApiCallType().equals("GET")) {
-				response = callGet(url);
-				if(response.getStatusCode() == null || !response.getStatusCode().equals(statusCode)) {
-					log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {}
-					response = callGet(url);
-				}
-			} else if (component.getSecondGetApiCallType().equals("GETJSON")) {
-				response = callGetApplicatioJSON(url);
-				if(response.getStatusCode() == null || !response.getStatusCode().equals(statusCode)) {
-					log.debug(logSuffix + "Retrying Http Call GET with Json..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {}
-					response = callGetApplicatioJSON(url);
-				}
-			} else if (component.getSecondGetApiCallType().equals("POST")) {
-				response = callPost(url, reqJson);
-				if(response.getStatusCode() == null || !response.getStatusCode().equals(statusCode)) {
-					log.debug(logSuffix + "Retrying Http Call POST..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {}
-					response = callPost(url, reqJson);
-				}
+
+			response = RestUtil.fetchResponse(url, callType, headers, reqJson);
+			if(response.getStatusCode() == null || !response.getStatusCode().equals(statusCode)) {
+				log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {}
+				response = RestUtil.fetchResponse(url, callType, headers, reqJson);
 			}
 			expectedResp = component.getSecondGetApiResponce();
 			htmlCallException = response.getHttpCallException();
@@ -216,9 +155,9 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 			if (isServerUp)
 				log.warn(logSuffix + "Second Get API details not present!");
 		}
-		
+
 		result.setServerUp(isServerUp);
-		
+
 		if (mongoRepoService != null) {
 			ConnTimedOutComp timedOut = null;
 			if (!isServerUp) {
@@ -269,7 +208,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 		result.setExecDateTime(resultDate);
 		if(!apiExist)
 			result.setServerUp(false);
-			
+
 		return result;
 	}
 

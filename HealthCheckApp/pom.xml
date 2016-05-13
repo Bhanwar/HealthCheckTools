@@ -27,7 +27,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
@@ -87,25 +86,17 @@
 			<artifactId>hibernate-validator-annotation-processor</artifactId>
 			<version>4.3.1.Final</version>
 		</dependency>
-
-		<!-- Flyway -->
+		<!-- Flyway dependency-->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
 			<version>${flyway.version}</version>
 		</dependency>
-
 		<!-- JSTL dependency -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>jstl</artifactId>
 			<version>1.2</version>
-		</dependency>
-		<!-- json -->
-		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>20151123</version>
 		</dependency>
 		<!-- Quartz framework -->
 		<dependency>
@@ -113,7 +104,7 @@
 			<artifactId>quartz</artifactId>
 			<version>${quartz.version}</version>
 		</dependency>
-
+		<!-- Logging framework -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
@@ -140,7 +131,12 @@
 			<artifactId>log4j-core</artifactId>
 			<version>${apache.log4j.version}</version>
 		</dependency>
-
+		<!-- MySQL dependency -->
+		<dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.connector.version}</version>
+        </dependency>
 		<!-- Mongo dependency -->
 		<dependency>
 			<groupId>org.springframework.data</groupId>
@@ -158,7 +154,12 @@
 			<artifactId>javax.mail</artifactId>
 			<version>1.5.5</version>
 		</dependency>
-
+		<!-- Json dependency -->
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20151123</version>
+		</dependency>
 		<!-- Jackson for JSON converter -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -176,12 +177,17 @@
 			<artifactId>json-path</artifactId>
 			<version>2.2.0</version>
 		</dependency>
-
+		<!-- RestAssured framework -->
+        <dependency>
+			<groupId>com.jayway.restassured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<version>2.4.0</version>
+		</dependency>
 		<dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql.connector.version}</version>
-        </dependency>
+			<groupId>com.jayway.restassured</groupId>
+			<artifactId>json-schema-validator</artifactId>
+			<version>2.4.0</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<finalName>healthCheck</finalName>
