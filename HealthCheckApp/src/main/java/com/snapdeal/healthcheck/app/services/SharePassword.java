@@ -1,4 +1,4 @@
-package com.snapdeal.healthcheck.app.share;
+package com.snapdeal.healthcheck.app.services;
 
 public interface SharePassword {
 	

@@ -19,6 +19,7 @@ public class HealthCheckResult {
 	private String failedURL;
 	private String failedReqJson;
 	private String failedExpResp;
+	private String failedStatusCode;
 	private String failedActualResp;
 	private String failedHttpCallException;
 	
@@ -32,6 +33,14 @@ public class HealthCheckResult {
 
 	public String getFailedReqJson() {
 		return failedReqJson;
+	}
+
+	public String getFailedStatusCode() {
+		return failedStatusCode;
+	}
+
+	public void setFailedStatusCode(String failedStatusCode) {
+		this.failedStatusCode = failedStatusCode;
 	}
 
 	public void setFailedReqJson(String failedReqJson) {
@@ -98,10 +107,14 @@ public class HealthCheckResult {
 	public void setExecTime(String execTime) {
 		this.execTime = execTime;
 	}
+
 	@Override
 	public String toString() {
 		return "HealthCheckResult [componentName=" + componentName + ", serverUp=" + serverUp + ", execDate=" + execDate
-				+ ", execTime=" + execTime + "]";
+				+ ", execTime=" + execTime + ", execDateTime=" + execDateTime + ", failedURL=" + failedURL
+				+ ", failedReqJson=" + failedReqJson + ", failedExpResp=" + failedExpResp + ", failedStatusCode="
+				+ failedStatusCode + ", failedActualResp=" + failedActualResp + ", failedHttpCallException="
+				+ failedHttpCallException + "]";
 	}
 
 }

@@ -9,7 +9,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,14 +35,10 @@ public class GatherDataImpl implements GatherData {
 		log.debug("Gathering data for UI");
 		String date = dateFormatter.format(currExecDate);
 		
-		Map<String, List<DownTimeUIData>> data = new HashMap<String, List<DownTimeUIData>>();
+		//Map<String, List<DownTimeUIData>> data = new HashMap<String, List<DownTimeUIData>>();
+		Map<String, List<DownTimeUIData>> data = new LinkedHashMap<String, List<DownTimeUIData>>();
 		List<DownTimeData> list = downTimeRepo.findAllExecForDate(date);
 		
-		for (String compName : componentNames) {
-			List<DownTimeUIData> dataList = new ArrayList<>();
-			data.put(compName, dataList);
-		}
-
 		if (!list.isEmpty()) {
 			for (DownTimeData downTime : list) {
 				Date compExecTime = currExecDate;
@@ -68,11 +64,22 @@ public class GatherDataImpl implements GatherData {
 				uiData.setTotalTime(totalTime);
 				uiData.setDownTime(downTimeStr);
 				String mapKey = downTime.getComponentName();
-				List<DownTimeUIData> dataList = data.get(mapKey);
+				List<DownTimeUIData> dataList = null;
+				if(data.get(mapKey) == null)
+					dataList = new ArrayList<>();
+				else
+					dataList = data.get(mapKey);
 				dataList.add(uiData);
 				data.put(mapKey, dataList);
 			}
 		}
+		
+		for (String compName : componentNames) {
+			List<DownTimeUIData> dataList = new ArrayList<>();
+			if(data.get(compName) == null)
+				data.put(compName, dataList);
+		}
+		
 		return data;
 	}
 

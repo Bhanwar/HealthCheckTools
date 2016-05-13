@@ -139,6 +139,11 @@ div.redbar {
 	font-size: larger;
 }
 
+#result {
+	width: 100%;
+	word-wrap: break-word;
+}
+
 #cloneTable {
 	position: fixed;
     top: 0;

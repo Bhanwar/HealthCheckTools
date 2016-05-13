@@ -10,6 +10,8 @@ public interface ComponentDetailsBO {
 	
 	public ComponentDetails getComponentDetails(String compName);
 	
+	public void updateComponentDetails(ComponentDetails compDetail);
+	
 	public void saveComponentDetails(ComponentDetails compDetail);
 	
 }

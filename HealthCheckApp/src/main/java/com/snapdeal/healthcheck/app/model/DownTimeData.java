@@ -27,6 +27,7 @@ public class DownTimeData {
 	private String failedUrl;
 	private String failedReqJson;
 	private String failedResp;
+	private String failedStatusCode;
 	private String failedExpResp;
 	private String failedHttpException;
 	
@@ -44,6 +45,12 @@ public class DownTimeData {
 	}
 	public String getFailedReqJson() {
 		return failedReqJson;
+	}
+	public String getFailedStatusCode() {
+		return failedStatusCode;
+	}
+	public void setFailedStatusCode(String failedStatusCode) {
+		this.failedStatusCode = failedStatusCode;
 	}
 	public void setFailedReqJson(String failedReqJson) {
 		this.failedReqJson = failedReqJson;

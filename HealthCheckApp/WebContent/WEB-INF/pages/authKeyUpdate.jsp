@@ -147,7 +147,7 @@
 	function updateOptions(updateSet) {
 		console.log("Creating comp list..");
 		var selectList = document.getElementById('comp-select');
-		for ( var i in updateMap) {
+		for ( var i in updateSet) {
 			var option = document.createElement('option');
 			option.value = updateSet[i];
 			option.text = updateSet[i];

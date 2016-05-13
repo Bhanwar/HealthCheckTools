@@ -196,10 +196,10 @@ public class EmailUtil {
 	 *
 	 * @throws Exception the exception
 	 */
-	public void sendHTMLEmail() {
+	public boolean sendHTMLEmail() {
 
 		Session session = Session.getInstance(props,auth);
-
+		boolean mailSent = false;
 		try {
 
 			Message message = new MimeMessage(session);
@@ -228,10 +228,11 @@ public class EmailUtil {
 			Transport.send(message); //Send email message
 
 			log.debug("Successfully Sent Mail !! " + this.toString());
-
+			mailSent = true;
 		} catch (MessagingException e) {
 			log.error("Exception Occured while sending sendHTMLEmailMessage : " + this.toString(), e);
 		}
+		return mailSent;
 	}
 
 	/**

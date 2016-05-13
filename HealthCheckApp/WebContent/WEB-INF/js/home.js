@@ -59,4 +59,80 @@ $(window).load(function() {
 
 		return false;
 	});
+	
+	$('#compBttn').prop('disabled', true);
+	
+	// AJAX call for test button
+	$('#testBttn').click(function(e) {
+		e.preventDefault(); // STOP default action
+		
+		var form = "#addUpdateCompForm";
+		var MyForm = $(form).serializeJSON();
+		
+		$("#result").empty();
+		$('#myPleaseWait').modal('show');
+		$.ajax({
+			url : "/healthCheck/checkComp",
+			type : "POST",
+			contentType : "application/json",
+			data : JSON.stringify(MyForm),
+			success : function(data) {
+				$("#result").empty();
+				$('#myPleaseWait').modal('hide');
+				testComp(data);
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				$("#result").empty();
+				$('#myPleaseWait').modal('hide');
+				$("#result").html(textStatus + " : " + errorThrown);
+				document.getElementById('result').scrollIntoView()
+			}
+		});
+		
+		return false;
+	});
+	
+	// AJAX call for submit button
+	$('#compBttn').click(function(e) {
+		e.preventDefault(); // STOP default action
+		
+		var form = "#addUpdateCompForm";
+		var MyForm = $(form).serializeJSON();
+		
+		$("#result").empty();
+		$('#myPleaseWait').modal('show');
+		$.ajax({
+			url : "/healthCheck/addUpdateComp",
+			type : "POST",
+			contentType : "application/json",
+			data : JSON.stringify(MyForm),
+			success : function(data) {
+				$("#result").empty();
+				$('#myPleaseWait').modal('hide');
+				$("#result").html(data);
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				$("#result").empty();
+				$('#myPleaseWait').modal('hide');
+				$("#result").html(textStatus + " : " + errorThrown);
+				document.getElementById('result').scrollIntoView()
+			}
+		});
+		
+		return false;
+	});
 });
+
+
+function testComp(data) {
+	console.log(data);
+	for (var key in data) {
+		$("#result").html(data[key]);
+		if(key == "true") {
+			$('#compBttn').prop('disabled', false);
+		} else {
+			$('#compBttn').prop('disabled', true);
+		}
+	}
+	document.getElementById('result').scrollIntoView()
+};

@@ -10,15 +10,13 @@ import com.snapdeal.healthcheck.app.dao.AbstractDao;
 import com.snapdeal.healthcheck.app.dao.ComponentDetailsDAO;
 import com.snapdeal.healthcheck.app.model.ComponentDetails;
 
-@Repository("endpointDetailsDao")
+@Repository("componentDetailsDao")
 public class ComponentDetailsDAOImpl extends AbstractDao implements ComponentDetailsDAO{
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ComponentDetails> getAllComponentDetails() {
 		Criteria criteria = getSession().createCriteria(ComponentDetails.class);
-		System.out.println("Inside DAO");
-		System.out.println(criteria.list().size());
 		return (List<ComponentDetails>) criteria.list();
 	}
 
@@ -30,8 +28,13 @@ public class ComponentDetailsDAOImpl extends AbstractDao implements ComponentDet
 	}
 
 	@Override
-	public void saveComponentDetails(ComponentDetails compDetail) {
+	public void updateComponentDetails(ComponentDetails compDetail) {
 		getSession().update(compDetail);
+	}
+
+	@Override
+	public void saveComponentDetails(ComponentDetails compDetail) {
+		persist(compDetail);
 	}
 
 }
