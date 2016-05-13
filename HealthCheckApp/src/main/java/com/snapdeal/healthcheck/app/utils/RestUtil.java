@@ -11,6 +11,7 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.response.Response;
 
+
 public class RestUtil {
 
 
@@ -35,8 +36,8 @@ public class RestUtil {
 			else if ("POST".equalsIgnoreCase(callType))
 				response = callPost(url, payloadStr);
 
-			response.then().log().all();
-			httpResponse.setStatusCode(response.getStatusLine());
+			String statusCode = response.getStatusLine().replace("HTTP/1.1 ", "");
+			httpResponse.setStatusCode(statusCode);
 			httpResponse.setResponseBody(response.body().asString());
 		}
 		catch (Exception e) {

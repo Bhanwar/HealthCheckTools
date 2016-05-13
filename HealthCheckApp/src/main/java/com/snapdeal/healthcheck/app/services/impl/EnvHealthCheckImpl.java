@@ -47,7 +47,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 		String headers = null;
 		String reqJson = null;
 		String actualStatusCode = null;
-		String statusCode = "200 OK";
+		String statusCode = "200";
 		String actualResp = null;
 		String expectedResp = null;
 		String htmlCallException = null;
