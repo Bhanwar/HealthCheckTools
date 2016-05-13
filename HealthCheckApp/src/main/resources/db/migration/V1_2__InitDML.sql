@@ -1,3 +1,6 @@
+DELETE * FROM `admin`;
+DELETE * FROM `components`;
+
 INSERT INTO `admin` (`name`,`authkey`)
 VALUES
 ('Admin',uuid());
@@ -28,3 +31,5 @@ VALUES
 ('SellerRatingPanel', 'sayak.saha@snapdeal.com', 'donny.mathew@snapdeal.com', uuid(), 'https://52.76.106.235:8443', '/sellerratingpanel/overview/nsd/rating/aace21', 'GET', 'orderFulfillmentRating', null, null, null, null, null, null, null, null),
 ('SellerSelfTraining', 'sayak.saha@snapdeal.com', 'juned.pathan@snapdeal.com', uuid(), 'http://52.76.85.83:8080', '/ping', 'GET', 'Hi Ping ! Pong here', null, null, null, null, null, null, null, null),
 ('Shield', 'sayak.saha@snapdeal.com', 'donny.mathew@snapdeal.com', uuid(), 'http://52.74.154.46:8080', '/service/shield/healthCheck', 'GET', '1.20-SNAPSHOT', null, null, null, null, null, null, null, null);
+
+UPDATE `components` SET `qm_spoc`='rahul.rathi@snapdeal.com', `qa_spoc`='rahul.rathi@snapdeal.com';
