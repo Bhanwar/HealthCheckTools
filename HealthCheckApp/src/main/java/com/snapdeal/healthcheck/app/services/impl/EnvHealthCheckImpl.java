@@ -8,6 +8,9 @@ import static com.snapdeal.healthcheck.app.utils.HttpCall.callGet;
 import static com.snapdeal.healthcheck.app.utils.HttpCall.callGetApplicatioJSON;
 import static com.snapdeal.healthcheck.app.utils.HttpCall.callPost;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.Date;
 import java.util.concurrent.Callable;
 
@@ -67,7 +70,8 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 				if(response.getStatusCode() == null || !response.getStatusCode().equals(statusCode)) {
 					log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
 					try {
-						Thread.sleep(5000);
+						pingIp(component.getEndpoint(), logSuffix);
+						Thread.sleep(3000);
 					} catch (InterruptedException e) {}
 					response = callGet(url);
 				}
@@ -76,7 +80,8 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 				if(response.getStatusCode() == null || !response.getStatusCode().equals(statusCode)) {
 					log.debug(logSuffix + "Retrying Http Call GET with Json..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
 					try {
-						Thread.sleep(5000);
+						pingIp(component.getEndpoint(), logSuffix);
+						Thread.sleep(3000);
 					} catch (InterruptedException e) {}
 					response = callGetApplicatioJSON(url);
 				}
@@ -85,7 +90,8 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 				if(response.getStatusCode() == null || !response.getStatusCode().equals(statusCode)) {
 					log.debug(logSuffix + "Retrying Http Call POST..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
 					try {
-						Thread.sleep(5000);
+						pingIp(component.getEndpoint(), logSuffix);
+						Thread.sleep(3000);
 					} catch (InterruptedException e) {}
 					response = callPost(url, "");
 				}
@@ -249,6 +255,12 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 			}
 		}
 		if (!isServerUp) {
+			//Check for netwrok issues
+			if(htmlCallException != null && htmlCallException.equals("No route to host")) {
+				result.setNtwrkIssue(true);
+				result.setServerUp(true);
+			}
+			
 			result.setFailedURL(url);
 			result.setFailedReqJson(reqJson);
 			result.setFailedHttpCallException(htmlCallException);
@@ -273,4 +285,34 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 		return result;
 	}
 
+	
+	private static void pingIp(String endpoint, String logSuffix) {
+		try {
+			URL url = new URL(endpoint);
+			String host = url.getHost();
+			log.debug(logSuffix + "Trying to ping " + host);
+			String s = "";
+			
+			ProcessBuilder pb = new ProcessBuilder("ping", "-c", "4", host);
+		    Process process = pb.start();
+
+		    BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+		    BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+
+		    // read the output from the command
+		    while ((s = stdInput.readLine()) != null)
+		    {
+		    	log.debug(logSuffix + s);
+		    }
+
+		    // read any errors from the attempted command
+		    while ((s = stdError.readLine()) != null)
+		    {
+		      log.error(logSuffix + s);
+		    }
+			
+		} catch (Exception e) {
+			log.error(logSuffix + "Exception occured while performing ping! " + e.getMessage(), e);
+		}
+	}
 }
