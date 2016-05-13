@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.json.JSONObject;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
@@ -86,7 +84,7 @@ public class RestUtil {
 
 	public static Response callPost(String url, String payloadStr) throws Exception {
 		if (payloadStr != null) {
-			JSONObject payload = new JSONObject(payloadStr);
+			Map<String, String> payload = convertJsonStrToMap(payloadStr);
 			return RestAssured.given().body(payload).when().post(url);
 		}
 		else {

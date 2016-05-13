@@ -44,7 +44,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 		Date resultDate = currentExecDate;
 		String url = null;
 		String callType = null;
-		String headers = null;
+		String headers = "{\"Content-Type\":\"application/json\"}";
 		String reqJson = null;
 		String actualStatusCode = null;
 		String statusCode = "200";
