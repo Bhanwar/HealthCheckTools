@@ -19,12 +19,12 @@ import com.snapdeal.healthcheck.app.services.AdminTask;
 
 @org.springframework.stereotype.Component
 public class AdminTaskImpl implements AdminTask{
-	
+
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	
+
 	@Autowired
 	private ComponentDetailsBO compDetails;
-	
+
 	@Autowired
 	private AdminBO adminSer;
 
@@ -51,58 +51,42 @@ public class AdminTaskImpl implements AdminTask{
 					return "Incorrect Auth Key!!";
 			} else 
 				return "Auth keys do not match!!";
-			
 		} catch(Exception e) {
-			
+
 		}
 		return result;
 	}
 
 	@Override
 	public Map<Boolean, String> checkComponent(String data) {
-		ComponentDetails component = new ComponentDetails();
 		Map<Boolean, String> result = new HashMap<>();
 		String resultData = "";
 		try{
 			JSONObject jsonData = new JSONObject(data);
-			String compName = getJsonString(jsonData, "comp");
-			String healthCheckApi = getJsonString(jsonData, "hcApi");
-			String healthCheckCallType = getJsonString(jsonData, "hcCallType");
-			String healthCheckResp = getJsonString(jsonData, "hcExpResp");
-			String endpoint = getJsonString(jsonData, "endpoint");
-//			String healthCheckReqJSON = null;
-//			if(healthCheckCallType.equals("POST"))
-//				healthCheckResp = getJsonString(jsonData, "");
-			
-			String firstGetApi = getJsonString(jsonData, "fgApi");
-			String firstGetCallType = getJsonString(jsonData, "fgCallType");
-			String firstGetResp = getJsonString(jsonData, "fgExpResp");
-			String firstGetReqJSON = null;
-			if(firstGetCallType.equals("POST"))
-				firstGetReqJSON = getJsonString(jsonData, "fgReqJson");
-			
-			String secondGetApi = getJsonString(jsonData, "sgApi");
-			String secondGetCallType = getJsonString(jsonData, "sgCallType");
-			String secondGetResp = getJsonString(jsonData, "sgExpResp");
-			String secondGetReqJSON = null;
-			if(secondGetCallType.equals("POST"))
-				secondGetReqJSON = getJsonString(jsonData, "sgReqJson");
-			
-			component.setComponentName(compName);
-			component.setEndpoint(endpoint);
-			component.setHealthCheckApi(healthCheckApi);
-			component.setHealthCheckApiCallType(healthCheckCallType);
-			component.setHealthCheckApiResponse(healthCheckResp);
-			component.setFirstGetApi(firstGetApi);
-			component.setFirstGetApiCallType(firstGetCallType);
-			component.setFirstGetApiReqJson(firstGetReqJSON);
-			component.setFirstGetApiResponce(firstGetResp);
-			component.setSecondGetApi(secondGetApi);
-			component.setSecondGetApiCallType(secondGetCallType);
-			component.setSecondGetApiReqJson(secondGetReqJSON);
-			component.setSecondGetApiResponce(secondGetResp);
-			
+
+			ComponentDetails component = new ComponentDetails();
+			component.setComponentName(getJsonString(jsonData, "compName"));
+			component.setQmSpoc(getJsonString(jsonData, "qmSpoc"));
+			component.setQaSpoc(getJsonString(jsonData, "qaSpoc"));
+			component.setEndpoint(getJsonString(jsonData, "endpoint"));
+			component.setHealthCheckApiUrl(getJsonString(jsonData, "hcApiUrl"));
+			component.setHealthCheckApiCallType(getJsonString(jsonData, "hcApiCallType"));
+			component.setHealthCheckApiHeadersJson(getJsonString(jsonData, "hcApiHeadersJson"));
+			component.setHealthCheckApiReqJson(getJsonString(jsonData, "hcApiReqJson"));
+			component.setHealthCheckApiResp(getJsonString(jsonData, "hcApiResp"));
+			component.setFirstGetterApiUrl(getJsonString(jsonData, "fgApiUrl"));
+			component.setFirstGetterApiCallType(getJsonString(jsonData, "fgApiCallType"));
+			component.setFirstGetterApiHeadersJson(getJsonString(jsonData, "fgApiHeadersJson"));
+			component.setFirstGetterApiReqJson(getJsonString(jsonData, "fgApiReqJson"));
+			component.setFirstGetterApiResp(getJsonString(jsonData, "fgApiResp"));
+			component.setSecondGetterApiUrl(getJsonString(jsonData, "sgApiUrl"));
+			component.setSecondGetterApiCallType(getJsonString(jsonData, "sgApiCallType"));
+			component.setSecondGetterApiHeadersJson(getJsonString(jsonData, "sgApiHeadersJson"));
+			component.setSecondGetterApiReqJson(getJsonString(jsonData, "sgApiReqJson"));
+			component.setSecondGetterApiResp(getJsonString(jsonData, "sgApiResp"));
+
 			HealthCheckResult resultObj = EnvHealthCheckImpl.checkServerHealth(component, null);
+
 			StringBuilder dataResult = new StringBuilder();
 			if(resultObj.isServerUp())
 				dataResult.append("<h4>Success!!</h4>");
@@ -110,6 +94,7 @@ public class AdminTaskImpl implements AdminTask{
 				dataResult.append("<h4>Failed!!</h4>");
 			dataResult.append("<br>Response:<br>");
 			dataResult.append(resultObj);
+
 			resultData = dataResult.toString();
 			result.put(resultObj.isServerUp(), resultData);
 		}catch(Exception e) {
@@ -117,83 +102,60 @@ public class AdminTaskImpl implements AdminTask{
 			resultData = "Exception occured while checking component status: " + e.getMessage();
 			result.put(false, resultData);
 		}
-		
+
 		return result;
 	}
-	
+
 	private String getJsonString(JSONObject jsonData, String key) {
 		String result = null;
 		String data = jsonData.getString(key).trim();
-		if(data!= null && !data.equals("")) {
-			if(data.equals("#EMPTY_STRING"))
-				result = "";
-			else
-				result = data;
-		}
+
+		if(data!=null && !"".equals(data) && !"#EMPTY_STRING".equals(data))
+			result = data;
 		return result;
 	}
 
 	@Override
 	public String addUpdateComponent(String data) {
 		String resultData = "";
-		ComponentDetails component = new ComponentDetails();
 		try{
 			JSONObject jsonData = new JSONObject(data);
-			String compName = getJsonString(jsonData, "comp");
-			String endpoint = getJsonString(jsonData, "endpoint");
-			String qaSpoc = getJsonString(jsonData, "qaSpoc");
-			String qmSpoc = getJsonString(jsonData, "qmSpoc");
+
 			String authKey = getJsonString(jsonData, "authKey");
 			Administrator admin = adminSer.getAdmin();
 			if(admin == null)
-				return "Something went wrong please contact admin";
-			
+				return "Something went wrong. Please contact admin";
+
 			if(authKey != null && authKey.equals(admin.getAuthKey()))
 				log.debug("Valid admin");
 			else
 				return "<h4>Not Authorized!!</h4>";
-			
-			String healthCheckApi = getJsonString(jsonData, "hcApi");
-			String healthCheckCallType = getJsonString(jsonData, "hcCallType");
-			String healthCheckResp = getJsonString(jsonData, "hcExpResp");
-//			String healthCheckReqJSON = null;
-//			if(healthCheckCallType.equals("POST"))
-//				healthCheckResp = getJsonString(jsonData, "");
-			
-			String firstGetApi = getJsonString(jsonData, "fgApi");
-			String firstGetCallType = getJsonString(jsonData, "fgCallType");
-			String firstGetResp = getJsonString(jsonData, "fgExpResp");
-			String firstGetReqJSON = null;
-			if(firstGetCallType.equals("POST"))
-				firstGetReqJSON = getJsonString(jsonData, "fgReqJson");
-			
-			String secondGetApi = getJsonString(jsonData, "sgApi");
-			String secondGetCallType = getJsonString(jsonData, "sgCallType");
-			String secondGetResp = getJsonString(jsonData, "sgExpResp");
-			String secondGetReqJSON = null;
-			if(secondGetCallType.equals("POST"))
-				secondGetReqJSON = getJsonString(jsonData, "sgReqJson");
-			
-			component.setComponentName(compName);
-			component.setEndpoint(endpoint);
-			component.setHealthCheckApi(healthCheckApi);
-			component.setHealthCheckApiCallType(healthCheckCallType);
-			component.setHealthCheckApiResponse(healthCheckResp);
-			component.setFirstGetApi(firstGetApi);
-			component.setFirstGetApiCallType(firstGetCallType);
-			component.setFirstGetApiReqJson(firstGetReqJSON);
-			component.setFirstGetApiResponce(firstGetResp);
-			component.setSecondGetApi(secondGetApi);
-			component.setSecondGetApiCallType(secondGetCallType);
-			component.setSecondGetApiReqJson(secondGetReqJSON);
-			component.setSecondGetApiResponce(secondGetResp);
-			component.setQaSpoc(qaSpoc);
-			component.setQmSpoc(qmSpoc);
-			
+
+			ComponentDetails component = new ComponentDetails();
+			component.setComponentName(getJsonString(jsonData, "compName"));
+			component.setQmSpoc(getJsonString(jsonData, "qmSpoc"));
+			component.setQaSpoc(getJsonString(jsonData, "qaSpoc"));
+			component.setEndpoint(getJsonString(jsonData, "endpoint"));
+			component.setHealthCheckApiUrl(getJsonString(jsonData, "hcApiUrl"));
+			component.setHealthCheckApiCallType(getJsonString(jsonData, "hcApiCallType"));
+			component.setHealthCheckApiHeadersJson(getJsonString(jsonData, "hcApiHeadersJson"));
+			component.setHealthCheckApiReqJson(getJsonString(jsonData, "hcApiReqJson"));
+			component.setHealthCheckApiResp(getJsonString(jsonData, "hcApiResp"));
+			component.setFirstGetterApiUrl(getJsonString(jsonData, "fgApiUrl"));
+			component.setFirstGetterApiCallType(getJsonString(jsonData, "fgApiCallType"));
+			component.setFirstGetterApiHeadersJson(getJsonString(jsonData, "fgApiHeadersJson"));
+			component.setFirstGetterApiReqJson(getJsonString(jsonData, "fgApiReqJson"));
+			component.setFirstGetterApiResp(getJsonString(jsonData, "fgApiResp"));
+			component.setSecondGetterApiUrl(getJsonString(jsonData, "sgApiUrl"));
+			component.setSecondGetterApiCallType(getJsonString(jsonData, "sgApiCallType"));
+			component.setSecondGetterApiHeadersJson(getJsonString(jsonData, "sgApiHeadersJson"));
+			component.setSecondGetterApiReqJson(getJsonString(jsonData, "sgApiReqJson"));
+			component.setSecondGetterApiResp(getJsonString(jsonData, "sgApiResp"));
+
 			String validate = validateCompData(component);
 			if(validate != null)
 				return validate;
-			
+
 			HealthCheckResult resultObj = EnvHealthCheckImpl.checkServerHealth(component, null);
 			if(resultObj.isServerUp()) {
 				UUID uuid = UUID.randomUUID();
@@ -213,7 +175,7 @@ public class AdminTaskImpl implements AdminTask{
 			log.error("Exception occured while checking component status: " + e.getMessage(), e);
 			resultData = "Exception occured while checking component status: " + e.getMessage();
 		}
-		
+
 		return resultData;
 	}
 
@@ -222,7 +184,7 @@ public class AdminTaskImpl implements AdminTask{
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	private String validateCompData(ComponentDetails component) {
 		String result = null;
 		String compName = component.getComponentName();
@@ -234,7 +196,7 @@ public class AdminTaskImpl implements AdminTask{
 			return "QA SPOC details is required";
 		if(component.getQmSpoc() == null)
 			return "QM SPOC details is required";
-		
+
 		return result;
 	}
 }

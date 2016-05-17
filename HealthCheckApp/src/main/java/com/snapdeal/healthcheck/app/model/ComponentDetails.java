@@ -14,54 +14,60 @@ import javax.persistence.TemporalType;
 @Entity
 @Table(name = "components")
 public class ComponentDetails {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
 	@Column(name = "component_name", nullable = false, unique = true)
 	private String componentName;
-	
+
 	@Column(name = "qm_spoc")
 	private String qmSpoc;
-	
 	@Column(name = "qa_spoc")
 	private String qaSpoc;
-	
-	@Column(name = "endpoint")
-	private String endpoint;
-	
+
 	@Column(name = "authkey")
 	private String authKey;
-	
 	@Column(name = "authkey_shared")
 	private String authKeyShared;
-	
-	@Column(name = "health_check_api")
-	private String healthCheckApi;
+
+	@Column(name = "endpoint")
+	private String endpoint;
+
+	@Column(name = "health_check_api_url")
+	private String healthCheckApiUrl;
 	@Column(name = "health_check_api_call_type")
 	private String healthCheckApiCallType;
+	@Column(name = "health_check_api_headers_json")
+	private String healthCheckApiHeadersJson;
+	@Column(name = "health_check_api_req_json")
+	private String healthCheckApiReqJson;
 	@Column(name = "health_check_api_resp")
-	private String healthCheckApiResponse;
-	
-	@Column(name = "first_get_api")
-	private String firstGetApi;
-	@Column(name = "first_get_api_call_type")
-	private String firstGetApiCallType;
-	@Column(name = "first_get_api_req_json")
-	private String firstGetApiReqJson;
-	@Column(name = "first_get_api_resp")
-	private String firstGetApiResponce;
-	
-	@Column(name = "second_get_api")
-	private String secondGetApi;
-	@Column(name = "second_get_api_call_type")
-	private String secondGetApiCallType;
-	@Column(name = "second_get_api_req_json")
-	private String secondGetApiReqJson;
-	@Column(name = "second_get_api_resp")
-	private String secondGetApiResponce;
-	
+	private String healthCheckApiResp;
+
+	@Column(name = "first_getter_api_url")
+	private String firstGetterApiUrl;
+	@Column(name = "first_getter_api_call_type")
+	private String firstGetterApiCallType;
+	@Column(name = "first_getter_api_headers_json")
+	private String firstGetterApiHeadersJson;
+	@Column(name = "first_getter_api_req_json")
+	private String firstGetterApiReqJson;
+	@Column(name = "first_getter_api_resp")
+	private String firstGetterApiResp;
+
+	@Column(name = "second_getter_api_url")
+	private String secondGetterApiUrl;
+	@Column(name = "second_getter_api_call_type")
+	private String secondGetterApiCallType;
+	@Column(name = "second_getter_api_headers_json")
+	private String secondGetterApiHeadersJson;
+	@Column(name = "second_getter_api_req_json")
+	private String secondGetterApiReqJson;
+	@Column(name = "second_getter_api_resp")
+	private String secondGetterApiResp;
+
 	@Column(name = "created")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date created;
@@ -76,22 +82,6 @@ public class ComponentDetails {
 
 	public void setId(int id) {
 		this.id = id;
-	}
-
-	public String getAuthKey() {
-		return authKey;
-	}
-
-	public String getAuthKeyShared() {
-		return authKeyShared;
-	}
-
-	public void setAuthKeyShared(String authKeyShared) {
-		this.authKeyShared = authKeyShared;
-	}
-
-	public void setAuthKey(String authKey) {
-		this.authKey = authKey;
 	}
 
 	public String getComponentName() {
@@ -118,6 +108,22 @@ public class ComponentDetails {
 		this.qaSpoc = qaSpoc;
 	}
 
+	public String getAuthKey() {
+		return authKey;
+	}
+
+	public void setAuthKey(String authKey) {
+		this.authKey = authKey;
+	}
+
+	public String getAuthKeyShared() {
+		return authKeyShared;
+	}
+
+	public void setAuthKeyShared(String authKeyShared) {
+		this.authKeyShared = authKeyShared;
+	}
+
 	public String getEndpoint() {
 		return endpoint;
 	}
@@ -126,16 +132,12 @@ public class ComponentDetails {
 		this.endpoint = endpoint;
 	}
 
-	public Date getCreated() {
-		return created;
+	public String getHealthCheckApiUrl() {
+		return healthCheckApiUrl;
 	}
 
-	public String getHealthCheckApi() {
-		return healthCheckApi;
-	}
-
-	public void setHealthCheckApi(String healthCheckApi) {
-		this.healthCheckApi = healthCheckApi;
+	public void setHealthCheckApiUrl(String healthCheckApiUrl) {
+		this.healthCheckApiUrl = healthCheckApiUrl;
 	}
 
 	public String getHealthCheckApiCallType() {
@@ -146,76 +148,112 @@ public class ComponentDetails {
 		this.healthCheckApiCallType = healthCheckApiCallType;
 	}
 
-	public String getHealthCheckApiResponse() {
-		return healthCheckApiResponse;
+	public String getHealthCheckApiHeadersJson() {
+		return healthCheckApiHeadersJson;
 	}
 
-	public void setHealthCheckApiResponse(String healthCheckApiResponse) {
-		this.healthCheckApiResponse = healthCheckApiResponse;
+	public void setHealthCheckApiHeadersJson(String healthCheckApiHeadersJson) {
+		this.healthCheckApiHeadersJson = healthCheckApiHeadersJson;
 	}
 
-	public String getFirstGetApi() {
-		return firstGetApi;
+	public String getHealthCheckApiReqJson() {
+		return healthCheckApiReqJson;
 	}
 
-	public void setFirstGetApi(String firstGetApi) {
-		this.firstGetApi = firstGetApi;
+	public void setHealthCheckApiReqJson(String healthCheckApiReqJson) {
+		this.healthCheckApiReqJson = healthCheckApiReqJson;
 	}
 
-	public String getFirstGetApiCallType() {
-		return firstGetApiCallType;
+	public String getHealthCheckApiResp() {
+		return healthCheckApiResp;
 	}
 
-	public void setFirstGetApiCallType(String firstGetApiCallType) {
-		this.firstGetApiCallType = firstGetApiCallType;
+	public void setHealthCheckApiResp(String healthCheckApiResp) {
+		this.healthCheckApiResp = healthCheckApiResp;
 	}
 
-	public String getFirstGetApiReqJson() {
-		return firstGetApiReqJson;
+	public String getFirstGetterApiUrl() {
+		return firstGetterApiUrl;
 	}
 
-	public void setFirstGetApiReqJson(String firstGetApiReqJson) {
-		this.firstGetApiReqJson = firstGetApiReqJson;
+	public void setFirstGetterApiUrl(String firstGetterApiUrl) {
+		this.firstGetterApiUrl = firstGetterApiUrl;
 	}
 
-	public String getFirstGetApiResponce() {
-		return firstGetApiResponce;
+	public String getFirstGetterApiCallType() {
+		return firstGetterApiCallType;
 	}
 
-	public void setFirstGetApiResponce(String firstGetApiResponce) {
-		this.firstGetApiResponce = firstGetApiResponce;
+	public void setFirstGetterApiCallType(String firstGetterApiCallType) {
+		this.firstGetterApiCallType = firstGetterApiCallType;
 	}
 
-	public String getSecondGetApi() {
-		return secondGetApi;
+	public String getFirstGetterApiHeadersJson() {
+		return firstGetterApiHeadersJson;
 	}
 
-	public void setSecondGetApi(String secondGetApi) {
-		this.secondGetApi = secondGetApi;
+	public void setFirstGetterApiHeadersJson(String firstGetterApiHeadersJson) {
+		this.firstGetterApiHeadersJson = firstGetterApiHeadersJson;
 	}
 
-	public String getSecondGetApiCallType() {
-		return secondGetApiCallType;
+	public String getFirstGetterApiReqJson() {
+		return firstGetterApiReqJson;
 	}
 
-	public void setSecondGetApiCallType(String secondGetApiCallType) {
-		this.secondGetApiCallType = secondGetApiCallType;
+	public void setFirstGetterApiReqJson(String firstGetterApiReqJson) {
+		this.firstGetterApiReqJson = firstGetterApiReqJson;
 	}
 
-	public String getSecondGetApiReqJson() {
-		return secondGetApiReqJson;
+	public String getFirstGetterApiResp() {
+		return firstGetterApiResp;
 	}
 
-	public void setSecondGetApiReqJson(String secondGetApiReqJson) {
-		this.secondGetApiReqJson = secondGetApiReqJson;
+	public void setFirstGetterApiResp(String firstGetterApiResp) {
+		this.firstGetterApiResp = firstGetterApiResp;
 	}
 
-	public String getSecondGetApiResponce() {
-		return secondGetApiResponce;
+	public String getSecondGetterApiUrl() {
+		return secondGetterApiUrl;
 	}
 
-	public void setSecondGetApiResponce(String secondGetApiResponce) {
-		this.secondGetApiResponce = secondGetApiResponce;
+	public void setSecondGetterApiUrl(String secondGetterApiUrl) {
+		this.secondGetterApiUrl = secondGetterApiUrl;
+	}
+
+	public String getSecondGetterApiCallType() {
+		return secondGetterApiCallType;
+	}
+
+	public void setSecondGetterApiCallType(String secondGetterApiCallType) {
+		this.secondGetterApiCallType = secondGetterApiCallType;
+	}
+
+	public String getSecondGetterApiHeadersJson() {
+		return secondGetterApiHeadersJson;
+	}
+
+	public void setSecondGetterApiHeadersJson(String secondGetterApiHeadersJson) {
+		this.secondGetterApiHeadersJson = secondGetterApiHeadersJson;
+	}
+
+	public String getSecondGetterApiReqJson() {
+		return secondGetterApiReqJson;
+	}
+
+	public void setSecondGetterApiReqJson(String secondGetterApiReqJson) {
+		this.secondGetterApiReqJson = secondGetterApiReqJson;
+	}
+
+	public String getSecondGetterApiResp() {
+		return secondGetterApiResp;
+	}
+
+	public void setSecondGetterApiResp(String secondGetterApiResp) {
+		this.secondGetterApiResp = secondGetterApiResp;
+	}
+
+	public Date getCreated() {
+		return created;
 	}
 
 	public void setCreated(Date created) {
@@ -233,14 +271,16 @@ public class ComponentDetails {
 	@Override
 	public String toString() {
 		return "ComponentDetails [id=" + id + ", componentName=" + componentName + ", qmSpoc=" + qmSpoc + ", qaSpoc="
-				+ qaSpoc + ", endpoint=" + endpoint + ", authKey=" + authKey + ", healthCheckApi=" + healthCheckApi
-				+ ", healthCheckApiCallType=" + healthCheckApiCallType + ", healthCheckApiResponse="
-				+ healthCheckApiResponse + ", firstGetApi=" + firstGetApi + ", firstGetApiCallType="
-				+ firstGetApiCallType + ", firstGetApiReqJson=" + firstGetApiReqJson + ", firstGetApiResponce="
-				+ firstGetApiResponce + ", secondGetApi=" + secondGetApi + ", secondGetApiCallType="
-				+ secondGetApiCallType + ", secondGetApiReqJson=" + secondGetApiReqJson + ", secondGetApiResponce="
-				+ secondGetApiResponce + "]";
+				+ qaSpoc + ", authKey=" + authKey + ", authKeyShared=" + authKeyShared + ", endpoint=" + endpoint
+				+ ", healthCheckApiUrl=" + healthCheckApiUrl + ", healthCheckApiCallType=" + healthCheckApiCallType
+				+ ", healthCheckApiHeadersJson=" + healthCheckApiHeadersJson + ", healthCheckApiReqJson="
+				+ healthCheckApiReqJson + ", healthCheckApiResp=" + healthCheckApiResp + ", firstGetterApiUrl="
+				+ firstGetterApiUrl + ", firstGetterApiCallType=" + firstGetterApiCallType
+				+ ", firstGetterApiHeadersJson=" + firstGetterApiHeadersJson + ", firstGetterApiReqJson="
+				+ firstGetterApiReqJson + ", firstGetterApiResp=" + firstGetterApiResp + ", secondGetterApiUrl="
+				+ secondGetterApiUrl + ", secondGetterApiCallType=" + secondGetterApiCallType
+				+ ", secondGetterApiHeadersJson=" + secondGetterApiHeadersJson + ", secondGetterApiReqJson="
+				+ secondGetterApiReqJson + ", secondGetterApiResp=" + secondGetterApiResp + ", created=" + created
+				+ ", updated=" + updated + "]";
 	}
-	
-	
 }

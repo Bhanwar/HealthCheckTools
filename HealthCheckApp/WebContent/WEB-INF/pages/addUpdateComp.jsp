@@ -1,20 +1,13 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
 <html lang="en">
 <head>
-<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-<link
-	href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
-	rel="stylesheet" />
-<script
-	src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-
-<link
-	href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/css/bootstrapValidator.css"
-	rel="stylesheet" />
-<script
-	src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/js/bootstrapValidator.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/css/bootstrapValidator.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/js/bootstrapValidator.js"></script>
 
 <spring:url value="/css/home.css" var="webAppCss" />
 <link href="${webAppCss}" rel="stylesheet" />
@@ -23,21 +16,16 @@
 <spring:url value="/javascript/serializeJson.js" var="serializeJson" />
 <script src="${serializeJson}"></script>
 <title>Health Check App</title>
-<link rel=icon type=image/ico
-	href="http://i3.sdlcdn.com/img/icons/favicon.ico" />
+<link rel=icon type=image/ico href="http://i3.sdlcdn.com/img/icons/favicon.ico" />
 </head>
-<body>
 
+<body>
 	<div id="header" class="pointer"></div>
 	<div id="main-content">
 		<div class="container">
-
-
-
 			<div class="row clearfix">
 				<!-- Modal Start here-->
-				<div class="modal fade bs-example-modal-sm" id="myPleaseWait"
-					role="dialog" aria-hidden="true" data-backdrop="static">
+				<div class="modal fade bs-example-modal-sm" id="myPleaseWait" role="dialog" aria-hidden="true" data-backdrop="static">
 					<div class="modal-dialog modal-sm">
 						<div class="modal-content">
 							<div class="modal-header">
@@ -53,8 +41,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="modal fade bs-example-modal-sm" id="myLoading"
-					role="dialog" aria-hidden="false" data-backdrop="static">
+				<div class="modal fade bs-example-modal-sm" id="myLoading" role="dialog" aria-hidden="false" data-backdrop="static">
 					<div class="modal-dialog modal-sm">
 						<div class="modal-content">
 							<div class="modal-body">
@@ -67,32 +54,28 @@
 				<div class="col-md-2 column"></div>
 				<div class="col-md-8 column">
 					<form id="addUpdateCompForm" class="form-horizontal" role="form">
-						<div class="form-group">
-							<label class="col-md-3 control-label" for="comp">Component</label>
+						<div id="compNameDiv" class="form-group">
+							<label class="col-md-3 control-label" for="compName">Component</label>
 							<div class="col-sm-9">
-								<input type="text" class="form-control" name="comp"
-									placeholder="Enter component name">
+								<input type="text" class="form-control" name="compName" placeholder="Enter component name">
 							</div>
 						</div>
-						<div class="form-group">
+						<div id="qmSpocDiv" class="form-group">
 							<label class="col-md-3 control-label" for="qmSpoc">QM SPOC</label>
 							<div class="col-sm-9">
-								<input type="text" class="form-control" name="qmSpoc"
-									placeholder="Enter qm spoc">
+								<input type="text" class="form-control" name="qmSpoc" placeholder="Enter qm spoc">
 							</div>
 						</div>
-						<div class="form-group">
+						<div id="qaSpocDiv" class="form-group">
 							<label class="col-md-3 control-label" for="qaSpoc">QA SPOC</label>
 							<div class="col-sm-9">
-								<input type="text" class="form-control" name="qaSpoc"
-									placeholder="Enter qa spoc with comma , separated">
+								<input type="text" class="form-control" name="qaSpoc" placeholder="Enter qa spoc with comma , separated">
 							</div>
 						</div>
-						<div class="form-group">
+						<div id="endpointDiv" class="form-group">
 							<label class="col-md-3 control-label" for="endpoint">Endpoint</label>
 							<div class="col-sm-9">
-								<input type="text" class="form-control" name="endpoint"
-									placeholder="http://{ip / host}:{port}">
+								<input type="text" class="form-control" name="endpoint" placeholder="http://{ip / host}:{port}">
 							</div>
 						</div>
 						
@@ -101,38 +84,37 @@
 							<label class="control-label col-sm-6">Health Check</label>
 							<div class="col-sm-6"></div>
 						</div>
-						<div class="form-group">
-							<label class="control-label col-sm-3" for="hcApi">API</label>
+						<div id="hcApiUrlDiv" class="form-group">
+							<label class="control-label col-sm-3" for="hcApiUrl">API URL</label>
 							<div class="col-sm-9">
-								<input type="text" class="form-control" name="hcApi"
-									placeholder="Enter health check api">
+								<input type="text" class="form-control" name="hcApiUrl" placeholder="Enter health check api url">
 							</div>
 						</div>
-						<div id="hcCallType" class="form-group">
-							<label class="control-label col-sm-3" for="hcCallType">Call
-								Type</label>
+						<div id="hcApiCallTypeDiv" class="form-group">
+							<label class="control-label col-sm-3" for="hcApiCallType">Call Type</label>
 							<div class="col-sm-9">
-								<select name="hcCallType" class="form-control"
-									id="hcCallType-select">
+								<select name="hcApiCallType" class="form-control" id="hcApiCallType-select">
 									<option value="GET">GET</option>
-									<option value="GETJSON">GET with JSON</option>
+									<option value="POST">POST</option>
 								</select>
 							</div>
 						</div>
-<!-- 						<div id="hcReqJsonDiv" class="form-group" style="display: none"> -->
-<!-- 							<label class="control-label col-sm-3" for="hcReqJson">Request -->
-<!-- 								JSON</label> -->
-<!-- 							<div class="col-sm-9"> -->
-<!-- 								<textarea id="txtarea" class="form-control" name="hcReqJson" -->
-<!-- 									placeholder="Enter Request JSON"></textarea> -->
-<!-- 							</div> -->
-<!-- 						</div> -->
-						<div class="form-group">
-							<label class="control-label col-sm-3" for="hcExpResp">Expected
-								Resp</label>
+						<div id="hcApiHeadersJsonDiv" class="form-group">
+ 							<label class="control-label col-sm-3" for="hcApiHeadersJson">Headers as JSON</label>
+ 							<div class="col-sm-9">
+ 								<textarea id="txtarea" class="form-control" name="hcApiHeadersJson" placeholder="Enter headers in json format"></textarea>
+ 							</div>
+ 						</div>
+						<div id="hcApiReqJsonDiv" class="form-group" style="display:none">
+							<label class="control-label col-sm-3" for="hcApiReqJson">Request JSON</label>
 							<div class="col-sm-9">
-								<textarea id="txtarea" class="form-control" name="hcExpResp"
-									placeholder="Enter expected response"></textarea>
+								<textarea id="txtarea" class="form-control" name="hcApiReqJson" placeholder="Enter request json payload"></textarea>
+							</div>
+						</div>
+						<div id="hcApiRespDiv" class="form-group">
+							<label class="control-label col-sm-3" for="hcApiResp">Expected Response</label>
+							<div class="col-sm-9">
+								<textarea id="txtarea" class="form-control" name="hcApiResp" placeholder="Enter expected response string"></textarea>
 							</div>
 						</div>
 
@@ -141,39 +123,37 @@
 							<label class="control-label col-sm-6">1st Getter API</label>
 							<div class="col-sm-6"></div>
 						</div>
-						<div class="form-group">
-							<label class="control-label col-sm-3" for="fgApi">API</label>
+						<div id="fgApiUrlDiv" class="form-group">
+							<label class="control-label col-sm-3" for="fgApiUrl">API URL</label>
 							<div class="col-sm-9">
-								<input type="text" class="form-control" name="fgApi"
-									placeholder="Enter health check api">
+								<input type="text" class="form-control" name="fgApiUrl" placeholder="Enter 1st getter api url">
 							</div>
 						</div>
-						<div id="fgCallType" class="form-group">
-							<label class="control-label col-sm-3" for="fgCallType">Call
-								Type</label>
+						<div id="fgApiCallTypeDiv" class="form-group">
+							<label class="control-label col-sm-3" for="fgApiCallType">Call Type</label>
 							<div class="col-sm-9">
-								<select name="fgCallType" class="form-control"
-									id="fgCallType-select">
+								<select name="fgApiCallType" class="form-control" id="fgApiCallType-select">
 									<option value="GET">GET</option>
-									<option value="GETJSON">GET with JSON</option>
 									<option value="POST">POST</option>
 								</select>
 							</div>
 						</div>
-						<div id="fgReqJsonDiv" class="form-group" style="display: none">
-							<label class="control-label col-sm-3" for="fgReqJson">Request
-								JSON</label>
+						<div id="fgApiHeadersJsonDiv" class="form-group">
+ 							<label class="control-label col-sm-3" for="fgApiHeadersJson">Headers as JSON</label>
+ 							<div class="col-sm-9">
+ 								<textarea id="txtarea" class="form-control" name="fgApiHeadersJson" placeholder="Enter headers in json format"></textarea>
+ 							</div>
+ 						</div>
+						<div id="fgApiReqJsonDiv" class="form-group" style="display:none">
+							<label class="control-label col-sm-3" for="fgApiReqJson">Request JSON</label>
 							<div class="col-sm-9">
-								<textarea id="txtarea" class="form-control" name="fgReqJson"
-									placeholder="Enter Request JSON"></textarea>
+								<textarea id="txtarea" class="form-control" name="fgApiReqJson" placeholder="Enter request json payload"></textarea>
 							</div>
 						</div>
-						<div class="form-group">
-							<label class="control-label col-sm-3" for="fgExpResp">Expected
-								Resp</label>
+						<div id="fgApiRespDiv" class="form-group">
+							<label class="control-label col-sm-3" for="fgApiResp">Expected Response</label>
 							<div class="col-sm-9">
-								<textarea id="txtarea" class="form-control" name="fgExpResp"
-									placeholder="Enter expected response"></textarea>
+								<textarea id="txtarea" class="form-control" name="fgApiResp" placeholder="Enter expected response string"></textarea>
 							</div>
 						</div>
 
@@ -182,48 +162,45 @@
 							<label class="control-label col-sm-6">2nd Getter API</label>
 							<div class="col-sm-6"></div>
 						</div>
-						<div class="form-group">
-							<label class="control-label col-sm-3" for="sgApi">API</label>
+						<div id="sgApiUrlDiv" class="form-group">
+							<label class="control-label col-sm-3" for="sgApiUrl">API URL</label>
 							<div class="col-sm-9">
-								<input type="text" class="form-control" name="sgApi"
-									placeholder="Enter health check api">
+								<input type="text" class="form-control" name="sgApiUrl" placeholder="Enter 2nd getter api url">
 							</div>
 						</div>
-						<div id="sgCallType" class="form-group">
-							<label class="control-label col-sm-3" for="sgCallType">Call
-								Type</label>
+						<div id="sgApiCallTypeDiv" class="form-group">
+							<label class="control-label col-sm-3" for="sgApiCallType">Call Type</label>
 							<div class="col-sm-9">
-								<select name="sgCallType" class="form-control"
-									id="sgCallType-select">
+								<select name="sgApiCallType" class="form-control" id="sgApiCallType-select">
 									<option value="GET">GET</option>
-									<option value="GETJSON">GET with JSON</option>
 									<option value="POST">POST</option>
 								</select>
 							</div>
 						</div>
-						<div id="sgReqJsonDiv" class="form-group" style="display: none">
-							<label class="control-label col-sm-3" for="sgReqJson">Request
-								JSON</label>
+						
+						<div id="sgApiHeadersJsonDiv" class="form-group">
+ 							<label class="control-label col-sm-3" for="sgApiHeadersJson">Headers as JSON</label>
+ 							<div class="col-sm-9">
+ 								<textarea id="txtarea" class="form-control" name="sgApiHeadersJson" placeholder="Enter headers in json format"></textarea>
+ 							</div>
+ 						</div>
+						<div id="sgApiReqJsonDiv" class="form-group" style="display:none">
+							<label class="control-label col-sm-3" for="sgApiReqJson">Request JSON</label>
 							<div class="col-sm-9">
-								<textarea id="txtarea" class="form-control" name="sgReqJson"
-									placeholder="Enter Request JSON"></textarea>
+								<textarea id="txtarea" class="form-control" name="sgApiReqJson" placeholder="Enter request json payload"></textarea>
 							</div>
 						</div>
-						<div class="form-group">
-							<label class="control-label col-sm-3" for="sgExpResp">Expected
-								Resp</label>
+						<div id="sgApiRespDiv" class="form-group">
+							<label class="control-label col-sm-3" for="sgApiResp">Expected Response</label>
 							<div class="col-sm-9">
-								<textarea id="txtarea" class="form-control" name="sgExpResp"
-									placeholder="Enter expected response"></textarea>
+								<textarea id="txtarea" class="form-control" name="sgApiResp" placeholder="Enter expected response string"></textarea>
 							</div>
 						</div>
 
-						<div class="form-group">
-							<label class="control-label col-sm-3" for="authKey">Auth
-								Key</label>
+						<div id="authKeyDiv" class="form-group">
+							<label class="control-label col-sm-3" for="authKey">Auth Key</label>
 							<div class="col-sm-9">
-								<input type="password" class="form-control" name="authKey"
-									placeholder="Enter authorization key">
+								<input type="password" class="form-control" name="authKey" placeholder="Enter authorization key">
 							</div>
 						</div>
 
@@ -251,38 +228,34 @@
 	</div>
 </body>
 <script>
-	$(document).on('change', '#hcCallType', function() {
-
-		var selectedOption = $("#hcCallType option:selected").val();
+	$(document).on('change', '#hcApiCallType', function() {
+		var selectedOption = $("#hcApiCallType option:selected").val();
 
 		if (selectedOption === "POST") {
-			$('#hcReqJsonDiv').show();
+			$('#hcApiReqJsonDiv').show();
 		} else {
-			$('#hcReqJsonDiv').hide();
+			$('#hcApiReqJsonDiv').hide();
 		}
 	});
 
-	$(document).on('change', '#fgCallType', function() {
-
-		var selectedOption = $("#fgCallType option:selected").val();
+	$(document).on('change', '#fgApiCallType', function() {
+		var selectedOption = $("#fgApiCallType option:selected").val();
 
 		if (selectedOption === "POST") {
-			$('#fgReqJsonDiv').show();
+			$('#fgApiReqJsonDiv').show();
 		} else {
-			$('#fgReqJsonDiv').hide();
+			$('#fgApiReqJsonDiv').hide();
 		}
 	});
 
-	$(document).on('change', '#sgCallType', function() {
-
-		var selectedOption = $("#sgCallType option:selected").val();
+	$(document).on('change', '#sgApiCallType', function() {
+		var selectedOption = $("#sgApiCallType option:selected").val();
 
 		if (selectedOption === "POST") {
-			$('#sgReqJsonDiv').show();
+			$('#sgApiReqJsonDiv').show();
 		} else {
-			$('#sgReqJsonDiv').hide();
+			$('#sgApiReqJsonDiv').hide();
 		}
 	});
-	
 </script>
 </html>
