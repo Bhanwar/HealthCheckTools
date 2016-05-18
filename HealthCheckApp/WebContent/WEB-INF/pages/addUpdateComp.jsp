@@ -234,8 +234,8 @@
 	</div>
 </body>
 <script>
-	$(document).on('change', '#hcApiCallType', function() {
-		var selectedOption = $("#hcApiCallType option:selected").val();
+	$(document).on('change', '#hcApiCallTypeDiv', function() {
+		var selectedOption = $("#hcApiCallTypeDiv option:selected").val();
 
 		if (selectedOption === "POST") {
 			$('#hcApiReqJsonDiv').show();
@@ -244,8 +244,8 @@
 		}
 	});
 
-	$(document).on('change', '#fgApiCallType', function() {
-		var selectedOption = $("#fgApiCallType option:selected").val();
+	$(document).on('change', '#fgApiCallTypeDiv', function() {
+		var selectedOption = $("#fgApiCallTypeDiv option:selected").val();
 
 		if (selectedOption === "POST") {
 			$('#fgApiReqJsonDiv').show();
@@ -254,8 +254,8 @@
 		}
 	});
 
-	$(document).on('change', '#sgApiCallType', function() {
-		var selectedOption = $("#sgApiCallType option:selected").val();
+	$(document).on('change', '#sgApiCallTypeDiv', function() {
+		var selectedOption = $("#sgApiCallTypeDiv option:selected").val();
 
 		if (selectedOption === "POST") {
 			$('#sgApiReqJsonDiv').show();
