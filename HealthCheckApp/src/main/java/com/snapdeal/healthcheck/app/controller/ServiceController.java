@@ -2,20 +2,20 @@ package com.snapdeal.healthcheck.app.controller;
 
 import static com.snapdeal.healthcheck.app.constants.AppConstant.componentNames;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.currentExecDate;
-import static com.snapdeal.healthcheck.app.constants.AppConstant.healthResult;
 import static com.snapdeal.healthcheck.app.constants.Formatter.dateFormatter;
 import static com.snapdeal.healthcheck.app.constants.Formatter.timeFormatter;
+
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NavigableMap;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,14 +27,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.snapdeal.healthcheck.app.bo.ComponentDetailsBO;
 import com.snapdeal.healthcheck.app.constants.AppConstant;
 import com.snapdeal.healthcheck.app.constants.Formatter;
 import com.snapdeal.healthcheck.app.enums.DownTimeReasonCode;
 import com.snapdeal.healthcheck.app.model.DownTimeData;
 import com.snapdeal.healthcheck.app.model.DownTimeUIData;
-import com.snapdeal.healthcheck.app.model.StartUpResult;
 import com.snapdeal.healthcheck.app.mongo.repositories.DownTimeDataRepository;
-import com.snapdeal.healthcheck.app.mongo.repositories.StartUpResultsRepository;
 import com.snapdeal.healthcheck.app.services.AdminTask;
 import com.snapdeal.healthcheck.app.services.GatherData;
 import com.snapdeal.healthcheck.app.services.SaveReason;
@@ -44,9 +43,6 @@ public class ServiceController {
 	
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	
-	@Autowired
-	private StartUpResultsRepository startUpDataRepo;
-
 	@Autowired
 	private DownTimeDataRepository downTimeRepo;
 	
@@ -59,22 +55,15 @@ public class ServiceController {
 	@Autowired
 	private SaveReason updateReason;
 	
+	@Autowired
+	private ComponentDetailsBO compDetails;
+	
 	@PostConstruct
 	public void init() {
+		log.debug("Initializing data!!");
 		currentExecDate = new Date();
 		componentNames = new HashSet<>();
-	}
-	
-	@PreDestroy
-	public void destroy() {
-		startUpDataRepo.deleteAll();
-		log.debug("Deleting and re entering start up data!");
-		for(Entry<String, Boolean> entry : healthResult.entrySet()) {
-			StartUpResult result = new StartUpResult();
-			result.setComponentName(entry.getKey());
-			result.setServerUp(entry.getValue());
-			startUpDataRepo.save(result);
-		}
+		dataObj.initializeHealthCheckResults(compDetails.getAllComponentDetails());
 	}
 	
 	@RequestMapping(value = "/isServerUp", method=RequestMethod.GET)
@@ -91,14 +80,29 @@ public class ServiceController {
 	
 	@RequestMapping(value = "/getUpdateList", method=RequestMethod.GET)
 	@ResponseBody
-	public Map<String, String> getUpdateList() {
-		Map<String, String> result = new HashMap<>();
+	public Map<String, NavigableMap<String, String>> getUpdateList() {
+		Map<String, TreeMap<String, String>> resultMap = new TreeMap<>();
+		Map<String, NavigableMap<String, String>> resultMapDesc = new TreeMap<>();
 		List<DownTimeData> dataList = downTimeRepo.findAllDownTimeDataToUpdateReason();
 		for(DownTimeData data : dataList) {
+			TreeMap<String, String> resultData = null;
+			String compName = data.getComponentName();
 			Date startDate = data.getDownTime();
-			result.put(data.getId(),data.getComponentName() + " - " + dateFormatter.format(startDate) + " " + timeFormatter.format(startDate));
+			if(resultMap.containsKey(compName)) {
+				resultData = resultMap.get(compName);
+			} else {
+				resultData = new TreeMap<String, String>();
+			}
+			resultData.put(dateFormatter.format(startDate) + " " + timeFormatter.format(startDate), data.getId());
+			resultMap.put(compName, resultData);
 		}
-		return result;
+		for(Entry<String, TreeMap<String, String>> entry : resultMap.entrySet()) {
+			TreeMap<String, String> resultDataDesc = entry.getValue();
+			NavigableMap<String, String> resDesc = resultDataDesc.descendingMap();
+			resultMapDesc.put(entry.getKey(), resDesc);
+		}
+		resultMap = null;
+		return resultMapDesc;
 	}
 	
 	@RequestMapping(value = "/getReasonCodes", method=RequestMethod.GET)

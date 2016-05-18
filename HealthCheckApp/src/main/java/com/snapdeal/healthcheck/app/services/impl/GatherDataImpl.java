@@ -3,12 +3,14 @@ package com.snapdeal.healthcheck.app.services.impl;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.componentNames;
 import static com.snapdeal.healthcheck.app.constants.Formatter.dateFormatter;
 import static com.snapdeal.healthcheck.app.constants.Formatter.timeFormatter;
+import static com.snapdeal.healthcheck.app.constants.AppConstant.healthResult;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.snapdeal.healthcheck.app.model.ComponentDetails;
 import com.snapdeal.healthcheck.app.model.DownTimeData;
 import com.snapdeal.healthcheck.app.model.DownTimeUIData;
 import com.snapdeal.healthcheck.app.mongo.repositories.DownTimeDataRepository;
@@ -97,5 +100,23 @@ public class GatherDataImpl implements GatherData {
 		df.setRoundingMode(RoundingMode.HALF_UP);
 		data = Double.valueOf(df.format(data));
 		return data;
+	}
+
+	@Override
+	public void initializeHealthCheckResults(List<ComponentDetails> components) {
+		if(healthResult == null) {
+			log.debug("Initializing health result data..");
+			healthResult = new HashMap<>();
+			for (ComponentDetails comp : components) {
+				DownTimeData upTime = downTimeRepo.findUpTimeUpdate(comp.getComponentName(),"NO");
+				if(upTime == null) {
+					log.debug(comp.getComponentName() + " : true");
+					healthResult.put(comp.getComponentName(), true);
+				} else {
+					log.debug(comp.getComponentName() + " : false");
+					healthResult.put(comp.getComponentName(), false);
+				}
+			}
+		}
 	}
 }

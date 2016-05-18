@@ -67,9 +67,18 @@
 				<div class="col-md-2 column"></div>
 				<div class="col-md-8 column">
 					<form id="updateReasonForm" class="form-horizontal" role="form">
+						<div id="compNameSelect" class="form-group">
+							<label class="col-md-3 control-label">Comp
+								Name </label>
+							<div class="col-md-9">
+								<select class="form-control" id="comp-select">
+
+								</select>
+							</div>
+						</div>
 						<div class="form-group">
 							<label class="col-md-3 control-label" for="comp">Server
-								Down </label>
+								Down Time</label>
 							<div class="col-md-9">
 								<select name="comp" class="form-control" id="update-select">
 
@@ -124,6 +133,8 @@
 	</div>
 </body>
 <script type="text/javascript">
+var dataMap;
+
 	$(window)
 			.load(
 					function() {
@@ -170,15 +181,30 @@
 					});
 
 	function updateOptions(updateMap) {
+		dataMap = updateMap
 		console.log("Creating update list..");
-		var selectList = document.getElementById('update-select');
+		var selectList = document.getElementById('comp-select');
 		for ( var key in updateMap) {
 			var option = document.createElement('option');
 			option.value = key;
-			option.text = updateMap[key];
+			option.text = key;
 			selectList.appendChild(option);
 		}
+		var selectedOption = $("#compNameSelect option:selected").val();
+		console.log("Selected: " + selectedOption);
+		createUpdateList(selectedOption);
 		$('#myLoading').modal('hide');
+	};
+	
+	function createUpdateList(compName) {
+		var selectList = document.getElementById('update-select');
+		var updateMap = dataMap[compName];
+		for ( var key in updateMap) {
+			var option = document.createElement('option');
+			option.value = updateMap[key];
+			option.text = key;
+			selectList.appendChild(option);
+		}
 	};
 
 	function reasonOptions(reasonList) {
@@ -192,5 +218,12 @@
 			selectList.appendChild(option);
 		}
 	};
+	
+	$(document).on('change', '#compNameSelect', function() {
+		var selectedOption = $("#compNameSelect option:selected").val();
+		console.log("Selected: " + selectedOption);
+		document.getElementById('update-select').options.length = 0;
+		createUpdateList(selectedOption);
+	});
 </script>
 </html>

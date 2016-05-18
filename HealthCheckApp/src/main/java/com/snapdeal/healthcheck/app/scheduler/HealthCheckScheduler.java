@@ -9,7 +9,6 @@ import static com.snapdeal.healthcheck.app.constants.Formatter.dateFormatter;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,7 +31,6 @@ import com.snapdeal.healthcheck.app.model.ComponentDetails;
 import com.snapdeal.healthcheck.app.model.DownTimeData;
 import com.snapdeal.healthcheck.app.model.HealthCheckResult;
 import com.snapdeal.healthcheck.app.model.QuartzJobDataHolder;
-import com.snapdeal.healthcheck.app.model.StartUpResult;
 import com.snapdeal.healthcheck.app.mongo.repositories.MongoRepoService;
 import com.snapdeal.healthcheck.app.services.impl.EnvHealthCheckImpl;
 import com.snapdeal.healthcheck.app.utils.EmailUtil;
@@ -54,25 +52,11 @@ public class HealthCheckScheduler extends QuartzJobBean {
 		List<ComponentDetails> components = compDetails.getAllComponentDetails();
 		log.debug("Running scheduled task: " + currentExecDate);
 		List<Callable<HealthCheckResult>> compCallList = new ArrayList<>();
-		// Initialize result from mongo
-		if (healthResult == null) {
-			healthResult = new HashMap<>();
-			for (ComponentDetails comp : components) {
-				healthResult.put(comp.getComponentName(), true);
-			}
-			log.debug("Fetching data from Mongo");
-			List<StartUpResult> listComp = repoService.getStartUpData();
-			if (!listComp.isEmpty()) {
-				log.debug("Got data from mongo, initializing. Total count: " + listComp.size());
-				for (StartUpResult res : listComp) {
-					healthResult.put(res.getComponentName(), res.isServerUp());
-				}
-			}
-		}
 		
 		for (ComponentDetails comp : components) {
 			componentNames.add(comp.getComponentName());
 			compCallList.add(new EnvHealthCheckImpl(comp, repoService));
+			//Required for newly added components on the run
 			if(healthResult.get(comp.getComponentName()) == null)
 				healthResult.put(comp.getComponentName(), true);
 		}
@@ -93,6 +77,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 						result = compSer.take().get();
 						log.debug(result.toString());
 						ExecutorService execMail = Executors.newFixedThreadPool(1);
+						
 						if (healthResult.get(result.getComponentName()) != result.isServerUp()) {
 							log.debug("Status has changed for comp: " + result.getComponentName());
 							final HealthCheckResult updateRes = result;
@@ -130,35 +115,42 @@ public class HealthCheckScheduler extends QuartzJobBean {
 		if (isServerUp) {
 			log.debug(compName + " Server is UP!!");
 			data = repoService.findUpTimeUpdate(compName);
-			data.setUpTime(execDate);
-			long totalTimeMins = (execDate.getTime() - data.getDownTime().getTime()) / 60000;
-			log.debug("Total down time: " + totalTimeMins);
-			data.setTotalDownTimeInMins(Long.toString(totalTimeMins));
-			data.setServerUp("YES");
-			data.setEndDate(execDateStr);
-			log.debug("Updating down time data in Mongo");
-			repoService.save(data);
-			sendServerUpMail(compName, execDate);
+			if(data != null) {
+				data.setUpTime(execDate);
+				long totalTimeMins = (execDate.getTime() - data.getDownTime().getTime()) / 60000;
+				log.debug("Total down time: " + totalTimeMins);
+				data.setTotalDownTimeInMins(Long.toString(totalTimeMins));
+				data.setServerUp("YES");
+				data.setEndDate(execDateStr);
+				log.debug("Updating down time data in Mongo");
+				repoService.save(data);
+				sendServerUpMail(compName, execDate);
+			}
 		} else {
 			log.debug(compName + " Server is DOWN!!");
-			data = new DownTimeData();
-			data.setComponentName(compName);
-			data.setStartDate(execDateStr);
-			Set<String> execDates = new HashSet<>();
-			execDates.add(execDateStr);
-			data.setExecDate(execDates);
-			data.setDownTime(execDate);
-			data.setServerUp("NO");
-			data.setReasonCode(DownTimeReasonCode.NOTSET);
-			data.setFailedUrl(result.getFailedURL());
-			data.setFailedExpResp(result.getFailedExpResp());
-			data.setFailedHttpException(result.getFailedHttpCallException());
-			data.setFailedReqJson(result.getFailedReqJson());
-			data.setFailedResp(result.getFailedActualResp());
-			data.setFailedStatusCode(result.getFailedStatusCode());
-			log.debug("Saving down time data in Mongo");
-			repoService.save(data);
-			sendServerDownMail(compName, result, execDate);
+			data = repoService.findUpTimeUpdate(compName);
+			if(data == null) {
+				data = new DownTimeData();
+				data.setComponentName(compName);
+				data.setStartDate(execDateStr);
+				Set<String> execDates = new HashSet<>();
+				execDates.add(execDateStr);
+				data.setExecDate(execDates);
+				data.setDownTime(execDate);
+				data.setServerUp("NO");
+				data.setReasonCode(DownTimeReasonCode.NOTSET);
+				data.setFailedUrl(result.getFailedURL());
+				data.setFailedExpResp(result.getFailedExpResp());
+				data.setFailedHttpException(result.getFailedHttpCallException());
+				data.setFailedReqJson(result.getFailedReqJson());
+				data.setFailedResp(result.getFailedActualResp());
+				data.setFailedStatusCode(result.getFailedStatusCode());
+				log.debug("Saving down time data in Mongo");
+				repoService.save(data);
+				sendServerDownMail(compName, result, execDate);
+			} else {
+				log.warn(compName + ": Down time data already exist in Mongo!! This should not happen, please check!");
+			}
 		}
 	}
 

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.snapdeal.healthcheck.app.model.ComponentDetails;
 import com.snapdeal.healthcheck.app.model.DownTimeUIData;
 
 public interface GatherData {
@@ -11,4 +12,6 @@ public interface GatherData {
 	public Map<String, List<DownTimeUIData>> getDataForHomePage(Date execDate);
 	
 	public double getTimePercentage(Date execDate);
+	
+	public void initializeHealthCheckResults(List<ComponentDetails> compsList);
 }
