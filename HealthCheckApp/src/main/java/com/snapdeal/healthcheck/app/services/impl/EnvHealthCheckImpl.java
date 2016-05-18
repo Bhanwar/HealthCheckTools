@@ -39,7 +39,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 	}
 
 	public static HealthCheckResult checkServerHealth(ComponentDetails component, MongoRepoService mongoRepoService) {
-		boolean isServerUp = false;
+		boolean isServerUp = true;
 		boolean apiExist = false;
 		int waitTimeInMillis = 5000;
 
@@ -105,7 +105,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 		}
 
 		// First Get API
-		if (component.getFirstGetApi() != null && component.getFirstGetApiCallType() != null
+		if (isServerUp && component.getFirstGetApi() != null && component.getFirstGetApiCallType() != null
 				&& component.getFirstGetApiResp() != null) {
 			apiExist = true;
 			response = null;
@@ -142,7 +142,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 		}
 
 		// Second Get API
-		if (component.getSecondGetApi() != null && component.getSecondGetApiCallType() != null
+		if (isServerUp && component.getSecondGetApi() != null && component.getSecondGetApiCallType() != null
 				&& component.getSecondGetApiResp() != null) {
 			apiExist = true;
 			response = null;
