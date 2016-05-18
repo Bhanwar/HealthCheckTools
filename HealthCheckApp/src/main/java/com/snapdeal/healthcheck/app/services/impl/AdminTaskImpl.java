@@ -69,21 +69,21 @@ public class AdminTaskImpl implements AdminTask{
 			component.setQmSpoc(getJsonString(jsonData, "qmSpoc"));
 			component.setQaSpoc(getJsonString(jsonData, "qaSpoc"));
 			component.setEndpoint(getJsonString(jsonData, "endpoint"));
-			component.setHealthCheckApiUrl(getJsonString(jsonData, "hcApiUrl"));
+			component.setHealthCheckApi(getJsonString(jsonData, "hcApiUrl"));
 			component.setHealthCheckApiCallType(getJsonString(jsonData, "hcApiCallType"));
-			component.setHealthCheckApiHeadersJson(getJsonString(jsonData, "hcApiHeadersJson"));
+			component.setHealthCheckHeaders(getJsonString(jsonData, "hcApiHeadersJson"));
 			component.setHealthCheckApiReqJson(getJsonString(jsonData, "hcApiReqJson"));
 			component.setHealthCheckApiResp(getJsonString(jsonData, "hcApiResp"));
-			component.setFirstGetterApiUrl(getJsonString(jsonData, "fgApiUrl"));
-			component.setFirstGetterApiCallType(getJsonString(jsonData, "fgApiCallType"));
-			component.setFirstGetterApiHeadersJson(getJsonString(jsonData, "fgApiHeadersJson"));
-			component.setFirstGetterApiReqJson(getJsonString(jsonData, "fgApiReqJson"));
-			component.setFirstGetterApiResp(getJsonString(jsonData, "fgApiResp"));
-			component.setSecondGetterApiUrl(getJsonString(jsonData, "sgApiUrl"));
-			component.setSecondGetterApiCallType(getJsonString(jsonData, "sgApiCallType"));
-			component.setSecondGetterApiHeadersJson(getJsonString(jsonData, "sgApiHeadersJson"));
-			component.setSecondGetterApiReqJson(getJsonString(jsonData, "sgApiReqJson"));
-			component.setSecondGetterApiResp(getJsonString(jsonData, "sgApiResp"));
+			component.setFirstGetApi(getJsonString(jsonData, "fgApiUrl"));
+			component.setFirstGetApiCallType(getJsonString(jsonData, "fgApiCallType"));
+			component.setFirstGetHeaders(getJsonString(jsonData, "fgApiHeadersJson"));
+			component.setFirstGetApiReqJson(getJsonString(jsonData, "fgApiReqJson"));
+			component.setFirstGetApiResp(getJsonString(jsonData, "fgApiResp"));
+			component.setSecondGetApi(getJsonString(jsonData, "sgApiUrl"));
+			component.setSecondGetApiCallType(getJsonString(jsonData, "sgApiCallType"));
+			component.setSecondGetHeaders(getJsonString(jsonData, "sgApiHeadersJson"));
+			component.setSecondGetApiReqJson(getJsonString(jsonData, "sgApiReqJson"));
+			component.setSecondGetApiResp(getJsonString(jsonData, "sgApiResp"));
 
 			HealthCheckResult resultObj = EnvHealthCheckImpl.checkServerHealth(component, null);
 
@@ -102,16 +102,19 @@ public class AdminTaskImpl implements AdminTask{
 			resultData = "Exception occured while checking component status: " + e.getMessage();
 			result.put(false, resultData);
 		}
-
 		return result;
 	}
+
 
 	private String getJsonString(JSONObject jsonData, String key) {
 		String result = null;
 		String data = jsonData.getString(key).trim();
-
-		if(data!=null && !"".equals(data) && !"#EMPTY_STRING".equals(data))
-			result = data;
+		if(data!= null && !data.equals("")) {
+			if(data.equals("#EMPTY_STRING"))
+				result = "";
+			else
+				result = data;
+		}
 		return result;
 	}
 
@@ -125,7 +128,6 @@ public class AdminTaskImpl implements AdminTask{
 			Administrator admin = adminSer.getAdmin();
 			if(admin == null)
 				return "Something went wrong. Please contact admin";
-
 			if(authKey != null && authKey.equals(admin.getAuthKey()))
 				log.debug("Valid admin");
 			else
@@ -136,21 +138,21 @@ public class AdminTaskImpl implements AdminTask{
 			component.setQmSpoc(getJsonString(jsonData, "qmSpoc"));
 			component.setQaSpoc(getJsonString(jsonData, "qaSpoc"));
 			component.setEndpoint(getJsonString(jsonData, "endpoint"));
-			component.setHealthCheckApiUrl(getJsonString(jsonData, "hcApiUrl"));
+			component.setHealthCheckApi(getJsonString(jsonData, "hcApiUrl"));
 			component.setHealthCheckApiCallType(getJsonString(jsonData, "hcApiCallType"));
-			component.setHealthCheckApiHeadersJson(getJsonString(jsonData, "hcApiHeadersJson"));
+			component.setHealthCheckHeaders(getJsonString(jsonData, "hcApiHeadersJson"));
 			component.setHealthCheckApiReqJson(getJsonString(jsonData, "hcApiReqJson"));
 			component.setHealthCheckApiResp(getJsonString(jsonData, "hcApiResp"));
-			component.setFirstGetterApiUrl(getJsonString(jsonData, "fgApiUrl"));
-			component.setFirstGetterApiCallType(getJsonString(jsonData, "fgApiCallType"));
-			component.setFirstGetterApiHeadersJson(getJsonString(jsonData, "fgApiHeadersJson"));
-			component.setFirstGetterApiReqJson(getJsonString(jsonData, "fgApiReqJson"));
-			component.setFirstGetterApiResp(getJsonString(jsonData, "fgApiResp"));
-			component.setSecondGetterApiUrl(getJsonString(jsonData, "sgApiUrl"));
-			component.setSecondGetterApiCallType(getJsonString(jsonData, "sgApiCallType"));
-			component.setSecondGetterApiHeadersJson(getJsonString(jsonData, "sgApiHeadersJson"));
-			component.setSecondGetterApiReqJson(getJsonString(jsonData, "sgApiReqJson"));
-			component.setSecondGetterApiResp(getJsonString(jsonData, "sgApiResp"));
+			component.setFirstGetApi(getJsonString(jsonData, "fgApiUrl"));
+			component.setFirstGetApiCallType(getJsonString(jsonData, "fgApiCallType"));
+			component.setFirstGetHeaders(getJsonString(jsonData, "fgApiHeadersJson"));
+			component.setFirstGetApiReqJson(getJsonString(jsonData, "fgApiReqJson"));
+			component.setFirstGetApiResp(getJsonString(jsonData, "fgApiResp"));
+			component.setSecondGetApi(getJsonString(jsonData, "sgApiUrl"));
+			component.setSecondGetApiCallType(getJsonString(jsonData, "sgApiCallType"));
+			component.setSecondGetHeaders(getJsonString(jsonData, "sgApiHeadersJson"));
+			component.setSecondGetApiReqJson(getJsonString(jsonData, "sgApiReqJson"));
+			component.setSecondGetApiResp(getJsonString(jsonData, "sgApiResp"));
 
 			String validate = validateCompData(component);
 			if(validate != null)
@@ -175,7 +177,6 @@ public class AdminTaskImpl implements AdminTask{
 			log.error("Exception occured while checking component status: " + e.getMessage(), e);
 			resultData = "Exception occured while checking component status: " + e.getMessage();
 		}
-
 		return resultData;
 	}
 
@@ -196,7 +197,6 @@ public class AdminTaskImpl implements AdminTask{
 			return "QA SPOC details is required";
 		if(component.getQmSpoc() == null)
 			return "QM SPOC details is required";
-
 		return result;
 	}
 }

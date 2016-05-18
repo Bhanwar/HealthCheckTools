@@ -17,7 +17,6 @@ public class Administrator {
 
 	@Column(name = "name", nullable = false)
 	private String name;
-
 	@Column(name = "authkey", nullable = false, unique = true)
 	private String authKey;
 
@@ -28,7 +27,7 @@ public class Administrator {
 	public void setId(int id) {
 		this.id = id;
 	}
-
+	
 	public String getName() {
 		return name;
 	}

@@ -3,12 +3,18 @@
 
 <html lang="en">
 <head>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" />
-<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/css/bootstrapValidator.css" rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/js/bootstrapValidator.js"></script>
-
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<link
+	href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
+	rel="stylesheet" />
+<script
+	src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<link
+	href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/css/bootstrapValidator.css"
+	rel="stylesheet" />
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/js/bootstrapValidator.js"></script>
 <spring:url value="/css/home.css" var="webAppCss" />
 <link href="${webAppCss}" rel="stylesheet" />
 <spring:url value="/javascript/home.js" var="webAppJs" />
@@ -120,10 +126,10 @@
 
 						<hr>
 						<div class="form-group">
-							<label class="control-label col-sm-6">1st Getter API</label>
+							<label class="control-label col-sm-6">1st Get API</label>
 							<div class="col-sm-6"></div>
 						</div>
-						<div id="fgApiUrlDiv" class="form-group">
+<						<div id="fgApiUrlDiv" class="form-group">
 							<label class="control-label col-sm-3" for="fgApiUrl">API URL</label>
 							<div class="col-sm-9">
 								<input type="text" class="form-control" name="fgApiUrl" placeholder="Enter 1st getter api url">
@@ -159,7 +165,7 @@
 
 						<hr>
 						<div class="form-group">
-							<label class="control-label col-sm-6">2nd Getter API</label>
+							<label class="control-label col-sm-6">2nd Get API</label>
 							<div class="col-sm-6"></div>
 						</div>
 						<div id="sgApiUrlDiv" class="form-group">
