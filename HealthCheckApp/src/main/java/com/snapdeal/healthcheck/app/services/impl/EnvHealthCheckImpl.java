@@ -5,6 +5,14 @@ import static com.snapdeal.healthcheck.app.constants.AppConstant.currentExecDate
 import static com.snapdeal.healthcheck.app.constants.Formatter.dateFormatter;
 import static com.snapdeal.healthcheck.app.constants.Formatter.timeFormatter;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.URL;
 import java.util.Date;
 import java.util.concurrent.Callable;
 
@@ -86,7 +94,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 				try {
 					Thread.sleep(waitTimeInMillis);
 				} catch (InterruptedException e) {}
-				response = RestUtil.fetchResponse(url, callType, headersJson, reqJson);
+				response = retryHttpCall(endpoint, url, callType, headersJson, reqJson, logSuffix, response.getHttpCallException());
 			}
 			expectedResp = component.getHealthCheckApiResp();
 			actualResp = response.getResponseBody();
@@ -122,7 +130,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 				try {
 					Thread.sleep(waitTimeInMillis);
 				} catch (InterruptedException e) {}
-				response = RestUtil.fetchResponse(url, callType, headersJson, reqJson);
+				response = retryHttpCall(endpoint, url, callType, headersJson, reqJson, logSuffix, response.getHttpCallException());
 			}
 			expectedResp = component.getFirstGetApiResp();
 			actualResp = response.getResponseBody();
@@ -158,7 +166,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 				try {
 					Thread.sleep(waitTimeInMillis);
 				} catch (InterruptedException e) {}
-				response = RestUtil.fetchResponse(url, callType, headersJson, reqJson);
+				response = retryHttpCall(endpoint, url, callType, headersJson, reqJson, logSuffix, response.getHttpCallException());
 			}
 			expectedResp = component.getSecondGetApiResp();
 			actualResp = response.getResponseBody();
@@ -195,9 +203,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 						result.setServerUp(true);
 						return result;
 					}
-					log.debug(
-							logSuffix + "connection timed out entry already exist! Deleting and returning the result");
-					mongoRepoService.delete(timedOut);
+					log.debug(logSuffix + "connection timed out entry already exist! Returning the result");
 					resultDate = timedOut.getExecDate();
 				}
 			} else {
@@ -209,13 +215,19 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 			}
 		}
 		if (!isServerUp) {
+			// Check for netwrok issues
+			if (htmlCallException != null && htmlCallException.equals("No route to host")) {
+				result.setNtwrkIssue(true);
+				result.setServerUp(true);
+				log.warn(logSuffix + "Connect to server failing with -  No route to host");
+			} else
+				log.debug(logSuffix + "Server Down!!");
 			result.setFailedURL(url);
 			result.setFailedReqJson(reqJson);
 			result.setFailedHttpCallException(htmlCallException);
 			result.setFailedActualResp(actualResp);
 			result.setFailedStatusCode(actualStatusCode);
 			result.setFailedExpResp(expectedResp);
-			log.debug(logSuffix + "Server Down!!");
 			log.debug(logSuffix + "URL: " + url);
 			log.debug(logSuffix + "Request JSON: " + reqJson);
 			log.debug(logSuffix + "Status Code: " + actualStatusCode);
@@ -231,5 +243,81 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 		if(!apiExist)
 			result.setServerUp(false);
 		return result;
+	}
+
+	private static HttpCallResponse retryHttpCall(String endpoint, String url, String callType, String headers,
+			String reqJson, String logSuffix, String httpException) {
+		try {
+			if (httpException != null) {
+				pingIp(endpoint, logSuffix);
+				connectSocket(endpoint, logSuffix);
+				Thread.sleep(2000);
+			} else {
+				Thread.sleep(5000);
+			}
+		} catch (InterruptedException e) {
+		}
+		return RestUtil.fetchResponse(url, callType, headers, reqJson);
+	}
+
+	private static void pingIp(String endpoint, String logSuffix) {
+		try {
+			URL url = new URL(endpoint);
+			String host = url.getHost();
+			log.debug(logSuffix + "Trying to ping " + host);
+			String s = "";
+
+			ProcessBuilder pb = new ProcessBuilder("ping", "-c", "4", host);
+			Process process = pb.start();
+
+			BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+
+			// read the output from the command
+			while ((s = stdInput.readLine()) != null) {
+				log.debug(logSuffix + s);
+			}
+
+			// read any errors from the attempted command
+			while ((s = stdError.readLine()) != null) {
+				log.error(logSuffix + s);
+			}
+
+		} catch (Exception e) {
+			log.error(logSuffix + "Exception occured while performing ping! " + e.getMessage(), e);
+		}
+	}
+
+	private static void connectSocket(String endpoint, String logSuffix) {
+		Socket sock = null;
+		boolean connected = false;
+		try {
+			URL url = new URL(endpoint);
+			String host = url.getHost();
+			int port = url.getPort();
+			log.debug(logSuffix + "Trying to connect to socket for host: " + host + " at port: " + port);
+			InetAddress addr = InetAddress.getByName(host);
+			SocketAddress sockaddr = new InetSocketAddress(addr, port);
+			// Create an unbound socket
+			sock = new Socket();
+			// This method will block no more than timeoutMs.
+			// If the timeout occurs, SocketTimeoutException is thrown.
+			int timeoutMs = 2000; // 2 seconds
+			sock.connect(sockaddr, timeoutMs);
+			connected = sock.isConnected();
+			log.debug(logSuffix + "Connection : " + connected);
+		} catch (Exception e) {
+			log.error(logSuffix + "Exception occured while trying to connect to socket: " + e.getMessage(), e);
+		} finally {
+			if (sock != null && !sock.isClosed()) {
+				try {
+					sock.close();
+				} catch (IOException e) {}
+			}
+		}
+		if(connected)
+			log.debug(logSuffix + "Connection successful!!");
+		else
+			log.warn(logSuffix + "Could not establish connection!!");
 	}
 }

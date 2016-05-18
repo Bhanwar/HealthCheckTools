@@ -22,7 +22,16 @@ public class HealthCheckResult {
 	private String failedStatusCode;
 	private String failedActualResp;
 	private String failedHttpCallException;
+	private boolean ntwrkIssue;
 	
+	public boolean isNtwrkIssue() {
+		return ntwrkIssue;
+	}
+
+	public void setNtwrkIssue(boolean ntwrkIssue) {
+		this.ntwrkIssue = ntwrkIssue;
+	}
+
 	public String getFailedURL() {
 		return failedURL;
 	}
