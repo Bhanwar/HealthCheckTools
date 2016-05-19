@@ -1,17 +1,17 @@
 package com.snapdeal.healthcheck.app.enums;
 
-import com.snapdeal.healthcheck.app.constants.StringUtils;
+import com.snapdeal.healthcheck.app.utils.StringUtils;
 
 public enum DownTimeReasonCode {
-	
+
 	DEPLOYMENT("DEPLOYMENT"),
 	LOW_DISK_SPACE("LOW_DISK_SPACE"),
 	DB_ISSUE("DB_ISSUE"),
 	OTHER("OTHER"),
 	NOTSET("NA");
-	
+
 	private String code;
-	
+
 	private DownTimeReasonCode(String code) {
 		this.code = code;
 	}
@@ -19,11 +19,11 @@ public enum DownTimeReasonCode {
 	public String getCode() {
 		return this.code;
 	}
-	
+
 	public static DownTimeReasonCode getValueOf(String downTimeReasonCode) {
 		if(StringUtils.isEmpty(downTimeReasonCode)) {
-            return null;
-        }
+			return null;
+		}
 		if(DownTimeReasonCode.DEPLOYMENT.getCode().equalsIgnoreCase(downTimeReasonCode)) {
 			return DownTimeReasonCode.DEPLOYMENT;
 		} else if(DownTimeReasonCode.LOW_DISK_SPACE.getCode().equalsIgnoreCase(downTimeReasonCode)) {

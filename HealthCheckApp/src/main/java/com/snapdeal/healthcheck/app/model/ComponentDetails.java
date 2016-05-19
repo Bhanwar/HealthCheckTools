@@ -14,54 +14,62 @@ import javax.persistence.TemporalType;
 @Entity
 @Table(name = "components")
 public class ComponentDetails {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
 	@Column(name = "component_name", nullable = false, unique = true)
 	private String componentName;
-	
+
 	@Column(name = "qm_spoc")
 	private String qmSpoc;
-	
+
 	@Column(name = "qa_spoc")
 	private String qaSpoc;
-	
-	@Column(name = "endpoint")
-	private String endpoint;
-	
+
 	@Column(name = "authkey")
 	private String authKey;
-	
+
 	@Column(name = "authkey_shared")
 	private String authKeyShared;
-	
+
+	@Column(name = "endpoint")
+	private String endpoint;
+
 	@Column(name = "health_check_api")
 	private String healthCheckApi;
 	@Column(name = "health_check_api_call_type")
 	private String healthCheckApiCallType;
+	@Column(name = "health_check_headers")
+	private String healthCheckHeaders;
+	@Column(name = "health_check_api_req_json")
+	private String healthCheckApiReqJson;
 	@Column(name = "health_check_api_resp")
-	private String healthCheckApiResponse;
-	
+	private String healthCheckApiResp;
+
 	@Column(name = "first_get_api")
 	private String firstGetApi;
 	@Column(name = "first_get_api_call_type")
 	private String firstGetApiCallType;
+	@Column(name = "first_get_headers")
+	private String firstGetHeaders;
 	@Column(name = "first_get_api_req_json")
 	private String firstGetApiReqJson;
 	@Column(name = "first_get_api_resp")
-	private String firstGetApiResponce;
-	
+	private String firstGetApiResp;
+
 	@Column(name = "second_get_api")
 	private String secondGetApi;
 	@Column(name = "second_get_api_call_type")
 	private String secondGetApiCallType;
+	@Column(name = "second_get_headers")
+	private String secondGetHeaders;
 	@Column(name = "second_get_api_req_json")
 	private String secondGetApiReqJson;
 	@Column(name = "second_get_api_resp")
-	private String secondGetApiResponce;
-	
+	private String secondGetApiResp;
+
 	@Column(name = "created")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date created;
@@ -76,22 +84,6 @@ public class ComponentDetails {
 
 	public void setId(int id) {
 		this.id = id;
-	}
-
-	public String getAuthKey() {
-		return authKey;
-	}
-
-	public String getAuthKeyShared() {
-		return authKeyShared;
-	}
-
-	public void setAuthKeyShared(String authKeyShared) {
-		this.authKeyShared = authKeyShared;
-	}
-
-	public void setAuthKey(String authKey) {
-		this.authKey = authKey;
 	}
 
 	public String getComponentName() {
@@ -118,16 +110,28 @@ public class ComponentDetails {
 		this.qaSpoc = qaSpoc;
 	}
 
+	public String getAuthKey() {
+		return authKey;
+	}
+
+	public void setAuthKey(String authKey) {
+		this.authKey = authKey;
+	}
+
+	public String getAuthKeyShared() {
+		return authKeyShared;
+	}
+
+	public void setAuthKeyShared(String authKeyShared) {
+		this.authKeyShared = authKeyShared;
+	}
+
 	public String getEndpoint() {
 		return endpoint;
 	}
 
 	public void setEndpoint(String endpoint) {
 		this.endpoint = endpoint;
-	}
-
-	public Date getCreated() {
-		return created;
 	}
 
 	public String getHealthCheckApi() {
@@ -146,12 +150,28 @@ public class ComponentDetails {
 		this.healthCheckApiCallType = healthCheckApiCallType;
 	}
 
-	public String getHealthCheckApiResponse() {
-		return healthCheckApiResponse;
+	public String getHealthCheckHeaders() {
+		return healthCheckHeaders;
 	}
 
-	public void setHealthCheckApiResponse(String healthCheckApiResponse) {
-		this.healthCheckApiResponse = healthCheckApiResponse;
+	public void setHealthCheckHeaders(String healthCheckHeaders) {
+		this.healthCheckHeaders = healthCheckHeaders;
+	}
+
+	public String getHealthCheckApiReqJson() {
+		return healthCheckApiReqJson;
+	}
+
+	public void setHealthCheckApiReqJson(String healthCheckApiReqJson) {
+		this.healthCheckApiReqJson = healthCheckApiReqJson;
+	}
+
+	public String getHealthCheckApiResp() {
+		return healthCheckApiResp;
+	}
+
+	public void setHealthCheckApiResp(String healthCheckApiResp) {
+		this.healthCheckApiResp = healthCheckApiResp;
 	}
 
 	public String getFirstGetApi() {
@@ -170,6 +190,14 @@ public class ComponentDetails {
 		this.firstGetApiCallType = firstGetApiCallType;
 	}
 
+	public String getFirstGetHeaders() {
+		return firstGetHeaders;
+	}
+
+	public void setFirstGetHeaders(String firstGetHeaders) {
+		this.firstGetHeaders = firstGetHeaders;
+	}
+
 	public String getFirstGetApiReqJson() {
 		return firstGetApiReqJson;
 	}
@@ -178,12 +206,12 @@ public class ComponentDetails {
 		this.firstGetApiReqJson = firstGetApiReqJson;
 	}
 
-	public String getFirstGetApiResponce() {
-		return firstGetApiResponce;
+	public String getFirstGetApiResp() {
+		return firstGetApiResp;
 	}
 
-	public void setFirstGetApiResponce(String firstGetApiResponce) {
-		this.firstGetApiResponce = firstGetApiResponce;
+	public void setFirstGetApiResp(String firstGetApiResp) {
+		this.firstGetApiResp = firstGetApiResp;
 	}
 
 	public String getSecondGetApi() {
@@ -202,6 +230,14 @@ public class ComponentDetails {
 		this.secondGetApiCallType = secondGetApiCallType;
 	}
 
+	public String getSecondGetHeaders() {
+		return secondGetHeaders;
+	}
+
+	public void setSecondGetHeaders(String secondGetHeaders) {
+		this.secondGetHeaders = secondGetHeaders;
+	}
+
 	public String getSecondGetApiReqJson() {
 		return secondGetApiReqJson;
 	}
@@ -210,12 +246,16 @@ public class ComponentDetails {
 		this.secondGetApiReqJson = secondGetApiReqJson;
 	}
 
-	public String getSecondGetApiResponce() {
-		return secondGetApiResponce;
+	public String getSecondGetApiResp() {
+		return secondGetApiResp;
 	}
 
-	public void setSecondGetApiResponce(String secondGetApiResponce) {
-		this.secondGetApiResponce = secondGetApiResponce;
+	public void setSecondGetApiResp(String secondGetApiResp) {
+		this.secondGetApiResp = secondGetApiResp;
+	}
+
+	public Date getCreated() {
+		return created;
 	}
 
 	public void setCreated(Date created) {
@@ -233,14 +273,14 @@ public class ComponentDetails {
 	@Override
 	public String toString() {
 		return "ComponentDetails [id=" + id + ", componentName=" + componentName + ", qmSpoc=" + qmSpoc + ", qaSpoc="
-				+ qaSpoc + ", endpoint=" + endpoint + ", authKey=" + authKey + ", healthCheckApi=" + healthCheckApi
-				+ ", healthCheckApiCallType=" + healthCheckApiCallType + ", healthCheckApiResponse="
-				+ healthCheckApiResponse + ", firstGetApi=" + firstGetApi + ", firstGetApiCallType="
-				+ firstGetApiCallType + ", firstGetApiReqJson=" + firstGetApiReqJson + ", firstGetApiResponce="
-				+ firstGetApiResponce + ", secondGetApi=" + secondGetApi + ", secondGetApiCallType="
-				+ secondGetApiCallType + ", secondGetApiReqJson=" + secondGetApiReqJson + ", secondGetApiResponce="
-				+ secondGetApiResponce + "]";
+				+ qaSpoc + ", authKey=" + authKey + ", authKeyShared=" + authKeyShared + ", endpoint=" + endpoint
+				+ ", healthCheckApi=" + healthCheckApi + ", healthCheckApiCallType=" + healthCheckApiCallType
+				+ ", healthCheckHeaders=" + healthCheckHeaders + ", healthCheckApiReqJson=" + healthCheckApiReqJson
+				+ ", healthCheckApiResp=" + healthCheckApiResp + ", firstGetApi=" + firstGetApi
+				+ ", firstGetApiCallType=" + firstGetApiCallType + ", firstGetHeaders=" + firstGetHeaders
+				+ ", firstGetApiReqJson=" + firstGetApiReqJson + ", firstGetApiResp=" + firstGetApiResp
+				+ ", secondGetApi=" + secondGetApi + ", secondGetApiCallType=" + secondGetApiCallType
+				+ ", secondGetHeaders=" + secondGetHeaders + ", secondGetApiReqJson=" + secondGetApiReqJson
+				+ ", secondGetApiResp=" + secondGetApiResp + ", created=" + created + ", updated=" + updated + "]";
 	}
-	
-	
 }

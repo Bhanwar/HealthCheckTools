@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.snapdeal.healthcheck.app.bo.TokenApiDetailsBO;
 import com.snapdeal.healthcheck.app.model.ConnTimedOutComp;
 import com.snapdeal.healthcheck.app.model.DownTimeData;
 
@@ -14,6 +15,9 @@ public class MongoRepoService {
 	
 	@Autowired
 	private ConnTimedOutRepository connTimedOutRepo;
+	
+	@Autowired
+	private TokenApiDetailsBO tokenDetails;
 	
 	public void save(DownTimeData data) {
 		downTimeRepo.save(data);
@@ -41,5 +45,13 @@ public class MongoRepoService {
 	
 	public void save(ConnTimedOutComp data) {
 		connTimedOutRepo.save(data);
+	}
+
+	public TokenApiDetailsBO getTokenDetails() {
+		return tokenDetails;
+	}
+
+	public void setTokenDetails(TokenApiDetailsBO tokenDetails) {
+		this.tokenDetails = tokenDetails;
 	}
 }

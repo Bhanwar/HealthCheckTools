@@ -19,12 +19,16 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.snapdeal.healthcheck.app.comp.token.SFMobileToken;
+import com.snapdeal.healthcheck.app.comp.token.SellerServicesToken;
 import com.snapdeal.healthcheck.app.model.ComponentDetails;
 import com.snapdeal.healthcheck.app.model.ConnTimedOutComp;
 import com.snapdeal.healthcheck.app.model.HealthCheckResult;
+import com.snapdeal.healthcheck.app.model.HttpCallResponse;
+import com.snapdeal.healthcheck.app.model.TokenApiDetails;
 import com.snapdeal.healthcheck.app.mongo.repositories.MongoRepoService;
-import com.snapdeal.healthcheck.app.utils.HttpCallResponse;
 import com.snapdeal.healthcheck.app.utils.RestUtil;
+
 
 public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 
@@ -46,79 +50,103 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 	public static HealthCheckResult checkServerHealth(ComponentDetails component, MongoRepoService mongoRepoService) {
 		boolean isServerUp = true;
 		boolean apiExist = false;
+		int waitTimeInMillis = 5000;
+
 		String compName = component.getComponentName();
-		String logSuffix = compName + ": ";
-		HealthCheckResult result = new HealthCheckResult(compName);
-		HttpCallResponse response = null;
-		Date resultDate = currentExecDate;
+		String endpoint = component.getEndpoint();
 		String url = null;
 		String callType = null;
-		String headers = "{\"Content-Type\":\"application/json\"}";
+		String headersJson = null;
 		String reqJson = null;
 		String actualStatusCode = null;
 		String actualResp = null;
 		String expectedResp = null;
+		String expStatusCode = "200 OK";
 		String htmlCallException = null;
-		String statusCode = "200 OK";
+		String token = null;
+
+		HealthCheckResult result = new HealthCheckResult(compName);
+		HttpCallResponse response = null;
+		Date resultDate = currentExecDate;
+		String logSuffix = compName + ": ";
+
 		log.debug("Checking health for component: " + compName);
 		log.debug(logSuffix + "Comp details - " + component);
 
-		// Health check
+		TokenApiDetails tokenApi = mongoRepoService.getTokenDetails().getTokenApiDetails(compName);
+		if ("Seller Services".equals(compName) && tokenApi!=null)
+			token = SellerServicesToken.fetchTokenFromBody(tokenApi, endpoint);
+		else if ("SF Mobile".equals(compName) && tokenApi!=null)
+			token = SFMobileToken.fetchTokenFromHeader(tokenApi, endpoint);
+
+		// Health Check API
 		if (component.getHealthCheckApi() != null && component.getHealthCheckApiCallType() != null
-				&& component.getHealthCheckApiResponse() != null) {
-			response = null;
+				&& component.getHealthCheckApiResp() != null) {
 			apiExist = true;
-			url = component.getEndpoint() + component.getHealthCheckApi();
-			log.debug(logSuffix + "Health Check URL - " + url);
+			response = null;
+
+			url = endpoint + component.getHealthCheckApi();
 			callType = component.getHealthCheckApiCallType();
-			response = RestUtil.fetchResponse(url, callType, headers, reqJson);
-			if (response.getStatusCode() == null || !response.getStatusCode().equals(statusCode)) {
-				log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode()
-						+ " Call Exception: " + response.getHttpCallException());
-				response = retryHttpCall(component.getEndpoint(), url, callType, headers, reqJson, logSuffix,
-						response.getHttpCallException());
+			headersJson = component.getHealthCheckHeaders();
+			reqJson = component.getHealthCheckApiReqJson().replace("#TOKEN", token);
+			log.debug(logSuffix + "Health Check API URL - " + url);
+
+			response = RestUtil.fetchResponse(url, callType, headersJson, reqJson);
+			if(response.getStatusCode() == null || !response.getStatusCode().equals(expStatusCode)) {
+				log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
+				try {
+					Thread.sleep(waitTimeInMillis);
+				} catch (InterruptedException e) {}
+				response = retryHttpCall(endpoint, url, callType, headersJson, reqJson, logSuffix, response.getHttpCallException());
 			}
-			expectedResp = component.getHealthCheckApiResponse();
-			htmlCallException = response.getHttpCallException();
+			expectedResp = component.getHealthCheckApiResp();
 			actualResp = response.getResponseBody();
 			actualStatusCode = response.getStatusCode();
-			if (response.getStatusCode() != null && response.getStatusCode().equals(statusCode)
+			htmlCallException = response.getHttpCallException();
+			if (response.getStatusCode() != null && response.getStatusCode().equals(expStatusCode)
 					&& response.getResponseBody() != null && response.getResponseBody().contains(expectedResp))
 				isServerUp = true;
 			else
 				isServerUp = false;
-			log.debug(logSuffix + "Health API Status code - " + response.getStatusCode());
+
+			log.debug(logSuffix + "Health Check API Status code - " + response.getStatusCode());
+			//log.debug(logSuffix + "Health Check API Response Body - " + response.getResponseBody());
 		} else {
-			log.warn(logSuffix + "Health check API details not present!");
+			log.warn(logSuffix + "Health Check API details not present!");
 		}
 
 		// First Get API
 		if (isServerUp && component.getFirstGetApi() != null && component.getFirstGetApiCallType() != null
-				&& component.getFirstGetApiResponce() != null) {
-
-			response = null;
+				&& component.getFirstGetApiResp() != null) {
 			apiExist = true;
-			reqJson = component.getFirstGetApiReqJson();
+			response = null;
+
+			url = endpoint + component.getFirstGetApi();
 			callType = component.getFirstGetApiCallType();
-			url = component.getEndpoint() + component.getFirstGetApi();
+			headersJson = component.getFirstGetHeaders();
+			reqJson = component.getFirstGetApiReqJson().replace("#TOKEN", token);
 			log.debug(logSuffix + "First Get API URL - " + url);
-			response = RestUtil.fetchResponse(url, callType, headers, reqJson);
-			if (response.getStatusCode() == null || !response.getStatusCode().equals(statusCode)) {
-				log.debug(logSuffix + "Retrying First Get API..! Status Code: " + response.getStatusCode()
-						+ " Call Exception: " + response.getHttpCallException());
-				response = retryHttpCall(component.getEndpoint(), url, callType, headers, reqJson, logSuffix,
-						response.getHttpCallException());
+
+			response = RestUtil.fetchResponse(url, callType, headersJson, reqJson);
+			if(response.getStatusCode() == null || !response.getStatusCode().equals(expStatusCode)) {
+				log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
+				try {
+					Thread.sleep(waitTimeInMillis);
+				} catch (InterruptedException e) {}
+				response = retryHttpCall(endpoint, url, callType, headersJson, reqJson, logSuffix, response.getHttpCallException());
 			}
-			expectedResp = component.getFirstGetApiResponce();
-			htmlCallException = response.getHttpCallException();
+			expectedResp = component.getFirstGetApiResp();
 			actualResp = response.getResponseBody();
 			actualStatusCode = response.getStatusCode();
-			if (response.getStatusCode() != null && response.getStatusCode().equals(statusCode)
+			htmlCallException = response.getHttpCallException();
+			if (response.getStatusCode() != null && response.getStatusCode().equals(expStatusCode)
 					&& response.getResponseBody() != null && response.getResponseBody().contains(expectedResp))
 				isServerUp = true;
 			else
 				isServerUp = false;
+
 			log.debug(logSuffix + "First Get API Status code - " + response.getStatusCode());
+			//log.debug(logSuffix + "First Get API Response Body - " + response.getResponseBody());
 		} else {
 			if (isServerUp)
 				log.warn(logSuffix + "First Get API details not present!");
@@ -126,31 +154,35 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 
 		// Second Get API
 		if (isServerUp && component.getSecondGetApi() != null && component.getSecondGetApiCallType() != null
-				&& component.getSecondGetApiResponce() != null) {
-
-			response = null;
+				&& component.getSecondGetApiResp() != null) {
 			apiExist = true;
-			reqJson = component.getSecondGetApiReqJson();
+			response = null;
+
+			url = endpoint + component.getSecondGetApi();
 			callType = component.getSecondGetApiCallType();
-			url = component.getEndpoint() + component.getSecondGetApi();
+			reqJson = component.getSecondGetApiReqJson().replace("#TOKEN", token);
 			log.debug(logSuffix + "Second Get API URL - " + url);
-			response = RestUtil.fetchResponse(url, callType, headers, reqJson);
-			if (response.getStatusCode() == null || !response.getStatusCode().equals(statusCode)) {
-				log.debug(logSuffix + "Retrying Second Get API..! Status Code: " + response.getStatusCode()
-						+ " Call Exception: " + response.getHttpCallException());
-				response = retryHttpCall(component.getEndpoint(), url, callType, headers, reqJson, logSuffix,
-						response.getHttpCallException());
+
+			response = RestUtil.fetchResponse(url, callType, headersJson, reqJson);
+			if(response.getStatusCode() == null || !response.getStatusCode().equals(expStatusCode)) {
+				log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
+				try {
+					Thread.sleep(waitTimeInMillis);
+				} catch (InterruptedException e) {}
+				response = retryHttpCall(endpoint, url, callType, headersJson, reqJson, logSuffix, response.getHttpCallException());
 			}
-			expectedResp = component.getSecondGetApiResponce();
-			htmlCallException = response.getHttpCallException();
+			expectedResp = component.getSecondGetApiResp();
 			actualResp = response.getResponseBody();
 			actualStatusCode = response.getStatusCode();
-			if (response.getStatusCode() != null && response.getStatusCode().equals(statusCode)
+			htmlCallException = response.getHttpCallException();
+			if (response.getStatusCode() != null && response.getStatusCode().equals(expStatusCode)
 					&& response.getResponseBody() != null && response.getResponseBody().contains(expectedResp))
 				isServerUp = true;
 			else
 				isServerUp = false;
+
 			log.debug(logSuffix + "Second Get API Status code - " + response.getStatusCode());
+			//log.debug(logSuffix + "Second Get API Response Body - " + response.getResponseBody());
 		} else {
 			if (isServerUp)
 				log.warn(logSuffix + "Second Get API details not present!");
@@ -210,9 +242,9 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 		result.setExecDate(date);
 		result.setExecTime(time);
 		result.setExecDateTime(resultDate);
-		if (!apiExist)
-			result.setServerUp(false);
 
+		if(!apiExist)
+			result.setServerUp(false);
 		return result;
 	}
 

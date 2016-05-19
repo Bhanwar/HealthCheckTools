@@ -1,4 +1,4 @@
-package com.snapdeal.healthcheck.app.constants;
+package com.snapdeal.healthcheck.app.utils;
 
 import java.net.URLDecoder;
 import java.text.DecimalFormat;

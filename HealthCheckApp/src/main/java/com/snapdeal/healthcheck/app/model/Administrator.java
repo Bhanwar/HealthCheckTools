@@ -17,7 +17,6 @@ public class Administrator {
 
 	@Column(name = "name", nullable = false)
 	private String name;
-	
 	@Column(name = "authkey", nullable = false, unique = true)
 	private String authKey;
 
@@ -28,17 +27,17 @@ public class Administrator {
 	public void setId(int id) {
 		this.id = id;
 	}
-
-	public String getAuthKey() {
-		return authKey;
-	}
-
+	
 	public String getName() {
 		return name;
 	}
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getAuthKey() {
+		return authKey;
 	}
 
 	public void setAuthKey(String authKey) {

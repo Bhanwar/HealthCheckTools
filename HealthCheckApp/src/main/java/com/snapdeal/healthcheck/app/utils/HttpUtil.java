@@ -10,9 +10,11 @@ import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HttpCall {
+import com.snapdeal.healthcheck.app.model.HttpCallResponse;
+
+public class HttpUtil {
 	
-	private static final Logger log = LoggerFactory.getLogger(HttpCall.class);
+	private static final Logger log = LoggerFactory.getLogger(HttpUtil.class);
 	
 	public static HttpCallResponse callPost(String url, String json) {
 		HttpURLConnection conn = null;
