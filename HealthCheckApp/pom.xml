@@ -12,7 +12,6 @@
 		<flyway.version>4.0</flyway.version>
 		<apache.log4j.version>2.1</apache.log4j.version>
 		<jackson.version>2.5.0</jackson.version>
-		<mysql.connector.version>5.1.31</mysql.connector.version>
 	</properties>
 	<dependencies>
 		<!-- Spring Core -->
@@ -131,12 +130,6 @@
 			<artifactId>log4j-core</artifactId>
 			<version>${apache.log4j.version}</version>
 		</dependency>
-		<!-- MySQL dependency -->
-		<dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql.connector.version}</version>
-        </dependency>
 		<!-- Mongo dependency -->
 		<dependency>
 			<groupId>org.springframework.data</groupId>
