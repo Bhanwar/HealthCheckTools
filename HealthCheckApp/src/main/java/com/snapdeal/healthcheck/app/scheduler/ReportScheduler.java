@@ -28,6 +28,7 @@ public class ReportScheduler extends QuartzJobBean {
 	private String toAddress;
 	private String ccAddress;
 	private String envName;
+	private boolean sendMail;
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	@Override
@@ -105,8 +106,10 @@ public class ReportScheduler extends QuartzJobBean {
 		if(emailAddressTo.isEmpty()) {
 			log.warn("Daily Report was not sent as the TO Address list was empty!!");
 		} else {
-			EmailUtil mail = new EmailUtil(emailAddressTo, emailAddressCc, null, envName + " health daily report - " + date, html.toString());
-			mail.sendHTMLEmail();
+			if(sendMail) {
+				EmailUtil mail = new EmailUtil(emailAddressTo, emailAddressCc, null, envName + " health daily report - " + date, html.toString());
+				mail.sendHTMLEmail();
+			}
 		}
 	}
 
@@ -144,6 +147,14 @@ public class ReportScheduler extends QuartzJobBean {
 
 	public String getCcAddress() {
 		return ccAddress;
+	}
+
+	public boolean isSendMail() {
+		return sendMail;
+	}
+
+	public void setSendMail(boolean sendMail) {
+		this.sendMail = sendMail;
 	}
 
 	public void setCcAddress(String ccAddress) {

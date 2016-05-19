@@ -43,6 +43,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 	private String toAddress;
 	private String ccAddress;
 	private String envName;
+	private boolean sendMail;
 	private MongoRepoService repoService;
 
 	@Override
@@ -124,7 +125,8 @@ public class HealthCheckScheduler extends QuartzJobBean {
 				data.setEndDate(execDateStr);
 				log.debug("Updating down time data in Mongo");
 				repoService.save(data);
-				sendServerUpMail(compName, execDate);
+				if(sendMail)
+					sendServerUpMail(compName, execDate);
 			}
 		} else {
 			log.debug(compName + " Server is DOWN!!");
@@ -147,7 +149,8 @@ public class HealthCheckScheduler extends QuartzJobBean {
 				data.setFailedStatusCode(result.getFailedStatusCode());
 				log.debug("Saving down time data in Mongo");
 				repoService.save(data);
-				sendServerDownMail(compName, result, execDate);
+				if(sendMail)
+					sendServerDownMail(compName, result, execDate);
 			} else {
 				log.warn(compName + ": Down time data already exist in Mongo!! This should not happen, please check!");
 			}
@@ -254,6 +257,14 @@ public class HealthCheckScheduler extends QuartzJobBean {
 
 	public String getEnvName() {
 		return envName;
+	}
+
+	public boolean isSendMail() {
+		return sendMail;
+	}
+
+	public void setSendMail(boolean sendMail) {
+		this.sendMail = sendMail;
 	}
 
 	public void setEnvName(String envName) {

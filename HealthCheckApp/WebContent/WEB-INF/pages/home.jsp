@@ -87,7 +87,9 @@
 									<c:set var="downTimeData"
 										value="<html>Server Down Time: ${val.downTime}
 									<br>Server Up Time: ${val.upTime}
-									<br>Total time server down (mins): ${val.totalTime}</html>" />
+									<br>Total time server down (mins): ${val.totalTime}
+									<br>Status Code: ${val.statusCode}
+									<br>Http Excp: ${val.httpExcp}</html>" />
 									<div title="${downTimeData}" class="redbar pointer toolTipster" onclick="updateReason()"
 										style="margin-left: <c:out value="${val.leftMargin}"/>%; width: <c:out value="${val.width}"/>%;"></div>
 

@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import com.snapdeal.healthcheck.app.comp.token.SFMobileToken;
 import com.snapdeal.healthcheck.app.comp.token.SellerServicesToken;
+import com.snapdeal.healthcheck.app.constants.AppConstant;
+import com.snapdeal.healthcheck.app.enums.TokenComponent;
 import com.snapdeal.healthcheck.app.model.ComponentDetails;
 import com.snapdeal.healthcheck.app.model.ConnTimedOutComp;
 import com.snapdeal.healthcheck.app.model.HealthCheckResult;
@@ -44,14 +46,19 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 
 	@Override
 	public HealthCheckResult call() throws Exception {
-		return checkServerHealth(compDetails, mongoService);
+		TokenApiDetails tokenApidetails = null;
+		String compName = compDetails.getComponentName();
+		TokenComponent tokenComp = TokenComponent.getValueOf(compName);
+		if(!tokenComp.equals(TokenComponent.INV)) {
+			tokenApidetails = mongoService.getTokenDetails().getTokenApiDetails(compName);
+		}
+		return checkServerHealth(compDetails, mongoService, tokenApidetails);
 	}
 
-	public static HealthCheckResult checkServerHealth(ComponentDetails component, MongoRepoService mongoRepoService) {
+	public static HealthCheckResult checkServerHealth(ComponentDetails component, MongoRepoService mongoRepoService, TokenApiDetails tokenApi) {
 		boolean isServerUp = true;
 		boolean apiExist = false;
-		int waitTimeInMillis = 5000;
-
+		
 		String compName = component.getComponentName();
 		String endpoint = component.getEndpoint();
 		String url = null;
@@ -72,12 +79,20 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 
 		log.debug("Checking health for component: " + compName);
 		log.debug(logSuffix + "Comp details - " + component);
-
-		TokenApiDetails tokenApi = mongoRepoService.getTokenDetails().getTokenApiDetails(compName);
-		if ("Seller Services".equals(compName) && tokenApi!=null)
-			token = SellerServicesToken.fetchTokenFromBody(tokenApi, endpoint);
-		else if ("SF Mobile".equals(compName) && tokenApi!=null)
-			token = SFMobileToken.fetchTokenFromHeader(tokenApi, endpoint);
+		
+		if(tokenApi != null) {
+			TokenComponent tokenComp = TokenComponent.getValueOf(compName);
+			switch (tokenComp) {
+			case SF_MOBILE:
+				token = SFMobileToken.fetchTokenFromHeader(tokenApi, endpoint);
+				break;
+			case SELLER_SERVICES:
+				token = SellerServicesToken.fetchTokenFromBody(tokenApi, endpoint);
+				break;
+			default:
+				break;
+			}
+		}		
 
 		// Health Check API
 		if (component.getHealthCheckApi() != null && component.getHealthCheckApiCallType() != null
@@ -88,15 +103,16 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 			url = endpoint + component.getHealthCheckApi();
 			callType = component.getHealthCheckApiCallType();
 			headersJson = component.getHealthCheckHeaders();
-			reqJson = component.getHealthCheckApiReqJson().replace("#TOKEN", token);
+			reqJson = component.getHealthCheckApiReqJson();
+			if(component.getHealthCheckHeaders() != null && token != null)
+				headersJson = component.getHealthCheckHeaders().replace(AppConstant.ADMIN_UI_HEADER_TOKEN, token);
+			if(component.getHealthCheckApiReqJson() != null && token != null)
+				reqJson = component.getHealthCheckApiReqJson().replace(AppConstant.ADMIN_UI_REQ_TOKEN, token);
 			log.debug(logSuffix + "Health Check API URL - " + url);
 
 			response = RestUtil.fetchResponse(url, callType, headersJson, reqJson);
 			if(response.getStatusCode() == null || !response.getStatusCode().equals(expStatusCode)) {
 				log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
-				try {
-					Thread.sleep(waitTimeInMillis);
-				} catch (InterruptedException e) {}
 				response = retryHttpCall(endpoint, url, callType, headersJson, reqJson, logSuffix, response.getHttpCallException());
 			}
 			expectedResp = component.getHealthCheckApiResp();
@@ -124,15 +140,16 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 			url = endpoint + component.getFirstGetApi();
 			callType = component.getFirstGetApiCallType();
 			headersJson = component.getFirstGetHeaders();
-			reqJson = component.getFirstGetApiReqJson().replace("#TOKEN", token);
+			reqJson = component.getFirstGetApiReqJson();
+			if(component.getFirstGetHeaders() != null && token != null)
+				headersJson = component.getFirstGetHeaders().replace(AppConstant.ADMIN_UI_HEADER_TOKEN, token);
+			if(component.getFirstGetApiReqJson() != null && token != null)
+				reqJson = component.getFirstGetApiReqJson().replace(AppConstant.ADMIN_UI_REQ_TOKEN, token);
 			log.debug(logSuffix + "First Get API URL - " + url);
 
 			response = RestUtil.fetchResponse(url, callType, headersJson, reqJson);
 			if(response.getStatusCode() == null || !response.getStatusCode().equals(expStatusCode)) {
 				log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
-				try {
-					Thread.sleep(waitTimeInMillis);
-				} catch (InterruptedException e) {}
 				response = retryHttpCall(endpoint, url, callType, headersJson, reqJson, logSuffix, response.getHttpCallException());
 			}
 			expectedResp = component.getFirstGetApiResp();
@@ -160,15 +177,17 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 
 			url = endpoint + component.getSecondGetApi();
 			callType = component.getSecondGetApiCallType();
-			reqJson = component.getSecondGetApiReqJson().replace("#TOKEN", token);
+			headersJson = component.getSecondGetHeaders();
+			reqJson = component.getSecondGetApiReqJson();
+			if(component.getSecondGetHeaders() != null && token != null)
+				headersJson = component.getSecondGetHeaders().replace(AppConstant.ADMIN_UI_HEADER_TOKEN, token);
+			if(component.getSecondGetApiReqJson() != null && token != null)
+				reqJson = component.getSecondGetApiReqJson().replace(AppConstant.ADMIN_UI_REQ_TOKEN, token);
 			log.debug(logSuffix + "Second Get API URL - " + url);
 
 			response = RestUtil.fetchResponse(url, callType, headersJson, reqJson);
 			if(response.getStatusCode() == null || !response.getStatusCode().equals(expStatusCode)) {
 				log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
-				try {
-					Thread.sleep(waitTimeInMillis);
-				} catch (InterruptedException e) {}
 				response = retryHttpCall(endpoint, url, callType, headersJson, reqJson, logSuffix, response.getHttpCallException());
 			}
 			expectedResp = component.getSecondGetApiResp();
@@ -219,12 +238,15 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 		}
 		if (!isServerUp) {
 			// Check for netwrok issues
-			if (htmlCallException != null && htmlCallException.equals("No route to host")) {
-				result.setNtwrkIssue(true);
-				result.setServerUp(true);
-				log.warn(logSuffix + "Connect to server failing with -  No route to host");
-			} else
-				log.debug(logSuffix + "Server Down!!");
+			if (htmlCallException != null) {
+				if(htmlCallException.equals(AppConstant.NETWORK_UNREACHABLE) || htmlCallException.equals(AppConstant.NO_ROUTE_TO_HOST)) {
+					result.setNtwrkIssue(true);
+					result.setServerUp(true);
+					log.warn(logSuffix + "Connect to server failing with network issue: " + htmlCallException);
+				} else
+					log.debug(logSuffix + "Server Down!!");
+			}
+				
 			result.setFailedURL(url);
 			result.setFailedReqJson(reqJson);
 			result.setFailedHttpCallException(htmlCallException);
