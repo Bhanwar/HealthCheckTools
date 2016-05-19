@@ -24,7 +24,9 @@ public class TokenApiDetails {
 	private String loginApiCallType;
 	@Column(name = "login_api_req_json")
 	private String loginApiReqJson;
-	
+	@Column(name = "login_invalid_cred_msg")
+	private String loginInvalidCredMsg;
+
 	public int getId() {
 		return id;
 	}
@@ -55,10 +57,17 @@ public class TokenApiDetails {
 	public void setLoginApiReqJson(String loginApiReqJson) {
 		this.loginApiReqJson = loginApiReqJson;
 	}
-	
+	public String getLoginInvalidCredMsg() {
+		return loginInvalidCredMsg;
+	}
+	public void setLoginInvalidCredMsg(String loginInvalidCredMsg) {
+		this.loginInvalidCredMsg = loginInvalidCredMsg;
+	}
+
 	@Override
 	public String toString() {
 		return "TokenApiDetails [id=" + id + ", componentName=" + componentName + ", loginApi=" + loginApi
-				+ ", loginApiCallType=" + loginApiCallType + ", loginApiReqJson=" + loginApiReqJson + "]";
+				+ ", loginApiCallType=" + loginApiCallType + ", loginApiReqJson=" + loginApiReqJson
+				+ ", loginInvalidCredMsg=" + loginInvalidCredMsg + "]";
 	}
 }

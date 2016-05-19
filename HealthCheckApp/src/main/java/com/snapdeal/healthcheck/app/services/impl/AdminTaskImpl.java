@@ -11,9 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.snapdeal.healthcheck.app.bo.AdminBO;
 import com.snapdeal.healthcheck.app.bo.ComponentDetailsBO;
+import com.snapdeal.healthcheck.app.bo.TokenApiDetailsBO;
 import com.snapdeal.healthcheck.app.model.Administrator;
 import com.snapdeal.healthcheck.app.model.ComponentDetails;
 import com.snapdeal.healthcheck.app.model.HealthCheckResult;
+import com.snapdeal.healthcheck.app.model.TokenApiDetails;
 import com.snapdeal.healthcheck.app.services.AdminTask;
 
 
@@ -23,10 +25,13 @@ public class AdminTaskImpl implements AdminTask{
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	private ComponentDetailsBO compDetails;
+	private AdminBO adminSer;
 
 	@Autowired
-	private AdminBO adminSer;
+	private TokenApiDetailsBO tokenDetails;
+
+	@Autowired
+	private ComponentDetailsBO compDetails;
 
 	@Override
 	public String changePassword(String data) {
@@ -63,9 +68,21 @@ public class AdminTaskImpl implements AdminTask{
 		String resultData = "";
 		try{
 			JSONObject jsonData = new JSONObject(data);
+			String compName = getJsonString(jsonData, "compName");
+
+			TokenApiDetails tokenApi = new TokenApiDetails();
+			tokenApi.setComponentName(compName);
+			tokenApi.setLoginApi(getJsonString(jsonData, "loginApiUrl"));
+			tokenApi.setLoginApiCallType(getJsonString(jsonData, "loginApiCallType"));
+			tokenApi.setLoginApiReqJson(getJsonString(jsonData, "loginApiReqJson"));
+			tokenApi.setLoginInvalidCredMsg(getJsonString(jsonData, "loginInvalidCredMsg"));
+			if (tokenDetails.getTokenApiDetails(compName) == null)
+				tokenDetails.saveTokenApiDetails(tokenApi);
+			else
+				tokenDetails.updateTokenApiDetails(tokenApi);
 
 			ComponentDetails component = new ComponentDetails();
-			component.setComponentName(getJsonString(jsonData, "compName"));
+			component.setComponentName(compName);
 			component.setQmSpoc(getJsonString(jsonData, "qmSpoc"));
 			component.setQaSpoc(getJsonString(jsonData, "qaSpoc"));
 			component.setEndpoint(getJsonString(jsonData, "endpoint"));
@@ -123,8 +140,9 @@ public class AdminTaskImpl implements AdminTask{
 		String resultData = "";
 		try{
 			JSONObject jsonData = new JSONObject(data);
-
+			String compName = getJsonString(jsonData, "compName");
 			String authKey = getJsonString(jsonData, "authKey");
+
 			Administrator admin = adminSer.getAdmin();
 			if(admin == null)
 				return "Something went wrong. Please contact admin";
@@ -133,8 +151,19 @@ public class AdminTaskImpl implements AdminTask{
 			else
 				return "<h4>Not Authorized!!</h4>";
 
+			TokenApiDetails tokenApi = new TokenApiDetails();
+			tokenApi.setComponentName(compName);
+			tokenApi.setLoginApi(getJsonString(jsonData, "loginApiUrl"));
+			tokenApi.setLoginApiCallType(getJsonString(jsonData, "loginApiCallType"));
+			tokenApi.setLoginApiReqJson(getJsonString(jsonData, "loginApiReqJson"));
+			tokenApi.setLoginInvalidCredMsg(getJsonString(jsonData, "loginInvalidCredMsg"));
+			if (tokenDetails.getTokenApiDetails(compName) == null)
+				tokenDetails.saveTokenApiDetails(tokenApi);
+			else
+				tokenDetails.updateTokenApiDetails(tokenApi);
+
 			ComponentDetails component = new ComponentDetails();
-			component.setComponentName(getJsonString(jsonData, "compName"));
+			component.setComponentName(compName);
 			component.setQmSpoc(getJsonString(jsonData, "qmSpoc"));
 			component.setQaSpoc(getJsonString(jsonData, "qaSpoc"));
 			component.setEndpoint(getJsonString(jsonData, "endpoint"));

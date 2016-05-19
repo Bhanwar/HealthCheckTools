@@ -19,6 +19,7 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.snapdeal.healthcheck.app.comp.token.SFMobileToken;
 import com.snapdeal.healthcheck.app.comp.token.SellerServicesToken;
 import com.snapdeal.healthcheck.app.model.ComponentDetails;
 import com.snapdeal.healthcheck.app.model.ConnTimedOutComp;
@@ -73,8 +74,10 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 		log.debug(logSuffix + "Comp details - " + component);
 
 		TokenApiDetails tokenApi = mongoRepoService.getTokenDetails().getTokenApiDetails(compName);
-		if ("SellerServices".equals(compName) && tokenApi!=null)
+		if ("Seller Services".equals(compName) && tokenApi!=null)
 			token = SellerServicesToken.fetchTokenFromBody(tokenApi, endpoint);
+		else if ("SF Mobile".equals(compName) && tokenApi!=null)
+			token = SFMobileToken.fetchTokenFromHeader(tokenApi, endpoint);
 
 		// Health Check API
 		if (component.getHealthCheckApi() != null && component.getHealthCheckApiCallType() != null

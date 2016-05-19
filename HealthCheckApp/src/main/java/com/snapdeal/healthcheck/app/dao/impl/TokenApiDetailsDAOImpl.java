@@ -17,4 +17,14 @@ public class TokenApiDetailsDAOImpl extends AbstractDao implements TokenApiDetai
 		criteria.add(Restrictions.eq("componentName", compName));
 		return (TokenApiDetails) criteria.uniqueResult();
 	}
+
+	@Override
+	public void updateTokenApiDetails(TokenApiDetails tokenApiDetail) {
+		getSession().update(tokenApiDetail);
+	}
+
+	@Override
+	public void saveTokenApiDetails(TokenApiDetails tokenApiDetail) {
+		persist(tokenApiDetail);
+	}
 }

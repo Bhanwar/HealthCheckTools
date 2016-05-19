@@ -19,4 +19,14 @@ public class TokenApiDetailsBOImpl implements TokenApiDetailsBO {
 	public TokenApiDetails getTokenApiDetails(String compName) {
 		return dao.getTokenApiDetails(compName);
 	}
+
+	@Override
+	public void updateTokenApiDetails(TokenApiDetails tokenApiDetail) {
+		dao.updateTokenApiDetails(tokenApiDetail);
+	}
+
+	@Override
+	public void saveTokenApiDetails(TokenApiDetails tokenApiDetail) {
+		dao.saveTokenApiDetails(tokenApiDetail);
+	}
 }

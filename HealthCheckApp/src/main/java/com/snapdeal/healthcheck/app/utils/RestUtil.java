@@ -73,6 +73,7 @@ public class RestUtil {
 	}
 
 
+	@SuppressWarnings("unchecked")
 	public static Map<String, String> convertJsonStrToMap(String paramsJson) {
 		Map<String, String> params = null;
 		try {
