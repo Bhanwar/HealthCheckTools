@@ -18,6 +18,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 
 import com.snapdeal.healthcheck.app.model.ComponentDetails;
 import com.snapdeal.healthcheck.app.model.DownTimeData;
@@ -40,7 +41,15 @@ public class GatherDataImpl implements GatherData {
 		
 		//Map<String, List<DownTimeUIData>> data = new HashMap<String, List<DownTimeUIData>>();
 		Map<String, List<DownTimeUIData>> data = new LinkedHashMap<String, List<DownTimeUIData>>();
-		List<DownTimeData> list = downTimeRepo.findAllExecForDate(date);
+		List<DownTimeData> list = downTimeRepo.findAllExecForDateSorted(date, new Sort(Sort.Direction.DESC, "id"));
+		List<DownTimeData> listStillUp = downTimeRepo.findAllDownTimeDataSorted("NO", new Sort(Sort.Direction.ASC, "componentName"));
+		
+		if(!listStillUp.isEmpty()) {
+			for(DownTimeData downTime : listStillUp) {
+				if(data.get(downTime.getComponentName()) == null)
+					data.put(downTime.getComponentName(), new ArrayList<DownTimeUIData>());
+			}
+		}
 		
 		if (!list.isEmpty()) {
 			for (DownTimeData downTime : list) {
@@ -49,6 +58,8 @@ public class GatherDataImpl implements GatherData {
 				String totalTime = "NA";
 				DownTimeUIData uiData = new DownTimeUIData();
 				Date downTimeDate = downTime.getDownTime();
+				String statusCode = "";
+				String httpCallException = "";
 				double leftMargin = 0;
 				if (dateFormatter.format(downTimeDate).equals(date))
 					leftMargin = getPercentageForTime(downTimeDate);
@@ -59,6 +70,11 @@ public class GatherDataImpl implements GatherData {
 					upTime = timeFormatter.format(compExecTime) + " " + dateFormatter.format(compExecTime);
 					totalTime = downTime.getTotalDownTimeInMins();
 				}
+				if(downTime.getFailedStatusCode() != null)
+					statusCode = downTime.getFailedStatusCode();
+				if(downTime.getFailedHttpException() != null)
+					httpCallException = downTime.getFailedHttpException();
+				
 				double rightMargin = getPercentageForTime(compExecTime);
 				uiData.setId(downTime.getId());
 				uiData.setLeftMargin(leftMargin);
@@ -66,6 +82,8 @@ public class GatherDataImpl implements GatherData {
 				uiData.setUpTime(upTime);
 				uiData.setTotalTime(totalTime);
 				uiData.setDownTime(downTimeStr);
+				uiData.setStatusCode(statusCode);
+				uiData.setHttpExcp(httpCallException);
 				String mapKey = downTime.getComponentName();
 				List<DownTimeUIData> dataList = null;
 				if(data.get(mapKey) == null)

@@ -116,6 +116,8 @@
 			<beans:map>
 				<beans:entry key="repoService" value-ref="mongoService" />
 				<beans:entry key="dataObjects" value-ref="quartzDataObj"></beans:entry>
+				<beans:entry key="sendMail" value-type="boolean"
+					value="${send_mail}" />
 				<beans:entry key="toAddress" value-type="java.lang.String"
 					value="${to_mail_recepients}" />
 				<beans:entry key="ccAddress" value-type="java.lang.String"

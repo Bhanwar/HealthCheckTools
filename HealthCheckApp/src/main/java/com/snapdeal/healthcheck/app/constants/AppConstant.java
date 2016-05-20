@@ -12,6 +12,11 @@ public class AppConstant {
 	public static Date currentExecDate;
 	public static final String SNAPDEAL_ID = "@snapdeal.com";
 	public static final String CONNECTION_TIMED_OUT = "Connection timed out";
+	public static final String NO_ROUTE_TO_HOST = "No route to host";
+	public static final String NETWORK_UNREACHABLE = "Network is unreachable";
+	public static final String ADMIN_UI_EMPTY_STRING = "$#EMPTY_STRING#$";
+	public static final String ADMIN_UI_REQ_TOKEN = "$#REQ_TOKEN#$";
+	public static final String ADMIN_UI_HEADER_TOKEN = "$#HDR_TOKEN#$";
 	public static Map<String, Boolean> healthResult;
 	public static Set<String> componentNames;
 	public static Map<String, List<DownTimeUIData>> uiData = null;

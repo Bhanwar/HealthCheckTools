@@ -8,6 +8,8 @@ public class DownTimeUIData {
 	String downTime;
 	String upTime;
 	String totalTime;
+	String statusCode;
+	String httpExcp;
 
 	public double getLeftMargin() {
 		return leftMargin;
@@ -23,6 +25,22 @@ public class DownTimeUIData {
 
 	public void setWidth(double width) {
 		this.width = width;
+	}
+
+	public String getStatusCode() {
+		return statusCode;
+	}
+
+	public void setStatusCode(String statusCode) {
+		this.statusCode = statusCode;
+	}
+
+	public String getHttpExcp() {
+		return httpExcp;
+	}
+
+	public void setHttpExcp(String httpExcp) {
+		this.httpExcp = httpExcp;
 	}
 
 	public String getId() {
