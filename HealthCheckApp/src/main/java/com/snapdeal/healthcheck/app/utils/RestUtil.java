@@ -49,7 +49,7 @@ public class RestUtil {
 		RestAssured.useRelaxedHTTPSValidation();
 		RestAssured.urlEncodingEnabled = true;
 		if (headersJson != null) {
-			Map<String, String> headers = convertJsonStrToMap(headersJson);
+			Map<String, String> headers = fetchReqParamsMap(headersJson);
 			RestAssured.requestSpecification = new RequestSpecBuilder()
 					.addHeaders(headers)
 					.build();
@@ -59,7 +59,7 @@ public class RestUtil {
 
 	public static Response callGet(String url, String paramsJson) throws Exception {
 		if (paramsJson != null) {
-			Map<String, String> params = convertJsonStrToMap(paramsJson);
+			Map<String, String> params = fetchReqParamsMap(paramsJson);
 			return RestAssured.given().queryParams(params).when().get(url);
 		}
 		else {
@@ -70,7 +70,7 @@ public class RestUtil {
 
 	public static Response callPost(String url, String paramsJson) throws Exception {
 		if (paramsJson != null) {
-			Object payload = convertJsonStrToObj(paramsJson);
+			Object payload = fetchReqParamsObj(paramsJson);
 			return RestAssured.given().body(payload).when().post(url);
 		}
 		else {
@@ -99,7 +99,7 @@ public class RestUtil {
 
 
 	@SuppressWarnings("unchecked")
-	public static Map<String, String> convertJsonStrToMap(String paramsJson) {
+	public static Map<String, String> fetchReqParamsMap(String paramsJson) {
 		Map<String, String> params = null;
 		try {
 			params = new ObjectMapper().readValue(paramsJson, HashMap.class);
@@ -110,7 +110,7 @@ public class RestUtil {
 	}
 
 
-	public static Object convertJsonStrToObj(String paramsJson) {
+	public static Object fetchReqParamsObj(String paramsJson) {
 		Object payload = null;
 		try {
 			payload = new ObjectMapper().readValue(paramsJson, Object.class);

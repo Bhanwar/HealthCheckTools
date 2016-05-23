@@ -2,16 +2,19 @@ package com.snapdeal.healthcheck.app.utils;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snapdeal.healthcheck.app.model.HttpCallResponse;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 
 public class JerseyUtil {
@@ -51,7 +54,7 @@ public class JerseyUtil {
 		WebResource webResource = client.resource(url);
 
 		if (paramsJson != null) {
-			Map<String, String> params = convertJsonStrToMap(paramsJson);
+			MultivaluedMap<String, String> params = fetchReqParamsMultivaluedMap(paramsJson);
 			return webResource.type(contentType).post(ClientResponse.class, params);
 		}
 		else {
@@ -77,10 +80,17 @@ public class JerseyUtil {
 
 
 	@SuppressWarnings("unchecked")
-	public static Map<String, String> convertJsonStrToMap(String paramsJson) {
-		Map<String, String> params = null;
+	public static MultivaluedMap<String, String> fetchReqParamsMultivaluedMap(String paramsJson) {
+		MultivaluedMap<String, String> params = new MultivaluedMapImpl();
+
 		try {
-			params = new ObjectMapper().readValue(paramsJson, HashMap.class);
+			Map<String, String> reqParams = new ObjectMapper().readValue(paramsJson, HashMap.class);
+			Iterator<String> iter = reqParams.keySet().iterator();
+			while (iter.hasNext()) {
+				String key = iter.next().toString();	
+				String value = reqParams.get(key);
+				params.putSingle(key, value);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
