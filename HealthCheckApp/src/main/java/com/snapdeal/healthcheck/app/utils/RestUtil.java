@@ -1,8 +1,10 @@
 package com.snapdeal.healthcheck.app.utils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -10,8 +12,11 @@ import org.json.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
+import com.jayway.restassured.response.Header;
+import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.response.Response;
 import com.snapdeal.healthcheck.app.model.HttpCallResponse;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 
 public class RestUtil {
@@ -29,6 +34,7 @@ public class RestUtil {
 
 			String statusCode = response.getStatusLine().replace("HTTP/1.1 ", "");
 			httpResponse.setStatusCode(statusCode);
+			httpResponse.setResponseHeaders(convertHeadersToMap(response.getHeaders()));
 			httpResponse.setResponseBody(response.body().asString());
 		}
 		catch (Exception e) {
@@ -70,6 +76,25 @@ public class RestUtil {
 		else {
 			return RestAssured.given().when().post(url);
 		}
+	}
+
+
+	public static Map<String, List<String>> convertHeadersToMap(Headers headers) {
+		Map<String, List<String>> responseHeaders = new MultivaluedMapImpl();
+		Iterator<Header> iter = headers.iterator();
+
+		while (iter.hasNext()) {
+			Header header = iter.next();
+			String key = header.getName();
+			if (responseHeaders.containsKey(key))
+				responseHeaders.get(key).add(header.getValue());
+			else {
+				List<String> values = new ArrayList<String>();
+				values.add(header.getValue());
+				responseHeaders.put(key, values);
+			}
+		}
+		return responseHeaders;
 	}
 
 

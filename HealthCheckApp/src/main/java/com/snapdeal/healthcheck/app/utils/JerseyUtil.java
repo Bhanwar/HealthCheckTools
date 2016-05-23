@@ -2,34 +2,40 @@ package com.snapdeal.healthcheck.app.utils;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.snapdeal.healthcheck.app.model.HttpCallResponse;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 
 public class JerseyUtil {
 
-	public static ClientResponse fetchResponse(String url, String callType, String contentType, String paramsJson) {
-		ClientResponse response = null;
+	public static HttpCallResponse fetchResponse(String url, String callType, String contentType, String paramsJson) {
+		HttpCallResponse httpResponse = new HttpCallResponse();
 		try {
 			String mediaType = fetchMediaType(contentType);
+			ClientResponse response = null;
+
 			if ("GET".equalsIgnoreCase(callType))
 				response = callGet(url, mediaType);
 			else if ("POST".equalsIgnoreCase(callType))
 				response = callPost(url, mediaType, paramsJson);
+
+			String statusCode = response.getClientResponseStatus().getReasonPhrase();
+			httpResponse.setStatusCode(statusCode);
+			httpResponse.setResponseHeaders((Map<String, List<String>>)response.getHeaders());
+			httpResponse.setResponseBody(response.getEntity(String.class));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			httpResponse.setHttpCallException(e.getMessage());
 		}
-		return response;
+		return httpResponse;
 	}
 
 
@@ -45,8 +51,8 @@ public class JerseyUtil {
 		WebResource webResource = client.resource(url);
 
 		if (paramsJson != null) {
-			MultivaluedMap<String, String> reqParams = fetchRequestBody(paramsJson);
-			return webResource.type(contentType).post(ClientResponse.class, reqParams);
+			Map<String, String> params = convertJsonStrToMap(paramsJson);
+			return webResource.type(contentType).post(ClientResponse.class, params);
 		}
 		else {
 			return webResource.type(contentType).post(ClientResponse.class);
@@ -71,20 +77,13 @@ public class JerseyUtil {
 
 
 	@SuppressWarnings("unchecked")
-	public static MultivaluedMap<String, String> fetchRequestBody(String paramsJson) {
-		MultivaluedMap<String, String> reqParams = new MultivaluedMapImpl();
+	public static Map<String, String> convertJsonStrToMap(String paramsJson) {
+		Map<String, String> params = null;
 		try {
-			Map<String, String> params = new ObjectMapper().readValue(paramsJson, HashMap.class);
-
-			Iterator<String> iter = params.keySet().iterator();
-			while (iter.hasNext()) {
-				String key = iter.next().toString();	
-				String value = params.get(key);
-				reqParams.putSingle(key, value);
-			}
+			params = new ObjectMapper().readValue(paramsJson, HashMap.class);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return reqParams;
+		return params;
 	}
 }

@@ -88,10 +88,10 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 			TokenComponent tokenComp = TokenComponent.getValueOf(compName);
 			switch (tokenComp) {
 			case SF_MOBILE:
-				token = SFMobileToken.fetchTokenFromHeader(tokenApi, endpoint);
+				token = SFMobileToken.fetchTokenFromHeader(tokenApi, endpoint).getToken();
 				break;
 			case SELLER_SERVICES:
-				token = SellerServicesToken.fetchTokenFromBody(tokenApi, endpoint);
+				token = SellerServicesToken.fetchTokenFromBody(tokenApi, endpoint).getToken();
 				break;
 			default:
 				break;
