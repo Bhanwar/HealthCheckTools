@@ -7,13 +7,13 @@ import static com.snapdeal.healthcheck.app.constants.Formatter.timeFormatter;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.annotation.PostConstruct;
 
@@ -62,7 +62,7 @@ public class ServiceController {
 	public void init() {
 		log.debug("Initializing data!!");
 		currentExecDate = new Date();
-		componentNames = new HashSet<>();
+		componentNames = new TreeSet<>();
 		dataObj.initializeHealthCheckResults(compDetails.getAllComponentDetails());
 	}
 	

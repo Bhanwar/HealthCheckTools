@@ -42,6 +42,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private String toAddress;
 	private String ccAddress;
+	private String ntwrkAddress;
 	private String envName;
 	private boolean sendMail;
 	private MongoRepoService repoService;
@@ -53,7 +54,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 		List<ComponentDetails> components = compDetails.getAllComponentDetails();
 		log.debug("Running scheduled task: " + currentExecDate);
 		List<Callable<HealthCheckResult>> compCallList = new ArrayList<>();
-		
+		int ntwrkIssueCount = 0;
 		for (ComponentDetails comp : components) {
 			componentNames.add(comp.getComponentName());
 			compCallList.add(new EnvHealthCheckImpl(comp, repoService));
@@ -90,6 +91,9 @@ public class HealthCheckScheduler extends QuartzJobBean {
 								}
 							});
 						}
+						if(result.isNtwrkIssue()) {
+							ntwrkIssueCount++;
+						}
 						healthResult.put(result.getComponentName(), result.isServerUp());
 						execMail.shutdown();
 					} catch (InterruptedException | ExecutionException e) {
@@ -106,8 +110,29 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			}
 		}
 		dataObjects.shareAuthKeysToQMs();
+		if(ntwrkIssueCount > 0) {
+			sendNetworkIssueMail(ntwrkIssueCount, currentExecDate);
+		}
 	}
 
+	private void sendNetworkIssueMail(int count, Date execDate) {
+		if(sendMail) {
+			List<String> emailAddressTo = new ArrayList<>();
+			List<String> emailAddressCc = new ArrayList<>();
+			String msgSubject = "Network issue from Health Check App to " + count + " components! Please check<eom>";
+			String msgBody = "<html>" + MAIL_SIGN + "</html>";
+			String[] toAdd = ntwrkAddress.split(",");
+			for (int i = 0; i < toAdd.length; i++) {
+				if (toAdd[i].contains(SNAPDEAL_ID))
+					emailAddressTo.add(toAdd[i]);
+			}
+			EmailUtil mail = new EmailUtil(emailAddressTo, emailAddressCc, null, msgSubject, msgBody);
+			boolean mailSent = true;
+			do {
+				mailSent = mail.sendHTMLEmail();
+			} while (!mailSent);
+		}
+	}
 	private void updateAndSendMail(HealthCheckResult result, Date execDate) {
 		DownTimeData data = null;
 		boolean isServerUp = result.isServerUp();

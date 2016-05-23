@@ -126,13 +126,15 @@ public class GatherDataImpl implements GatherData {
 			log.debug("Initializing health result data..");
 			healthResult = new HashMap<>();
 			for (ComponentDetails comp : components) {
-				DownTimeData upTime = downTimeRepo.findUpTimeUpdate(comp.getComponentName(),"NO");
+				String compName = comp.getComponentName();
+				componentNames.add(compName);
+				DownTimeData upTime = downTimeRepo.findUpTimeUpdate(compName,"NO");
 				if(upTime == null) {
-					log.debug(comp.getComponentName() + " : true");
-					healthResult.put(comp.getComponentName(), true);
+					log.debug(compName + " : true");
+					healthResult.put(compName, true);
 				} else {
-					log.debug(comp.getComponentName() + " : false");
-					healthResult.put(comp.getComponentName(), false);
+					log.debug(compName + " : false");
+					healthResult.put(compName, false);
 				}
 			}
 		}

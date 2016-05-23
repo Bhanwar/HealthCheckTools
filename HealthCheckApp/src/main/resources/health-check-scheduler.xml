@@ -124,6 +124,8 @@
 					value="${cc_mail_recepients}" />
 				<beans:entry key="envName" value-type="java.lang.String"
 					value="${env_name}" />
+				<beans:entry key="ntwrkAddress" value-type="java.lang.String"
+					value="${network_mail_recepients}" />
 			</beans:map>
 		</beans:property>
 		<beans:property name="jobDetails">
