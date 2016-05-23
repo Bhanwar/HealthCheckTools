@@ -4,6 +4,7 @@ import static com.snapdeal.healthcheck.app.constants.AppConstant.CONNECTION_TIME
 import static com.snapdeal.healthcheck.app.constants.AppConstant.currentExecDate;
 import static com.snapdeal.healthcheck.app.constants.Formatter.dateFormatter;
 import static com.snapdeal.healthcheck.app.constants.Formatter.timeFormatter;
+import static com.snapdeal.healthcheck.app.constants.AppConstant.healthResult;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -58,9 +59,11 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 	public static HealthCheckResult checkServerHealth(ComponentDetails component, MongoRepoService mongoRepoService, TokenApiDetails tokenApi) {
 		boolean isServerUp = true;
 		boolean apiExist = false;
-		
+		boolean currentState = true;
 		String compName = component.getComponentName();
 		String endpoint = component.getEndpoint();
+		if(healthResult.containsKey(compName))
+			currentState = healthResult.get(compName);
 		String url = null;
 		String callType = null;
 		String headersJson = null;
@@ -73,6 +76,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 		String token = null;
 
 		HealthCheckResult result = new HealthCheckResult(compName);
+		result.setNtwrkIssue(false);
 		HttpCallResponse response = null;
 		Date resultDate = currentExecDate;
 		String logSuffix = compName + ": ";
@@ -111,7 +115,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 			log.debug(logSuffix + "Health Check API URL - " + url);
 
 			response = RestUtil.fetchResponse(url, callType, headersJson, reqJson);
-			if(response.getStatusCode() == null || !response.getStatusCode().equals(expStatusCode)) {
+			if(currentState && (response.getStatusCode() == null || !response.getStatusCode().equals(expStatusCode))) {
 				log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
 				response = retryHttpCall(endpoint, url, callType, headersJson, reqJson, logSuffix, response.getHttpCallException());
 			}
@@ -148,7 +152,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 			log.debug(logSuffix + "First Get API URL - " + url);
 
 			response = RestUtil.fetchResponse(url, callType, headersJson, reqJson);
-			if(response.getStatusCode() == null || !response.getStatusCode().equals(expStatusCode)) {
+			if(currentState && (response.getStatusCode() == null || !response.getStatusCode().equals(expStatusCode))) {
 				log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
 				response = retryHttpCall(endpoint, url, callType, headersJson, reqJson, logSuffix, response.getHttpCallException());
 			}
@@ -186,7 +190,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 			log.debug(logSuffix + "Second Get API URL - " + url);
 
 			response = RestUtil.fetchResponse(url, callType, headersJson, reqJson);
-			if(response.getStatusCode() == null || !response.getStatusCode().equals(expStatusCode)) {
+			if(currentState && (response.getStatusCode() == null || !response.getStatusCode().equals(expStatusCode))) {
 				log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
 				response = retryHttpCall(endpoint, url, callType, headersJson, reqJson, logSuffix, response.getHttpCallException());
 			}
@@ -241,7 +245,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 			if (htmlCallException != null) {
 				if(htmlCallException.equals(AppConstant.NETWORK_UNREACHABLE) || htmlCallException.equals(AppConstant.NO_ROUTE_TO_HOST)) {
 					result.setNtwrkIssue(true);
-					result.setServerUp(true);
+					result.setServerUp(currentState);
 					log.warn(logSuffix + "Connect to server failing with network issue: " + htmlCallException);
 				} else
 					log.debug(logSuffix + "Server Down!!");
