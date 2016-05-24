@@ -2,9 +2,9 @@ package com.snapdeal.healthcheck.app.services.impl;
 
 import static com.snapdeal.healthcheck.app.constants.AppConstant.CONNECTION_TIMED_OUT;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.currentExecDate;
+import static com.snapdeal.healthcheck.app.constants.AppConstant.healthResult;
 import static com.snapdeal.healthcheck.app.constants.Formatter.dateFormatter;
 import static com.snapdeal.healthcheck.app.constants.Formatter.timeFormatter;
-import static com.snapdeal.healthcheck.app.constants.AppConstant.healthResult;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,7 +30,7 @@ import com.snapdeal.healthcheck.app.model.HealthCheckResult;
 import com.snapdeal.healthcheck.app.model.HttpCallResponse;
 import com.snapdeal.healthcheck.app.model.TokenApiDetails;
 import com.snapdeal.healthcheck.app.mongo.repositories.MongoRepoService;
-import com.snapdeal.healthcheck.app.utils.RestUtil;
+import com.snapdeal.healthcheck.app.utils.HttpUtil;
 
 
 public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
@@ -83,7 +83,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 
 		log.debug("Checking health for component: " + compName);
 		log.debug(logSuffix + "Comp details - " + component);
-		
+
 		if(tokenApi != null) {
 			TokenComponent tokenComp = TokenComponent.getValueOf(compName);
 			switch (tokenComp) {
@@ -114,7 +114,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 				reqJson = component.getHealthCheckApiReqJson().replace(AppConstant.ADMIN_UI_REQ_TOKEN, token);
 			log.debug(logSuffix + "Health Check API URL - " + url);
 
-			response = RestUtil.fetchResponse(url, callType, headersJson, reqJson);
+			response = HttpUtil.fetchResponse(url, callType, headersJson, reqJson);
 			if(currentState && (response.getStatusCode() == null || !response.getStatusCode().equals(expStatusCode))) {
 				log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
 				response = retryHttpCall(endpoint, url, callType, headersJson, reqJson, logSuffix, response.getHttpCallException());
@@ -151,7 +151,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 				reqJson = component.getFirstGetApiReqJson().replace(AppConstant.ADMIN_UI_REQ_TOKEN, token);
 			log.debug(logSuffix + "First Get API URL - " + url);
 
-			response = RestUtil.fetchResponse(url, callType, headersJson, reqJson);
+			response = HttpUtil.fetchResponse(url, callType, headersJson, reqJson);
 			if(currentState && (response.getStatusCode() == null || !response.getStatusCode().equals(expStatusCode))) {
 				log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
 				response = retryHttpCall(endpoint, url, callType, headersJson, reqJson, logSuffix, response.getHttpCallException());
@@ -189,7 +189,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 				reqJson = component.getSecondGetApiReqJson().replace(AppConstant.ADMIN_UI_REQ_TOKEN, token);
 			log.debug(logSuffix + "Second Get API URL - " + url);
 
-			response = RestUtil.fetchResponse(url, callType, headersJson, reqJson);
+			response = HttpUtil.fetchResponse(url, callType, headersJson, reqJson);
 			if(currentState && (response.getStatusCode() == null || !response.getStatusCode().equals(expStatusCode))) {
 				log.debug(logSuffix + "Retrying Http Call GET..! Status Code: " + response.getStatusCode() + " Call Exception: " + response.getHttpCallException());
 				response = retryHttpCall(endpoint, url, callType, headersJson, reqJson, logSuffix, response.getHttpCallException());
@@ -250,7 +250,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 				} else
 					log.debug(logSuffix + "Server Down!!");
 			}
-				
+
 			result.setFailedURL(url);
 			result.setFailedReqJson(reqJson);
 			result.setFailedHttpCallException(htmlCallException);
@@ -286,7 +286,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 			}
 		} catch (InterruptedException e) {
 		}
-		return RestUtil.fetchResponse(url, callType, headers, reqJson);
+		return HttpUtil.fetchResponse(url, callType, headers, reqJson);
 	}
 
 	private static void pingIp(String endpoint, String logSuffix) {
