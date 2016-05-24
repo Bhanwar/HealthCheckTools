@@ -12,10 +12,10 @@ public class SellerServicesToken {
 	public static HttpCallResponse fetchTokenFromBody(TokenApiDetails tokenApi, String endpoint) {
 		String url = endpoint + tokenApi.getLoginApi();
 		String callType = tokenApi.getLoginApiCallType();
-		String headersJson = "{\"Content-Type\":\"application/json\"}";
-		String reqJson = tokenApi.getLoginApiReqJson();
+		String headers = "{\"Content-Type\":\"application/json\"}";
+		String payload = tokenApi.getLoginApiReqJson();
 
-		HttpCallResponse httpResponse = RestUtil.fetchResponse(url, callType, headersJson, reqJson);
+		HttpCallResponse httpResponse = RestUtil.fetchResponse(url, callType, headers, payload);
 		if (httpResponse.getResponseBody() != null)
 			httpResponse.setToken(new JSONObject(httpResponse.getResponseBody()).getString("token"));
 

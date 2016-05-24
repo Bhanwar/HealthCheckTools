@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
@@ -16,21 +18,23 @@ import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.response.Response;
 import com.snapdeal.healthcheck.app.model.HttpCallResponse;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 
 public class RestUtil {
 
-	public static HttpCallResponse fetchResponse(String url, String callType, String headersJson, String paramsJson) {
+	private static final Logger log = LoggerFactory.getLogger(RestUtil.class);
+
+
+	public static HttpCallResponse fetchResponse(String url, String callType, String headers, String payload) {
 		HttpCallResponse httpResponse = new HttpCallResponse();
 		try {
-			resetClient(headersJson);
+			resetClient(headers);
 			Response response = null;
 
 			if ("GET".equalsIgnoreCase(callType))
-				response = callGet(url, paramsJson);
+				response = callGet(url, payload);
 			else if ("POST".equalsIgnoreCase(callType))
-				response = callPost(url, paramsJson);
+				response = callPost(url, payload);
 
 			String statusCode = response.getStatusLine().replace("HTTP/1.1 ", "");
 			httpResponse.setStatusCode(statusCode);
@@ -38,28 +42,29 @@ public class RestUtil {
 			httpResponse.setResponseBody(response.body().asString());
 		}
 		catch (Exception e) {
+			log.error("Exception occured while doing "+callType+": " + e.getMessage(), e);
 			httpResponse.setHttpCallException(e.getMessage());
 		}
 		return httpResponse;
 	}
 
 
-	public static void resetClient(String headersJson) throws Exception {
+	public static void resetClient(String headers) throws Exception {
 		RestAssured.reset();
 		RestAssured.useRelaxedHTTPSValidation();
 		RestAssured.urlEncodingEnabled = true;
-		if (headersJson != null) {
-			Map<String, String> headers = fetchReqParamsMap(headersJson);
+		if (headers != null) {
+			Map<String, String> headersMap = fetchReqParamsMap(headers);
 			RestAssured.requestSpecification = new RequestSpecBuilder()
-					.addHeaders(headers)
+					.addHeaders(headersMap)
 					.build();
 		}
 	}
 
 
-	public static Response callGet(String url, String paramsJson) throws Exception {
-		if (paramsJson != null) {
-			Map<String, String> params = fetchReqParamsMap(paramsJson);
+	public static Response callGet(String url, String payload) throws Exception {
+		if (payload != null) {
+			Map<String, String> params = fetchReqParamsMap(payload);
 			return RestAssured.given().queryParams(params).when().get(url);
 		}
 		else {
@@ -68,41 +73,38 @@ public class RestUtil {
 	}
 
 
-	public static Response callPost(String url, String paramsJson) throws Exception {
-		if (paramsJson != null) {
-			Object payload = fetchReqParamsObj(paramsJson);
+	public static Response callPost(String url, String payload) throws Exception {
+		if (payload != null)
 			return RestAssured.given().body(payload).when().post(url);
-		}
-		else {
+		else
 			return RestAssured.given().when().post(url);
-		}
 	}
 
 
 	public static Map<String, List<String>> convertHeadersToMap(Headers headers) {
-		Map<String, List<String>> responseHeaders = new MultivaluedMapImpl();
+		Map<String, List<String>> headersMap = new HashMap<String, List<String>>();
 		Iterator<Header> iter = headers.iterator();
 
 		while (iter.hasNext()) {
 			Header header = iter.next();
 			String key = header.getName();
-			if (responseHeaders.containsKey(key))
-				responseHeaders.get(key).add(header.getValue());
+			if (headersMap.containsKey(key))
+				headersMap.get(key).add(header.getValue());
 			else {
 				List<String> values = new ArrayList<String>();
 				values.add(header.getValue());
-				responseHeaders.put(key, values);
+				headersMap.put(key, values);
 			}
 		}
-		return responseHeaders;
+		return headersMap;
 	}
 
 
 	@SuppressWarnings("unchecked")
-	public static Map<String, String> fetchReqParamsMap(String paramsJson) {
+	public static Map<String, String> fetchReqParamsMap(String payload) {
 		Map<String, String> params = null;
 		try {
-			params = new ObjectMapper().readValue(paramsJson, HashMap.class);
+			params = new ObjectMapper().readValue(payload, HashMap.class);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -110,23 +112,23 @@ public class RestUtil {
 	}
 
 
-	public static Object fetchReqParamsObj(String paramsJson) {
-		Object payload = null;
+	public static Object fetchReqParamsObj(String payload) {
+		Object payloadObj = null;
 		try {
-			payload = new ObjectMapper().readValue(paramsJson, Object.class);
+			payloadObj = new ObjectMapper().readValue(payload, Object.class);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return payload;
+		return payloadObj;
 	}
 
 
-	public static JSONObject mergeJsonObjects(JSONObject parentObj, JSONObject childObj) {
-		Iterator<?> keys = childObj.keys();
+	public static JSONObject mergeJsonObjects(JSONObject parentJson, JSONObject childJson) {
+		Iterator<?> keys = childJson.keys();
 		while(keys.hasNext()) {
 			String key = (String) keys.next();
-			parentObj.put(key, childObj.get(key));
+			parentJson.put(key, childJson.get(key));
 		}
-		return parentObj;
+		return parentJson;
 	}
 }

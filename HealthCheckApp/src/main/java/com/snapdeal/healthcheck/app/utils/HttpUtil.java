@@ -6,119 +6,74 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Iterator;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.snapdeal.healthcheck.app.model.HttpCallResponse;
 
+
 public class HttpUtil {
-	
+
 	private static final Logger log = LoggerFactory.getLogger(HttpUtil.class);
-	
-	public static HttpCallResponse callPost(String url, String json) {
+
+
+	public static HttpCallResponse fetchResponse(String url, String callType, String headers, String payload) {
+		HttpCallResponse httpResponse = new HttpCallResponse();
 		HttpURLConnection conn = null;
-		HttpCallResponse response = new HttpCallResponse();
 		OutputStream os = null;
+
 		try {
 			URL urlToHit = new URL(url);
 			conn = (HttpURLConnection) urlToHit.openConnection();
 			conn.setDoOutput(true);
-			conn.setRequestProperty("Content-Type", "application/json");
-			conn.setRequestMethod("POST");
-			os = conn.getOutputStream();
-			os.write(json.getBytes());
-			os.flush();
-			
-			response.setStatusCode(conn.getResponseCode() + " " + conn.getResponseMessage());
-			
+			conn.setRequestMethod(callType);
+
+			if (headers != null) {
+				JSONObject headersJson = new JSONObject(headers);
+				Iterator<String> iter = headersJson.keys();
+				while (iter.hasNext()) {
+					String key = iter.next();	
+					String value = headersJson.getString(key);
+					conn.setRequestProperty(key, value);
+				}
+			}
+			if ("POST".equals(callType)) {
+				os = conn.getOutputStream();
+				os.write(payload.getBytes());
+				os.flush();
+			}
+
+			int responseCode = conn.getResponseCode();
+			httpResponse.setStatusCode(responseCode+" "+conn.getResponseMessage());
+			httpResponse.setResponseHeaders(conn.getHeaderFields());
+
 			if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
 				BufferedReader br = new BufferedReader(new InputStreamReader(
 						(conn.getInputStream())));
 				String output;
 				StringBuilder result = new StringBuilder();
-				while ((output = br.readLine()) != null) {
+				while ((output=br.readLine()) != null) {
 					result.append(output);
 				}
 				br.close();
-				response.setResponseBody(result.toString());
+				httpResponse.setResponseBody(result.toString());
 			}
-		}catch(Exception e) {
-			log.error("Exception occured while doing post: " + e.getMessage(), e);
-			response.setHttpCallException(e.getMessage());
-		}finally {
-			if(os!=null)
+		} catch(Exception e) {
+			log.error("Exception occured while doing "+callType+": " + e.getMessage(), e);
+			httpResponse.setHttpCallException(e.getMessage());
+		} finally {
+			if(os != null)
 				try {
 					os.close();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-			
-			if(conn!=null)
+			if(conn != null)
 				conn.disconnect();
 		}
-		return response;
+		return httpResponse;
 	}
-	
-	public static HttpCallResponse callGet(String url) {
-		HttpURLConnection conn = null;
-		HttpCallResponse response = new HttpCallResponse();
-		try {
-			URL urlToHit = new URL(url);
-			conn = (HttpURLConnection) urlToHit.openConnection();
-			conn.setRequestMethod("GET");
-			response.setStatusCode(conn.getResponseCode() + " " + conn.getResponseMessage());
-			
-			if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-				BufferedReader br = new BufferedReader(new InputStreamReader(
-						(conn.getInputStream())));
-				String output;
-				StringBuilder result = new StringBuilder();
-				while ((output = br.readLine()) != null) {
-					result.append(output);
-				}
-				br.close();
-				response.setResponseBody(result.toString());
-			}
-		}catch(Exception e) {
-			log.error("Exception occured while doing get: " + e.getMessage(), e);
-			response.setHttpCallException(e.getMessage());
-		}finally {
-			if(conn!=null)
-				conn.disconnect();
-		}
-		return response;
-	}
-	
-	public static HttpCallResponse callGetApplicatioJSON(String url) {
-		HttpURLConnection conn = null;
-		HttpCallResponse response = new HttpCallResponse();
-		try {
-			URL urlToHit = new URL(url);
-			conn = (HttpURLConnection) urlToHit.openConnection();
-			conn.setRequestProperty("Content-Type", "application/json");
-			conn.setRequestMethod("GET");
-			response.setStatusCode(conn.getResponseCode() + " " + conn.getResponseMessage());
-			
-			if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-				BufferedReader br = new BufferedReader(new InputStreamReader(
-						(conn.getInputStream())));
-				String output;
-				StringBuilder result = new StringBuilder();
-				while ((output = br.readLine()) != null) {
-					result.append(output);
-				}
-				br.close();
-				response.setResponseBody(result.toString());
-			}
-		}catch(Exception e) {
-			log.error("Exception occured while doing get with JSON: " + e.getMessage(), e);
-			response.setHttpCallException(e.getMessage());
-		}finally {
-			if(conn!=null)
-				conn.disconnect();
-		}
-		return response;
-	}
-
 }

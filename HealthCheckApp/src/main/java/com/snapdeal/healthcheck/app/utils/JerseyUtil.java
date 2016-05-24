@@ -1,7 +1,5 @@
 package com.snapdeal.healthcheck.app.utils;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +7,10 @@ import java.util.Map;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.snapdeal.healthcheck.app.model.HttpCallResponse;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -19,16 +20,20 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 public class JerseyUtil {
 
-	public static HttpCallResponse fetchResponse(String url, String callType, String contentType, String paramsJson) {
+	private static final Logger log = LoggerFactory.getLogger(JerseyUtil.class);
+
+
+	public static HttpCallResponse fetchResponse(String url, String callType, String headers, String payload) {
 		HttpCallResponse httpResponse = new HttpCallResponse();
 		try {
-			String mediaType = fetchMediaType(contentType);
 			ClientResponse response = null;
+			JSONObject headersJson = new JSONObject(headers);
+			String contentType = fetchMediaType(headersJson.getString("Content-Type"));
 
 			if ("GET".equalsIgnoreCase(callType))
-				response = callGet(url, mediaType);
+				response = callGet(url, contentType);
 			else if ("POST".equalsIgnoreCase(callType))
-				response = callPost(url, mediaType, paramsJson);
+				response = callPost(url, contentType, payload);
 
 			String statusCode = response.getClientResponseStatus().getReasonPhrase();
 			httpResponse.setStatusCode(statusCode);
@@ -36,6 +41,7 @@ public class JerseyUtil {
 			httpResponse.setResponseBody(response.getEntity(String.class));
 		}
 		catch (Exception e) {
+			log.error("Exception occured while doing "+callType+": " + e.getMessage(), e);
 			httpResponse.setHttpCallException(e.getMessage());
 		}
 		return httpResponse;
@@ -49,12 +55,12 @@ public class JerseyUtil {
 	}
 
 
-	public static ClientResponse callPost(String url, String contentType, String paramsJson) throws Exception {
+	public static ClientResponse callPost(String url, String contentType, String payload) throws Exception {
 		Client client = Client.create();  
 		WebResource webResource = client.resource(url);
 
-		if (paramsJson != null) {
-			MultivaluedMap<String, String> params = fetchReqParamsMultivaluedMap(paramsJson);
+		if (payload != null) {
+			MultivaluedMap<String, String> params = fetchReqParamsMultivaluedMap(payload);
 			return webResource.type(contentType).post(ClientResponse.class, params);
 		}
 		else {
@@ -79,20 +85,15 @@ public class JerseyUtil {
 	}
 
 
-	@SuppressWarnings("unchecked")
-	public static MultivaluedMap<String, String> fetchReqParamsMultivaluedMap(String paramsJson) {
+	public static MultivaluedMap<String, String> fetchReqParamsMultivaluedMap(String payload) {
 		MultivaluedMap<String, String> params = new MultivaluedMapImpl();
+		JSONObject paramsJson = new JSONObject(params);	
+		Iterator<String> iter = paramsJson.keys();
 
-		try {
-			Map<String, String> reqParams = new ObjectMapper().readValue(paramsJson, HashMap.class);
-			Iterator<String> iter = reqParams.keySet().iterator();
-			while (iter.hasNext()) {
-				String key = iter.next().toString();	
-				String value = reqParams.get(key);
-				params.putSingle(key, value);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		while (iter.hasNext()) {
+			String key = iter.next();	
+			String value = paramsJson.getString(key);
+			params.putSingle(key, value);
 		}
 		return params;
 	}
