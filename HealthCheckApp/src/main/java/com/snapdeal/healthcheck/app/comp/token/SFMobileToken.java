@@ -12,10 +12,10 @@ public class SFMobileToken {
 	public static HttpCallResponse fetchTokenFromHeader(TokenApiDetails tokenApi, String endpoint) {
 		String url = endpoint + tokenApi.getLoginApi();
 		String callType = tokenApi.getLoginApiCallType();
-		String contentType = "application/x-www-form-urlencoded";
-		String reqJson = tokenApi.getLoginApiReqJson();
+		String headers = "{\"Content-Type\":\"application/x-www-form-urlencoded\"}";
+		String payload = tokenApi.getLoginApiReqJson();
 
-		HttpCallResponse httpResponse = JerseyUtil.fetchResponse(url, callType, contentType, reqJson);
+		HttpCallResponse httpResponse = JerseyUtil.fetchResponse(url, callType, headers, payload);
 		if (httpResponse.getResponseHeaders() != null) {
 			List<String> cookies = httpResponse.getResponseHeaders().get("Set-Cookie");
 			for (String cookie : cookies)
