@@ -53,10 +53,18 @@
 				<div class="col-md-2 column"></div>
 				<div class="col-md-8 column">
 					<form id="addUpdateCompForm" class="form-horizontal" role="form">
-						<div class="form-group">
+						<div id="compText" class="form-group">
 							<label class="col-md-3 control-label" for="compName">Component</label>
 							<div class="col-sm-9">
 								<input type="text" class="form-control" name="compName" placeholder="Enter component name">
+							</div>
+						</div>
+						<div id="compDropDown" class="form-group" style="display:none">
+							<label class="col-md-3 control-label" for="compName">Component</label>
+							<div class="col-sm-9">
+								<select class="form-control" id="comp-select" name="compName">
+
+								</select>
 							</div>
 						</div>
 						<div class="form-group">
@@ -269,13 +277,44 @@
 	</div>
 </body>
 <script>
-	$(document).on('change', '#tokenRequiredDiv', function() {
-		var selectedOption = $("#tokenRequiredDiv option:selected").val();
-		if (selectedOption === "YES") {
-			$('#loginApiDiv').show();
-		} else {
-			$('#loginApiDiv').hide();
+
+
+$(window).load(function() {
+	$('#myLoading').modal('show');
+	$.ajax({
+		url : "/healthCheck/getTokenComps",
+		type : "GET",
+		contentType : "application/json",
+		success : function(data) {
+			console.log(data);
+			updateCompList(data);
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			$('#myLoading').modal('hide');
+			console.log(textStatus + " : "
+							+ errorThrown);
+			alert("Could not populate component list, please contact rajeev.agile@snapdeal.com!");
 		}
+	});
+});
+
+
+function updateCompList(updateList) {
+	console.log("Creating component list..");
+	var selectList = document.getElementById('comp-select');
+	for ( var i in updateList) {
+		var option = document.createElement('option');
+		option.value = updateList[i];
+		option.text = updateList[i];
+		selectList.appendChild(option);
+	}
+	$('#myLoading').modal('hide');
+};
+
+	$(document).on('change', '#tokenRequiredDiv', function() {
+		$('#loginApiDiv').toggle();
+		$('#compDropDown').toggle();
+		$('#compText').toggle();
 	});
 	
 	$(document).on('change', '#hcApiCallTypeDiv', function() {

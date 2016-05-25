@@ -13,7 +13,6 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.annotation.PostConstruct;
 
@@ -31,6 +30,7 @@ import com.snapdeal.healthcheck.app.bo.ComponentDetailsBO;
 import com.snapdeal.healthcheck.app.constants.AppConstant;
 import com.snapdeal.healthcheck.app.constants.Formatter;
 import com.snapdeal.healthcheck.app.enums.DownTimeReasonCode;
+import com.snapdeal.healthcheck.app.enums.TokenComponent;
 import com.snapdeal.healthcheck.app.model.DownTimeData;
 import com.snapdeal.healthcheck.app.model.DownTimeUIData;
 import com.snapdeal.healthcheck.app.mongo.repositories.DownTimeDataRepository;
@@ -62,7 +62,6 @@ public class ServiceController {
 	public void init() {
 		log.debug("Initializing data!!");
 		currentExecDate = new Date();
-		componentNames = new TreeSet<>();
 		dataObj.initializeHealthCheckResults(compDetails.getAllComponentDetails());
 	}
 	
@@ -123,7 +122,22 @@ public class ServiceController {
 		return componentNames;	
 	}
 	
-	@RequestMapping(value = "/updateReasonPage", method=RequestMethod.GET)
+	@RequestMapping(value = "/getTokenComps", method=RequestMethod.GET)
+	@ResponseBody
+	public List<String> getTokenComps() {
+		List<String> tokenComps = new ArrayList<>();
+		TokenComponent[] comps = TokenComponent.values();
+		for(int i=0;i<comps.length;i++) {
+			String comp = comps[i].getCode();
+			if(!comp.equals("Invalid")) {
+				if(compDetails.getComponentDetails(comp) == null)
+					tokenComps.add(comp);
+			}
+		}
+		return tokenComps;
+	}
+	
+	@RequestMapping(value = "/admin/updateReasonPage", method=RequestMethod.GET)
 	public String getUpdateReasonPage(ModelMap model) {
 		return "updateReason";
 	}
@@ -137,6 +151,11 @@ public class ServiceController {
 	@RequestMapping(value = "/admin/updateAuthKey", method=RequestMethod.GET)
 	public String updateAuthKeyPage() {
 		return "authKeyUpdate";
+	}
+	
+	@RequestMapping(value = "/admin", method=RequestMethod.GET)
+	public String adminPage() {
+		return "adminPage";
 	}
 	
 	@RequestMapping(value = "/admin/addUpdateComp", method=RequestMethod.GET)

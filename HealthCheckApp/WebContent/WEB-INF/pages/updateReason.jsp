@@ -135,12 +135,9 @@
 <script type="text/javascript">
 var dataMap;
 
-	$(window)
-			.load(
-					function() {
+	$(window).load(function() {
 						$('#myLoading').modal('show');
-						$
-								.ajax({
+						$.ajax({
 									url : "/healthCheck/getUpdateList",
 									type : "GET",
 									contentType : "application/json",
@@ -158,11 +155,8 @@ var dataMap;
 								});
 					});
 
-	$(window)
-			.load(
-					function() {
-						$
-								.ajax({
+	$(window).load(function() {
+						$.ajax({
 									url : "/healthCheck/getReasonCodes",
 									type : "GET",
 									contentType : "application/json",

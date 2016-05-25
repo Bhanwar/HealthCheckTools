@@ -35,6 +35,10 @@ public class MongoRepoService {
 		return downTimeRepo.findAllDownTimeData("NO");
 	}
 	
+	public List<DownTimeData> findAllCurrentExecDownTimeDataForDate(String execDate) {
+		return downTimeRepo.findAllExecForDate(execDate);
+	}
+	
 	public ConnTimedOutComp findIfConnTimedOut(String compName) {
 		return connTimedOutRepo.findIfConnTimedOut(compName);
 	}

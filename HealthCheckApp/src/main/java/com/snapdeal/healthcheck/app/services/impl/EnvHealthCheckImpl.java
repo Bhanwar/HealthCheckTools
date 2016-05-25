@@ -130,7 +130,6 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 				isServerUp = false;
 
 			log.debug(logSuffix + "Health Check API Status code - " + response.getStatusCode());
-			//log.debug(logSuffix + "Health Check API Response Body - " + response.getResponseBody());
 		} else {
 			log.warn(logSuffix + "Health Check API details not present!");
 		}
@@ -167,7 +166,6 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 				isServerUp = false;
 
 			log.debug(logSuffix + "First Get API Status code - " + response.getStatusCode());
-			//log.debug(logSuffix + "First Get API Response Body - " + response.getResponseBody());
 		} else {
 			if (isServerUp)
 				log.warn(logSuffix + "First Get API details not present!");
@@ -205,7 +203,6 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 				isServerUp = false;
 
 			log.debug(logSuffix + "Second Get API Status code - " + response.getStatusCode());
-			//log.debug(logSuffix + "Second Get API Response Body - " + response.getResponseBody());
 		} else {
 			if (isServerUp)
 				log.warn(logSuffix + "Second Get API details not present!");
@@ -226,7 +223,7 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 						timedOut.setComponentName(compName);
 						timedOut.setExecDate(resultDate);
 						mongoRepoService.save(timedOut);
-						result.setServerUp(true);
+						result.setServerUp(currentState);
 						return result;
 					}
 					log.debug(logSuffix + "connection timed out entry already exist! Returning the result");

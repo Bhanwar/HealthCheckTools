@@ -16,7 +16,7 @@ function sticky_relocate() {
 }
 
 function updateReason() {
-	window.location = "/healthCheck/updateReasonPage";
+	window.location = "/healthCheck/admin/updateReasonPage";
 }
 
 $(function() {

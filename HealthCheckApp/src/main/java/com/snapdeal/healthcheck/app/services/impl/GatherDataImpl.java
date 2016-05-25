@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,6 +124,9 @@ public class GatherDataImpl implements GatherData {
 	@Override
 	public void initializeHealthCheckResults(List<ComponentDetails> components) {
 		if(healthResult == null) {
+			if(componentNames == null)
+				componentNames = new TreeSet<>();
+			
 			log.debug("Initializing health result data..");
 			healthResult = new HashMap<>();
 			for (ComponentDetails comp : components) {

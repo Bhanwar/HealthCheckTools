@@ -38,7 +38,7 @@ public class ReportScheduler extends QuartzJobBean {
 		String time = timeFormatter.format(AppConstant.currentExecDate);
 		String header = "<html><h2>Health Check Daily report for date: "+date+", as on: "+time+"</h2><h2>Environment: " + envName + "</h2>";
 		StringBuilder html = new StringBuilder(header);
-		List<DownTimeData> list = repoService.downTimeFindAllForDate(date);
+		List<DownTimeData> list = repoService.findAllCurrentExecDownTimeDataForDate(date);
 		Map<String, List<DownTimeData>> dwnTymDataMap = new HashMap<String, List<DownTimeData>>();
 		if (list != null && !list.isEmpty()) {
 			List<DownTimeData> dwnTymList = null;

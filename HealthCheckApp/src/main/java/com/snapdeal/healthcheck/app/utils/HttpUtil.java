@@ -21,6 +21,17 @@ public class HttpUtil {
 
 
 	public static HttpCallResponse fetchResponse(String url, String callType, String headers, String payload) {
+		HttpCallResponse httpResponse;
+		
+		if(url.contains("https"))
+			httpResponse = RestUtil.fetchResponse(url, callType, headers, payload);
+		else
+			httpResponse = fetchResponseHttp(url, callType, headers, payload);
+		
+		return httpResponse;
+	}
+	
+	public static HttpCallResponse fetchResponseHttp(String url, String callType, String headers, String payload) {
 		HttpCallResponse httpResponse = new HttpCallResponse();
 		HttpURLConnection conn = null;
 		OutputStream os = null;
