@@ -1,8 +1,9 @@
 package com.snapdeal.healthcheck.app.scheduler;
 
+import static com.snapdeal.healthcheck.app.constants.AppConstant.currentExecDate;
 import static com.snapdeal.healthcheck.app.constants.Formatter.dateFormatter;
 import static com.snapdeal.healthcheck.app.constants.Formatter.timeFormatter;
-import static com.snapdeal.healthcheck.app.constants.AppConstant.SNAPDEAL_ID;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,7 +21,7 @@ import com.snapdeal.healthcheck.app.constants.AppConstant;
 import com.snapdeal.healthcheck.app.enums.DownTimeReasonCode;
 import com.snapdeal.healthcheck.app.model.DownTimeData;
 import com.snapdeal.healthcheck.app.mongo.repositories.MongoRepoService;
-import com.snapdeal.healthcheck.app.utils.EmailUtil;
+import com.snapdeal.healthcheck.app.utils.MailHtmlData;
 
 public class ReportScheduler extends QuartzJobBean {
 
@@ -33,7 +34,7 @@ public class ReportScheduler extends QuartzJobBean {
 
 	@Override
 	protected void executeInternal(JobExecutionContext arg0) throws JobExecutionException {
-		Date currentDate = new Date();
+		Date currentDate = currentExecDate;
 		String date = dateFormatter.format(currentDate);
 		String time = timeFormatter.format(AppConstant.currentExecDate);
 		String header = "<html><h2>Health Check Daily report for date: "+date+", as on: "+time+"</h2><h2>Environment: " + envName + "</h2>";
@@ -89,28 +90,30 @@ public class ReportScheduler extends QuartzJobBean {
 			html.append("<h3>No servers were down today!</h3></html>");
 		}
 		
-		String[] toAdd = toAddress.split(",");
-		List<String> emailAddressTo = new ArrayList<>();
-		for(int i=0;i<toAdd.length;i++) {
-			if(toAdd[i].contains(SNAPDEAL_ID))
-				emailAddressTo.add(toAdd[i]);
-		}
 		
-		String[] ccAdd = ccAddress.split(",");
-		List<String> emailAddressCc = new ArrayList<>();
-		for(int i=0;i<ccAdd.length;i++) {
-			if(ccAdd[i].contains(SNAPDEAL_ID))
-				emailAddressCc.add(ccAdd[i]);
-		}
-		
-		if(emailAddressTo.isEmpty()) {
-			log.warn("Daily Report was not sent as the TO Address list was empty!!");
-		} else {
-			if(sendMail) {
-				EmailUtil mail = new EmailUtil(emailAddressTo, emailAddressCc, null, envName + " health daily report - " + date, html.toString());
-				mail.sendHTMLEmail();
-			}
-		}
+		MailHtmlData.sendHtmlMail(toAddress, ccAddress, envName + " health check daily report - " + date, html.toString(), sendMail);
+//		String[] toAdd = toAddress.split(",");
+//		List<String> emailAddressTo = new ArrayList<>();
+//		for(int i=0;i<toAdd.length;i++) {
+//			if(toAdd[i].contains(SNAPDEAL_ID))
+//				emailAddressTo.add(toAdd[i]);
+//		}
+//		
+//		String[] ccAdd = ccAddress.split(",");
+//		List<String> emailAddressCc = new ArrayList<>();
+//		for(int i=0;i<ccAdd.length;i++) {
+//			if(ccAdd[i].contains(SNAPDEAL_ID))
+//				emailAddressCc.add(ccAdd[i]);
+//		}
+//		
+//		if(emailAddressTo.isEmpty()) {
+//			log.warn("Daily Report was not sent as the TO Address list was empty!!");
+//		} else {
+//			if(sendMail) {
+//				EmailUtil mail = new EmailUtil(emailAddressTo, emailAddressCc, null, envName + " health daily report - " + date, html.toString());
+//				mail.sendHTMLEmail();
+//			}
+//		}
 	}
 
 	

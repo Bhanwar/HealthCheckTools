@@ -3,6 +3,8 @@ DROP TABLE IF EXISTS `components`;
 CREATE TABLE `components` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `component_name` VARCHAR(255) NOT NULL,
+  `enabled` TINYINT(1) NOT NULL DEFAULT '0'
+  `component_type` VARCHAR(255) NOT NULL DEFAULT 'TOMCAT',
   `qm_spoc` VARCHAR(255),
   `qa_spoc` VARCHAR(255),
   `authkey` VARCHAR(255),

@@ -7,6 +7,8 @@ import com.snapdeal.healthcheck.app.model.ComponentDetails;
 public interface ComponentDetailsDAO {
 
 	public List<ComponentDetails> getAllComponentDetails();
+	
+	public List<ComponentDetails> getAllEnabledComponentDetails();
 
 	public ComponentDetails getComponentDetails(String compName);
 	

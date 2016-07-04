@@ -1,6 +1,7 @@
 package com.snapdeal.healthcheck.app.services.impl;
 
 import static com.snapdeal.healthcheck.app.constants.AppConstant.componentNames;
+import static com.snapdeal.healthcheck.app.constants.AppConstant.disabledComponentNames;
 import static com.snapdeal.healthcheck.app.constants.Formatter.dateFormatter;
 import static com.snapdeal.healthcheck.app.constants.Formatter.timeFormatter;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.healthResult;
@@ -48,7 +49,8 @@ public class GatherDataImpl implements GatherData {
 		if(!listStillUp.isEmpty()) {
 			for(DownTimeData downTime : listStillUp) {
 				if(data.get(downTime.getComponentName()) == null)
-					data.put(downTime.getComponentName(), new ArrayList<DownTimeUIData>());
+					if(componentNames.contains(downTime.getComponentName()))
+							data.put(downTime.getComponentName(), new ArrayList<DownTimeUIData>());
 			}
 		}
 		
@@ -87,12 +89,14 @@ public class GatherDataImpl implements GatherData {
 				uiData.setHttpExcp(httpCallException);
 				String mapKey = downTime.getComponentName();
 				List<DownTimeUIData> dataList = null;
-				if(data.get(mapKey) == null)
-					dataList = new ArrayList<>();
-				else
-					dataList = data.get(mapKey);
-				dataList.add(uiData);
-				data.put(mapKey, dataList);
+				if(componentNames.contains(mapKey)) {
+					if(data.get(mapKey) == null)
+						dataList = new ArrayList<>();
+					else
+						dataList = data.get(mapKey);
+					dataList.add(uiData);
+					data.put(mapKey, dataList);
+				}
 			}
 		}
 		
@@ -127,18 +131,26 @@ public class GatherDataImpl implements GatherData {
 			if(componentNames == null)
 				componentNames = new TreeSet<>();
 			
+			if(disabledComponentNames == null)
+				disabledComponentNames = new TreeSet<>();
+			
 			log.debug("Initializing health result data..");
 			healthResult = new HashMap<>();
 			for (ComponentDetails comp : components) {
 				String compName = comp.getComponentName();
-				componentNames.add(compName);
-				DownTimeData upTime = downTimeRepo.findUpTimeUpdate(compName,"NO");
-				if(upTime == null) {
-					log.debug(compName + " : true");
-					healthResult.put(compName, true);
+				if(comp.isEnabled()) {
+					log.debug(compName + " - Enabled: " + comp.isEnabled());
+					componentNames.add(compName);
+					DownTimeData upTime = downTimeRepo.findUpTimeUpdate(compName,"NO");
+					if(upTime == null) {
+						log.debug(compName + " : true");
+						healthResult.put(compName, true);
+					} else {
+						log.debug(compName + " : false");
+						healthResult.put(compName, false);
+					}
 				} else {
-					log.debug(compName + " : false");
-					healthResult.put(compName, false);
+					disabledComponentNames.add(compName);
 				}
 			}
 		}

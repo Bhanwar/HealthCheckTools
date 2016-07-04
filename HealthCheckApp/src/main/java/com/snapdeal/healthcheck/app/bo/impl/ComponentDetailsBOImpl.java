@@ -19,8 +19,8 @@ public class ComponentDetailsBOImpl implements ComponentDetailsBO{
 	ComponentDetailsDAO dao;
 	
 	@Override
-	public List<ComponentDetails> getAllComponentDetails() {
-		return dao.getAllComponentDetails();
+	public List<ComponentDetails> getAllEnabledComponentDetails() {
+		return dao.getAllEnabledComponentDetails();
 	}
 
 	@Override
@@ -36,6 +36,11 @@ public class ComponentDetailsBOImpl implements ComponentDetailsBO{
 	@Override
 	public void updateComponentDetails(ComponentDetails compDetail) {
 		dao.updateComponentDetails(compDetail);
+	}
+
+	@Override
+	public List<ComponentDetails> getAllComponentDetails() {
+		return dao.getAllComponentDetails();
 	}
 
 

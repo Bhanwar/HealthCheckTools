@@ -92,11 +92,15 @@
 									<br>Http Excp: ${val.httpExcp}</html>" />
 									<div title="${downTimeData}" class="redbar pointer toolTipster" onclick="updateReason()"
 										style="margin-left: <c:out value="${val.leftMargin}"/>%; width: <c:out value="${val.width}"/>%;"></div>
-
-
 								</c:forEach>
 							</div>
 						</td>
+					</tr>
+				</c:forEach>
+				<c:forEach items="${disabled}" var="disabledComp">
+					<tr>
+						<td class="compName dashTable">${disabledComp}</td>
+						<td class="active dashTable"></td>
 					</tr>
 				</c:forEach>
 			</table>

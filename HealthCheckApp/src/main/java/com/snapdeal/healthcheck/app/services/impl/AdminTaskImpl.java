@@ -1,7 +1,11 @@
 package com.snapdeal.healthcheck.app.services.impl;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import org.json.JSONObject;
@@ -13,12 +17,17 @@ import com.snapdeal.healthcheck.app.bo.AdminBO;
 import com.snapdeal.healthcheck.app.bo.ComponentDetailsBO;
 import com.snapdeal.healthcheck.app.bo.TokenApiDetailsBO;
 import com.snapdeal.healthcheck.app.constants.AppConstant;
+import com.snapdeal.healthcheck.app.enums.ComponentType;
 import com.snapdeal.healthcheck.app.enums.TokenComponent;
 import com.snapdeal.healthcheck.app.model.Administrator;
 import com.snapdeal.healthcheck.app.model.ComponentDetails;
 import com.snapdeal.healthcheck.app.model.HealthCheckResult;
+import com.snapdeal.healthcheck.app.model.TimelyCompData;
 import com.snapdeal.healthcheck.app.model.TokenApiDetails;
+import com.snapdeal.healthcheck.app.model.UIComponent;
+import com.snapdeal.healthcheck.app.mongo.repositories.MongoRepoService;
 import com.snapdeal.healthcheck.app.services.AdminTask;
+import com.snapdeal.healthcheck.app.utils.MailHtmlData;
 
 
 @org.springframework.stereotype.Component
@@ -34,6 +43,9 @@ public class AdminTaskImpl implements AdminTask{
 
 	@Autowired
 	private ComponentDetailsBO compDetails;
+	
+	@Autowired
+	private MongoRepoService mongoService;
 
 	@Override
 	public String changePassword(String data) {
@@ -70,8 +82,14 @@ public class AdminTaskImpl implements AdminTask{
 		String resultData = "";
 		try{
 			JSONObject jsonData = new JSONObject(data);
-			TokenApiDetails tokenApi = getTokenApiDetailsFromJSON(jsonData);
-			ComponentDetails component = getComponentDetailsFromJSON(jsonData);
+			String compName = null;
+			if(jsonData.getBoolean("tokenRequired"))
+				compName = getJsonString(jsonData, "tokenCompName");
+			else
+				compName = getJsonString(jsonData, "compName");
+			
+			TokenApiDetails tokenApi = getTokenApiDetailsFromJSON(jsonData, compName);
+			ComponentDetails component = getComponentDetailsFromJSON(jsonData, null, compName);
 			HealthCheckResult resultObj = EnvHealthCheckImpl.checkServerHealth(component, null, tokenApi);
 
 			StringBuilder dataResult = new StringBuilder();
@@ -98,9 +116,15 @@ public class AdminTaskImpl implements AdminTask{
 		String resultData = "";
 		try{
 			JSONObject jsonData = new JSONObject(data);
+			String updateCompName = null;
 			String authKey = getJsonString(jsonData, "authKey");
-
+			HealthCheckResult resultObj = null;
+			TokenApiDetails tokenApi = null;
+			ComponentDetails component = null;
 			Administrator admin = adminSer.getAdmin();
+			String compName = null;
+			boolean tokenApiExist = jsonData.getBoolean("tokenRequired");
+			boolean updateComp = jsonData.getBoolean("updateComp");
 			if(admin == null)
 				return "Something went wrong. Please contact admin";
 			if(authKey != null && authKey.equals(admin.getAuthKey()))
@@ -108,21 +132,38 @@ public class AdminTaskImpl implements AdminTask{
 			else
 				return "<h4>Not Authorized!!</h4>";
 
-			TokenApiDetails tokenApi = getTokenApiDetailsFromJSON(jsonData);
+			if(tokenApiExist) {
+				compName = getJsonString(jsonData, "tokenCompName");
+				tokenApi = getTokenApiDetailsFromJSON(jsonData, compName);
+			} else
+				compName = getJsonString(jsonData, "compName");
 			
-			ComponentDetails component = getComponentDetailsFromJSON(jsonData);
-			String validate = validateCompData(component);
+			if(updateComp) {
+				updateCompName = getJsonString(jsonData, "updateCompName");
+				component = compDetails.getComponentDetails(updateCompName);	
+			}
+			
+			component = getComponentDetailsFromJSON(jsonData, component, compName);
+			
+			String validate = validateCompData(component, updateCompName);
 			if(validate != null)
 				return validate;
-
-			HealthCheckResult resultObj = EnvHealthCheckImpl.checkServerHealth(component, null, tokenApi);
-			if(resultObj.isServerUp()) {
-				UUID uuid = UUID.randomUUID();
-				component.setAuthKey(uuid.toString());
-				component.setAuthKeyShared("NO");
-				compDetails.saveComponentDetails(component);
-				tokenDetails.saveTokenApiDetails(tokenApi);
-				resultData = "<h4>Successfully added entry!!</h4>";
+			if(component.isEnabled())
+				resultObj = EnvHealthCheckImpl.checkServerHealth(component, null, tokenApi);
+			
+			if(!component.isEnabled() || resultObj.isServerUp()) {
+				if(updateComp) {
+					compDetails.updateComponentDetails(component);
+					resultData = "<h4>Successfully updated entry!!</h4>Old Component Name: " + updateCompName + "<br>New Component Name: " + component.getComponentName();
+				} else {
+					UUID uuid = UUID.randomUUID();
+					component.setAuthKey(uuid.toString());
+					component.setAuthKeyShared("NO");
+					compDetails.saveComponentDetails(component);
+					if(tokenApiExist)
+						tokenDetails.saveTokenApiDetails(tokenApi);
+					resultData = "<h4>Successfully added entry!! - " + component.getComponentName() + "</h4>";
+				}
 			} else {
 				StringBuilder dataResult = new StringBuilder();
 				dataResult.append("<h4>Failed!!</h4>");
@@ -132,8 +173,8 @@ public class AdminTaskImpl implements AdminTask{
 				resultData = dataResult.toString();
 			}
 		}catch(Exception e) {
-			log.error("Exception occured while checking component status: " + e.getMessage(), e);
-			resultData = "Exception occured while checking component status: " + e.getMessage();
+			log.error("Exception occured while adding component details: " + e.getMessage(), e);
+			resultData = "Exception occured while adding component details: " + e.getMessage();
 		}
 		return resultData;
 	}
@@ -144,9 +185,8 @@ public class AdminTaskImpl implements AdminTask{
 		return null;
 	}
 
-	private TokenApiDetails getTokenApiDetailsFromJSON(JSONObject jsonData) {
+	private TokenApiDetails getTokenApiDetailsFromJSON(JSONObject jsonData, String compName) {
 		TokenApiDetails tokenApi = null;
-		String compName = getJsonString(jsonData, "compName");
 		TokenComponent tokenComp = TokenComponent.getValueOf(compName);
 		if(!tokenComp.equals(TokenComponent.INV)) {
 			tokenApi = new TokenApiDetails();
@@ -171,9 +211,13 @@ public class AdminTaskImpl implements AdminTask{
 		return result;
 	}
 
-	private ComponentDetails getComponentDetailsFromJSON(JSONObject jsonData) {
-		ComponentDetails component = new ComponentDetails();
-		component.setComponentName(getJsonString(jsonData, "compName"));
+	private ComponentDetails getComponentDetailsFromJSON(JSONObject jsonData, ComponentDetails component, String compName) {
+		if(component == null)
+			component = new ComponentDetails();
+		
+		component.setComponentName(compName);
+		component.setComponentType(ComponentType.getValueOf(getJsonString(jsonData, "compType")));
+		component.setEnabled(jsonData.getBoolean("enabled"));
 		component.setQmSpoc(getJsonString(jsonData, "qmSpoc"));
 		component.setQaSpoc(getJsonString(jsonData, "qaSpoc"));
 		component.setEndpoint(getJsonString(jsonData, "endpoint"));
@@ -195,19 +239,146 @@ public class AdminTaskImpl implements AdminTask{
 		return component;
 	}
 	
-	private String validateCompData(ComponentDetails component) {
+	private String validateCompData(ComponentDetails component, String updateCompName) {
 		String result = null;
 		String compName = component.getComponentName();
 		if(compName == null)
 			return "Component name cannot be empty!!";
-		if(compDetails.getComponentDetails(compName) != null)
-			return "Component: " + compName + ", Already Exist!!";
-		if (tokenDetails.getTokenApiDetails(compName) != null)
-			return "Component Token already exist for: " + compName;
-		if(component.getQaSpoc() == null)
-			return "QA SPOC details is required";
-		if(component.getQmSpoc() == null)
-			return "QM SPOC details is required";
+		
+		if(updateCompName == null || (updateCompName != null && !updateCompName.equals(compName))) {
+			if(compDetails.getComponentDetails(compName) != null)
+				return "Component: " + compName + ", Already Exist!!";
+			if (tokenDetails.getTokenApiDetails(compName) != null)
+				return "Component Token already exist for: " + compName;
+		}
+		
+		if(component.isEnabled()) {
+			if(component.getQaSpoc() == null)
+				return "QA SPOC details is required";
+			if(component.getQmSpoc() == null)
+				return "QM SPOC details is required";
+		}
 		return result;
+	}
+
+	@Override
+	public Map<String, UIComponent> getCompsForUpdate() {
+		Map<String, UIComponent> result = new TreeMap<>();
+		List<ComponentDetails> componentList = compDetails.getAllComponentDetails();
+		List<TokenApiDetails> tokenApiList = tokenDetails.getAllTokenApiDetails();
+		for(ComponentDetails comp : componentList) {
+			UIComponent component = new UIComponent();
+			component.setCompDetails(comp);
+			component.setCompName(comp.getComponentName());
+			result.put(comp.getComponentName(), component);
+		}
+		for(TokenApiDetails tokenApi : tokenApiList) {
+			UIComponent component = result.get(tokenApi.getComponentName());
+			if(component != null)
+				component.setTokenDetails(tokenApi);
+		}
+		return result;
+	}
+
+	@Override
+	public String getReportDateRangeData(String data) {
+		Date startDate;
+		Date endDate;
+		try {
+			JSONObject jsonData = new JSONObject(data);
+			String startDateStr = getJsonString(jsonData, "startDate");
+			String endDateStr = getJsonString(jsonData, "endDate");
+			SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+			try {
+				startDate = formatter.parse(startDateStr);
+				endDate = formatter.parse(endDateStr);
+			}catch(Exception e) {
+				return "Please pass valid dates in the format: dd-mm-yyyy";
+			}
+			log.info("Calling get timely data: " + startDate + " " + endDate);
+			Map<String, TimelyCompData> result = mongoService.getTimelyData(startDate, endDate);
+			if(result == null)
+				return "<h3>End Date cannot be less than Start Date</h3>";
+			if(result.isEmpty())
+				return "<h3>No servers were down between this date range!</h3>";
+			else
+				return MailHtmlData.createHtmlTableForTimelyReportData(result);
+		}catch(Exception e) {
+			log.error("Exception: " + e.getMessage(), e);
+			return "Exception occured: " + e.getMessage() + "<br>Please contact admin!";
+		}
+	}
+
+	@Override
+	public Map<String, String> getCompsForEndpointUpdate() {
+		Map<String, String> result = new TreeMap<>();
+		List<ComponentDetails> componentList = compDetails.getAllEnabledComponentDetails();
+		for(ComponentDetails comp : componentList) {
+			result.put(comp.getComponentName(), comp.getEndpoint());
+		}
+		return result;
+	}
+
+	@Override
+	public Map<Boolean, String> checkComponentForEndpointUpdate(String data) {
+		Map<Boolean, String> result = new HashMap<>();
+		String resultData = "";
+		try{
+			JSONObject jsonData = new JSONObject(data);
+			String compName = getJsonString(jsonData, "updateCompName");
+			String endpoint = getJsonString(jsonData, "endpoint");
+			
+			ComponentDetails component = compDetails.getComponentDetails(compName);
+			component.setEndpoint(endpoint);
+			HealthCheckResult resultObj = EnvHealthCheckImpl.checkServerHealth(component, null, null);
+
+			StringBuilder dataResult = new StringBuilder();
+			if(resultObj.isServerUp())
+				dataResult.append("<h4>Success!!</h4>");
+			else
+				dataResult.append("<h4>Failed!!</h4>");
+			dataResult.append("<br>Response:<br>");
+			dataResult.append(resultObj);
+
+			resultData = dataResult.toString();
+			result.put(resultObj.isServerUp(), resultData);
+		}catch(Exception e) {
+			log.error("Exception occured while checking component status: " + e.getMessage(), e);
+			resultData = "Exception occured while checking component status: " + e.getMessage();
+			result.put(false, resultData);
+		}
+		return result;
+	}
+
+	@Override
+	public String updateEndpoint(String data) {
+		String resultData = "";
+		try{
+			JSONObject jsonData = new JSONObject(data);
+			String compName = getJsonString(jsonData, "updateCompName");
+			String endpoint = getJsonString(jsonData, "endpoint");
+			String authKey = getJsonString(jsonData, "authKey");
+			if(authKey == null)
+				return "<h4>Auth key required!!</h4>";
+			ComponentDetails component = compDetails.getComponentDetails(compName);
+			if(!authKey.equals(component.getAuthKey()))
+				return "<h4>Not Authorized!!</h4>";
+			String oldEP = component.getEndpoint();
+			component.setEndpoint(endpoint);
+			HealthCheckResult resultObj = EnvHealthCheckImpl.checkServerHealth(component, null, null);
+
+			StringBuilder dataResult = new StringBuilder();
+			if(resultObj.isServerUp()) {
+				compDetails.updateComponentDetails(component);
+				dataResult.append("<h4>Successfully updated endpoint from: "+ oldEP +" to: "+ endpoint +"</h4>");
+			} else
+				dataResult.append("<h4>Please Test the connection before submitting</h4>");
+			
+			resultData = dataResult.toString();
+		}catch(Exception e) {
+			log.error("Exception occured while checking component status: " + e.getMessage(), e);
+			resultData = "Exception occured while checking component status: " + e.getMessage();
+		}
+		return resultData;
 	}
 }

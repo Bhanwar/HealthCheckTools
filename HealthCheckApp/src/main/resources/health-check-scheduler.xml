@@ -5,8 +5,8 @@
 	xmlns:mongo="http://www.springframework.org/schema/data/mongo"
 	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
-		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 		http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo.xsd">
 
 	<context:property-placeholder
@@ -75,6 +75,30 @@
 		<beans:property name="jobDetail" ref="dailyReportJob" />
 		<beans:property name="cronExpression" value="${daily_report_cron}" />
 	</beans:bean>
+	
+	<beans:bean id="weeklyReportJob"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<beans:property name="jobClass"
+			value="com.snapdeal.healthcheck.app.scheduler.WeeklyReportScheduler" />
+		<beans:property name="durability" value="true" />
+	</beans:bean>
+	<beans:bean id="weeklyReportCronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<beans:property name="jobDetail" ref="weeklyReportJob" />
+		<beans:property name="cronExpression" value="${weekly_report_cron}" />
+	</beans:bean>
+	
+	<beans:bean id="monthlyReportJob"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<beans:property name="jobClass"
+			value="com.snapdeal.healthcheck.app.scheduler.MonthlyReportScheduler" />
+		<beans:property name="durability" value="true" />
+	</beans:bean>
+	<beans:bean id="monthlyReportCronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<beans:property name="jobDetail" ref="monthlyReportJob" />
+		<beans:property name="cronExpression" value="${monthly_report_cron}" />
+	</beans:bean>
 
 	<beans:bean id="dataSource"
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
@@ -132,12 +156,16 @@
 			<beans:list>
 				<beans:ref bean="healthCheckJob" />
 				<beans:ref bean="dailyReportJob" />
+				<beans:ref bean="weeklyReportJob" />
+				<beans:ref bean="monthlyReportJob" />
 			</beans:list>
 		</beans:property>
 		<beans:property name="triggers">
 			<beans:list>
 				<beans:ref bean="healthCheckCronTrigger" />
 				<beans:ref bean="dailyReportCronTrigger" />
+				<beans:ref bean="weeklyReportCronTrigger" />
+				<beans:ref bean="monthlyReportCronTrigger" />
 			</beans:list>
 		</beans:property>
 		<beans:property name="waitForJobsToCompleteOnShutdown"

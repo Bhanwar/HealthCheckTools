@@ -1,5 +1,7 @@
 package com.snapdeal.healthcheck.app.dao.impl;
 
+import java.util.List;
+
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
@@ -26,5 +28,12 @@ public class TokenApiDetailsDAOImpl extends AbstractDao implements TokenApiDetai
 	@Override
 	public void saveTokenApiDetails(TokenApiDetails tokenApiDetail) {
 		persist(tokenApiDetail);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<TokenApiDetails> getAllTokenApiDetails() {
+		Criteria criteria = getSession().createCriteria(TokenApiDetails.class);
+		return (List<TokenApiDetails>) criteria.list();
 	}
 }

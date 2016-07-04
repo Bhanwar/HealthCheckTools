@@ -48,6 +48,28 @@ public class RestUtil {
 		return httpResponse;
 	}
 
+	public static HttpCallResponse fetchResponseAuth(String url, String callType, String headers, String payload, String username, String pwd) {
+		HttpCallResponse httpResponse = new HttpCallResponse();
+		try {
+			resetClient(headers);
+			Response response = null;
+
+			if ("GET".equalsIgnoreCase(callType))
+				response = callGet(url, payload, username, pwd);
+			else if ("POST".equalsIgnoreCase(callType))
+				response = callPost(url, payload);
+
+			String statusCode = response.getStatusLine().replace("HTTP/1.1 ", "");
+			httpResponse.setStatusCode(statusCode);
+			httpResponse.setResponseHeaders(convertHeadersToMap(response.getHeaders()));
+			httpResponse.setResponseBody(response.body().asString());
+		}
+		catch (Exception e) {
+			log.error("Exception occured while doing "+callType+": " + e.getMessage(), e);
+			httpResponse.setHttpCallException(e.getMessage());
+		}
+		return httpResponse;
+	}
 
 	public static void resetClient(String headers) throws Exception {
 		RestAssured.reset();
@@ -71,7 +93,16 @@ public class RestUtil {
 			return RestAssured.given().when().get(url);
 		}
 	}
-
+	
+	public static Response callGet(String url, String payload, String username, String password) throws Exception {
+		if (payload != null) {
+			Map<String, String> params = fetchReqParamsMap(payload);
+			return RestAssured.given().authentication().basic(username, password).queryParams(params).when().get(url);
+		}
+		else {
+			return RestAssured.given().authentication().basic(username, password).when().get(url);
+		}
+	}
 
 	public static Response callPost(String url, String payload) throws Exception {
 		if (payload != null)

@@ -41,11 +41,15 @@
 	<div id="header" class="adminHdr pointer"></div>
 	<div id="main-content">
 		<div id="summary">
-			<button type="button" class="btn btn-default btn-lg bttn-padding" id="addComp">Add Or Update Components</button>
+			<button type="button" class="btn btn-default btn-lg bttn-padding" id="updateEndpoint">Update Endpoint Details</button>
+			<br>
+			<button type="button" class="btn btn-default btn-lg bttn-padding" id="updateAuthKey">Update Auth Key</button>
 			<br>
 			<button type="button" class="btn btn-default btn-lg bttn-padding" id="updateReason">Update Server Down Time Reason</button>
 			<br>
-			<button type="button" class="btn btn-default btn-lg bttn-padding" id="updateAuthKey">Update Auth Key</button>
+			<button type="button" class="btn btn-default btn-lg bttn-padding" id="getDateRangeReport">Get Report for Date Range</button>
+			<br>
+			<button type="button" class="btn btn-default btn-lg bttn-padding" id="addComp">Add Or Update Components (Admin only)</button>
 		</div>
 	</div>
 </body>
@@ -67,9 +71,20 @@
 			$('#myPleaseWait').modal('show');
 			window.location = "/healthCheck/admin/updateReasonPage";
 		});
+		
 		$('#updateAuthKey').click(function() {
 			$('#myPleaseWait').modal('show');
 			window.location = "/healthCheck/admin/updateAuthKey";
+		});
+		
+		$('#updateEndpoint').click(function() {
+			$('#myPleaseWait').modal('show');
+			window.location = "/healthCheck/admin/endpointUpdate";
+		});
+		
+		$('#getDateRangeReport').click(function() {
+			$('#myPleaseWait').modal('show');
+			window.location = "/healthCheck/admin/getReport";
 		});
 	});
 </script>

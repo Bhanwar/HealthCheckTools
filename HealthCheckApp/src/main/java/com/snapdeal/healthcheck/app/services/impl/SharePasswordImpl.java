@@ -29,7 +29,7 @@ public class SharePasswordImpl implements SharePassword {
 	@Override
 	public void sharePasswordToQms() {
 
-		List<ComponentDetails> compList = compData.getAllComponentDetails();
+		List<ComponentDetails> compList = compData.getAllEnabledComponentDetails();
 		for (ComponentDetails componentDetails : compList) {
 			List<String> emailTo = new ArrayList<String>();
 			emailTo.add(componentDetails.getQmSpoc());

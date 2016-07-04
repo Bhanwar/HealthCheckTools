@@ -36,6 +36,7 @@ $(window).load(function() {
 		var api = $('#submitBttn').val();
 		var form = "#" + api + "Form";
 		var MyForm = $(form).serializeJSON();
+		console.log("api: " + api);
 		$("#result").empty();
 		$('#myPleaseWait').modal('show');
 		$.ajax({

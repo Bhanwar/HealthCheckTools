@@ -4,6 +4,7 @@ import static com.snapdeal.healthcheck.app.constants.AppConstant.MAIL_SIGN;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.SNAPDEAL_ID;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.componentNames;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.currentExecDate;
+import static com.snapdeal.healthcheck.app.constants.AppConstant.disabledComponentNames;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.healthResult;
 import static com.snapdeal.healthcheck.app.constants.Formatter.dateFormatter;
 
@@ -12,6 +13,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -34,13 +36,13 @@ import com.snapdeal.healthcheck.app.model.QuartzJobDataHolder;
 import com.snapdeal.healthcheck.app.mongo.repositories.MongoRepoService;
 import com.snapdeal.healthcheck.app.services.impl.EnvHealthCheckImpl;
 import com.snapdeal.healthcheck.app.utils.EmailUtil;
+import com.snapdeal.healthcheck.app.utils.MailHtmlData;
 
 public class HealthCheckScheduler extends QuartzJobBean {
 
 	private QuartzJobDataHolder dataObjects;
 	private ComponentDetailsBO compDetails;
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private String toAddress;
 	private String ccAddress;
 	private String ntwrkAddress;
 	private String envName;
@@ -55,14 +57,24 @@ public class HealthCheckScheduler extends QuartzJobBean {
 		log.debug("Running scheduled task: " + currentExecDate);
 		List<Callable<HealthCheckResult>> compCallList = new ArrayList<>();
 		int ntwrkIssueCount = 0;
+		Set<String> newComponentNames = new TreeSet<>();
+		Set<String> newDisabledComponentNames = new TreeSet<>();
 		for (ComponentDetails comp : components) {
-			componentNames.add(comp.getComponentName());
-			compCallList.add(new EnvHealthCheckImpl(comp, repoService));
-			//Required for newly added components on the run
-			if(healthResult.get(comp.getComponentName()) == null)
-				healthResult.put(comp.getComponentName(), true);
+			String compName = comp.getComponentName();
+			if(comp.isEnabled()) {
+				newComponentNames.add(compName);
+				compCallList.add(new EnvHealthCheckImpl(comp, repoService));
+				//Required for newly added components on the run
+				if(healthResult.get(compName) == null)
+					healthResult.put(compName, true);
+			} else {
+				newDisabledComponentNames.add(compName);
+			}
 		}
-
+		
+		componentNames = newComponentNames;
+		disabledComponentNames = newDisabledComponentNames;
+		
 		ExecutorService exec = null;
 		if (!compCallList.isEmpty()) {
 			try {
@@ -228,32 +240,35 @@ public class HealthCheckScheduler extends QuartzJobBean {
 		if (comp == null) {
 			log.error("No component found with the name: " + compName);
 		} else {
-			List<String> emailAddressTo = new ArrayList<>();
-			List<String> emailAddressCc = new ArrayList<>();
-			String[] list = comp.getQaSpoc().split(",");
-			for (int i = 0; i < list.length; i++) {
-				if (list[i].contains(SNAPDEAL_ID))
-					emailAddressTo.add(list[i]);
-			}
+//			List<String> emailAddressTo = new ArrayList<>();
+//			List<String> emailAddressCc = new ArrayList<>();
+			String toAddress = comp.getQaSpoc();
+//			for (int i = 0; i < list.length; i++) {
+//				if (list[i].contains(SNAPDEAL_ID))
+//					emailAddressTo.add(list[i]);
+//			}
 			if (comp.getQmSpoc() != null && comp.getQmSpoc().contains(SNAPDEAL_ID)) {
-				emailAddressCc.add(comp.getQmSpoc());
+				toAddress = toAddress + "," + comp.getQmSpoc();
 				msgBody = msgBody.replace("${QMSPOC}", comp.getQmSpoc());
 			}
-			String[] ccAdd = ccAddress.split(",");
-			for (int i = 0; i < ccAdd.length; i++) {
-				if (ccAdd[i].contains(SNAPDEAL_ID))
-					emailAddressCc.add(ccAdd[i]);
-			}
-			log.debug("Sending mail to " + emailAddressTo + ", cc: " + emailAddressCc);
-			if (emailAddressTo.isEmpty()) {
-				log.warn("Daily Report was not sent as the TO Address list was empty!!");
-			} else {
-				EmailUtil mail = new EmailUtil(emailAddressTo, emailAddressCc, null, msgSubject, msgBody);
-				boolean mailSent = true;
-				do {
-					mailSent = mail.sendHTMLEmail();
-				} while (!mailSent);
-			}
+//			String[] ccAdd = ccAddress.split(",");
+//			for (int i = 0; i < ccAdd.length; i++) {
+//				if (ccAdd[i].contains(SNAPDEAL_ID))
+//					emailAddressCc.add(ccAdd[i]);
+//			}
+			
+			MailHtmlData.sendHtmlMail(toAddress, ccAddress, msgSubject, msgBody, sendMail);
+			
+//			log.debug("Sending mail to " + emailAddressTo + ", cc: " + emailAddressCc);
+//			if (emailAddressTo.isEmpty()) {
+//				log.warn("Mail was not sent as the TO Address list was empty!!");
+//			} else {
+//				EmailUtil mail = new EmailUtil(emailAddressTo, emailAddressCc, null, msgSubject, msgBody);
+//				boolean mailSent = true;
+//				do {
+//					mailSent = mail.sendHTMLEmail();
+//				} while (!mailSent);
+//			}
 		}
 	}
 
@@ -262,14 +277,6 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			return "";
 		else
 			return data;
-	}
-
-	public String getToAddress() {
-		return toAddress;
-	}
-
-	public void setToAddress(String toAddress) {
-		this.toAddress = toAddress;
 	}
 
 	public String getCcAddress() {

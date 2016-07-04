@@ -7,7 +7,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Iterator;
-
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,12 +25,23 @@ public class HttpUtil {
 		if(url.contains("https"))
 			httpResponse = RestUtil.fetchResponse(url, callType, headers, payload);
 		else
-			httpResponse = fetchResponseHttp(url, callType, headers, payload);
+			httpResponse = fetchResponseHttp(url, callType, headers, payload, 0);
 		
 		return httpResponse;
 	}
 	
-	public static HttpCallResponse fetchResponseHttp(String url, String callType, String headers, String payload) {
+	public static HttpCallResponse fetchResponse(String url, String callType, String headers, String payload, int connectionTimeOutMiliSecs) {
+		HttpCallResponse httpResponse;
+		
+		if(url.contains("https"))
+			httpResponse = RestUtil.fetchResponse(url, callType, headers, payload);
+		else
+			httpResponse = fetchResponseHttp(url, callType, headers, payload,connectionTimeOutMiliSecs);
+		
+		return httpResponse;
+	}
+	
+	private static HttpCallResponse fetchResponseHttp(String url, String callType, String headers, String payload, int connectionTimeOutMiliSecs) {
 		HttpCallResponse httpResponse = new HttpCallResponse();
 		HttpURLConnection conn = null;
 		OutputStream os = null;
@@ -40,6 +50,10 @@ public class HttpUtil {
 			URL urlToHit = new URL(url);
 			conn = (HttpURLConnection) urlToHit.openConnection();
 			conn.setDoOutput(true);
+			if(connectionTimeOutMiliSecs != 0) {
+				conn.setConnectTimeout(connectionTimeOutMiliSecs);
+				conn.setReadTimeout(connectionTimeOutMiliSecs);
+			}
 			conn.setRequestMethod(callType);
 
 			if (headers != null) {

@@ -11,6 +11,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.snapdeal.healthcheck.app.enums.ComponentType;
+
 @Entity
 @Table(name = "components")
 public class ComponentDetails {
@@ -22,6 +24,12 @@ public class ComponentDetails {
 	@Column(name = "component_name", nullable = false, unique = true)
 	private String componentName;
 
+	@Column(name = "enabled")
+	private boolean enabled;
+	
+	@Column(name = "component_type", nullable = false)
+	private String componentType;
+	
 	@Column(name = "qm_spoc")
 	private String qmSpoc;
 
@@ -96,6 +104,14 @@ public class ComponentDetails {
 
 	public String getQmSpoc() {
 		return qmSpoc;
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 
 	public void setQmSpoc(String qmSpoc) {
@@ -208,6 +224,14 @@ public class ComponentDetails {
 
 	public String getFirstGetApiResp() {
 		return firstGetApiResp;
+	}
+
+	public ComponentType getComponentType() {
+		return ComponentType.getValueOf(componentType);
+	}
+
+	public void setComponentType(ComponentType componentType) {
+		this.componentType = componentType.getCode();
 	}
 
 	public void setFirstGetApiResp(String firstGetApiResp) {

@@ -15,8 +15,9 @@ public class ComponentDetailsDAOImpl extends AbstractDao implements ComponentDet
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ComponentDetails> getAllComponentDetails() {
+	public List<ComponentDetails> getAllEnabledComponentDetails() {
 		Criteria criteria = getSession().createCriteria(ComponentDetails.class);
+		criteria.add(Restrictions.eq("enabled", true));
 		return (List<ComponentDetails>) criteria.list();
 	}
 
@@ -35,6 +36,13 @@ public class ComponentDetailsDAOImpl extends AbstractDao implements ComponentDet
 	@Override
 	public void saveComponentDetails(ComponentDetails compDetail) {
 		persist(compDetail);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ComponentDetails> getAllComponentDetails() {
+		Criteria criteria = getSession().createCriteria(ComponentDetails.class);
+		return (List<ComponentDetails>) criteria.list();
 	}
 
 }
