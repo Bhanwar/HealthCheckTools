@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS `components`;
+DROP TABLE IF EXISTS `admin`;
 
 CREATE TABLE `components` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
