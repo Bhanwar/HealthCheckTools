@@ -17,6 +17,9 @@ public interface DownTimeDataRepository extends MongoRepository<DownTimeData, St
 	@Query("{ 'execDate' : ?0}")
 	List<DownTimeData> findAllExecForDate(String date);
 	
+	@Query("{ 'componentName' : ?0}")
+	List<DownTimeData> findAllDataForComp(String compName);
+	
 	@Query("{ 'execDate' : ?0}")
 	List<DownTimeData> findAllExecForDateSorted(String date, Sort sort);
 	

@@ -364,7 +364,7 @@
 						</div>
 
 						<div class="form-group">
-							<label class="control-label col-sm-3" for="authKey">Auth
+							<label class="control-label col-sm-3" for="authKey">Admin Auth
 								Key</label>
 							<div class="col-sm-9">
 								<input type="password" class="form-control" name="authKey"

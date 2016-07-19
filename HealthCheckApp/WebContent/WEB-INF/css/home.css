@@ -125,6 +125,22 @@ div.redbar {
 	position: absolute;
 }
 
+div.yellowbar {
+	background-color: #eccb18;
+	height: 1.3em;
+	margin: 0px;
+	padding: 0px;
+	position: absolute;
+}
+
+div.purplebar {
+	background-color: #975dc6;
+	height: 1.3em;
+	margin: 0px;
+	padding: 0px;
+	position: absolute;
+}
+
 .tableHdr {
 	background-color: #A8D5EC;
 }

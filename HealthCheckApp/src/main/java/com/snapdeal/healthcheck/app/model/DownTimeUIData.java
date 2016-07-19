@@ -10,6 +10,7 @@ public class DownTimeUIData {
 	String totalTime;
 	String statusCode;
 	String httpExcp;
+	String type;
 
 	public double getLeftMargin() {
 		return leftMargin;
@@ -25,6 +26,14 @@ public class DownTimeUIData {
 
 	public void setWidth(double width) {
 		this.width = width;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public String getStatusCode() {

@@ -66,55 +66,36 @@
 
 				<div class="col-md-2 column"></div>
 				<div class="col-md-8 column">
-					<form id="updateReasonForm" class="form-horizontal" role="form">
-						<div id="compNameSelect" class="form-group">
-							<label class="col-md-3 control-label">Comp
-								Name </label>
+					<form id="resetAuthKeyForm" class="form-horizontal" role="form">
+						<div class="form-group">
+							<label class="col-md-3 control-label" for="comp">Component</label>
 							<div class="col-md-9">
-								<select class="form-control" id="comp-select">
+								<select name="comp" class="form-control" id="comp-select">
 
 								</select>
 							</div>
 						</div>
 						<div class="form-group">
-							<label class="col-md-3 control-label" for="comp">Server
-								Down Time</label>
-							<div class="col-md-9">
-								<select name="comp" class="form-control" id="update-select">
-
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="control-label col-sm-3" for="reason">Reason
-								Code</label>
+							<label class="control-label col-sm-3" for="qmSpoc">QM SPOC</label>
 							<div class="col-sm-9">
-								<select name="reason" class="form-control" id="reason-select">
-
-								</select>
-							</div>
-						</div>
-
-						<div class="form-group">
-							<label class="control-label col-sm-3" for="description">Description</label>
-							<div class="col-sm-9">
-								<textarea rows="8" class="form-control clearInput"
-									name="description" placeholder="Enter description"></textarea>
+								<input id="qmSpocInputDiv" type="text" class="form-control" name="qmSpoc"
+									placeholder="Enter qm spoc details">
 							</div>
 						</div>
 						<div class="form-group">
-							<label class="control-label col-sm-3" for="authKey">Auth
+							<label class="control-label col-sm-3" for="adminAuthKey">Admin Auth
 								Key</label>
 							<div class="col-sm-9">
-								<input type="password" class="form-control" name="authKey"
-									placeholder="Enter authorization key">
+								<input type="password" class="form-control" name="adminAuthKey"
+									placeholder="Enter admin authorization key">
 							</div>
 						</div>
+						
 
 						<div class="form-group">
 							<div class="col-sm-offset-3 col-sm-9">
 								<button id="submitBttn" type="submit" class="btn"
-									value="updateReason">Submit</button>
+									value="resetAuthKey">Submit</button>
 							</div>
 						</div>
 					</form>
@@ -133,16 +114,17 @@
 	</div>
 </body>
 <script type="text/javascript">
-var dataMap;
-
+var compDetails;
 	$(window).load(function() {
 						$('#myLoading').modal('show');
-						$.ajax({
-									url : "/healthCheck/getUpdateList",
+						$
+								.ajax({
+									url : "/healthCheck/getComponentQmMap",
 									type : "GET",
 									contentType : "application/json",
 									success : function(data) {
 										console.log(data);
+										compDetails = data;
 										updateOptions(data);
 									},
 									error : function(jqXHR, textStatus,
@@ -150,74 +132,31 @@ var dataMap;
 										$('#myLoading').modal('hide');
 										console.log(textStatus + " : "
 												+ errorThrown);
-										alert("Could not populate update list, please contact rajeev.agile@snapdeal.com!");
+										alert("Could not populate component list, please contact rajeev.agile@snapdeal.com!");
 									}
 								});
 					});
 
-	$(window).load(function() {
-						$.ajax({
-									url : "/healthCheck/getReasonCodes",
-									type : "GET",
-									contentType : "application/json",
-									success : function(data) {
-										console.log(data);
-										reasonOptions(data);
-									},
-									error : function(jqXHR, textStatus,
-											errorThrown) {
-										$('#myLoading').modal('hide');
-										console.log(textStatus + " : "
-												+ errorThrown);
-										alert("Could not populate reason codes list, please contact rajeev.agile@snapdeal.com!");
-									}
-								});
-					});
-
-	function updateOptions(updateMap) {
-		dataMap = updateMap
-		console.log("Creating update list..");
+	function updateOptions(updateSet) {
+		console.log("Creating comp list..");
 		var selectList = document.getElementById('comp-select');
-		for ( var key in updateMap) {
+		for ( var key in updateSet) {
 			var option = document.createElement('option');
 			option.value = key;
 			option.text = key;
 			selectList.appendChild(option);
 		}
-		var selectedOption = $("#compNameSelect option:selected").val();
-		console.log("Selected: " + selectedOption);
-		createUpdateList(selectedOption);
+		populateQmSpoc();
 		$('#myLoading').modal('hide');
 	};
 	
-	function createUpdateList(compName) {
-		var selectList = document.getElementById('update-select');
-		var updateMap = dataMap[compName];
-		for ( var key in updateMap) {
-			var option = document.createElement('option');
-			option.value = updateMap[key];
-			option.text = key;
-			selectList.appendChild(option);
-		}
-	};
-
-	function reasonOptions(reasonList) {
-		console.log("Creating reason list..");
-		var selectList = document.getElementById('reason-select');
-		console.log(reasonList.length);
-		for ( var i in reasonList) {
-			var option = document.createElement('option');
-			option.value = reasonList[i];
-			option.text = reasonList[i];
-			selectList.appendChild(option);
-		}
-	};
-	
-	$(document).on('change', '#compNameSelect', function() {
-		var selectedOption = $("#compNameSelect option:selected").val();
-		console.log("Selected: " + selectedOption);
-		document.getElementById('update-select').options.length = 0;
-		createUpdateList(selectedOption);
+	$(document).on('change', '#comp-select', function() {
+		populateQmSpoc();
 	});
+	
+	function populateQmSpoc() {
+		var selectedOption = $("#comp-select option:selected").val();
+		$('#qmSpocInputDiv').val(compDetails[selectedOption]);
+	}
 </script>
 </html>

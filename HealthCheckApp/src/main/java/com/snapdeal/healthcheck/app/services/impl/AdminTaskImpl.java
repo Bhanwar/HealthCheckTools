@@ -1,10 +1,15 @@
 package com.snapdeal.healthcheck.app.services.impl;
 
+import static com.snapdeal.healthcheck.app.constants.AppConstant.componentNames;
+import static com.snapdeal.healthcheck.app.constants.AppConstant.disabledComponentNames;
+import static com.snapdeal.healthcheck.app.constants.AppConstant.healthResult;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -21,13 +26,13 @@ import com.snapdeal.healthcheck.app.enums.ComponentType;
 import com.snapdeal.healthcheck.app.enums.TokenComponent;
 import com.snapdeal.healthcheck.app.model.Administrator;
 import com.snapdeal.healthcheck.app.model.ComponentDetails;
+import com.snapdeal.healthcheck.app.model.DownTimeData;
 import com.snapdeal.healthcheck.app.model.HealthCheckResult;
 import com.snapdeal.healthcheck.app.model.TimelyCompData;
 import com.snapdeal.healthcheck.app.model.TokenApiDetails;
 import com.snapdeal.healthcheck.app.model.UIComponent;
 import com.snapdeal.healthcheck.app.mongo.repositories.MongoRepoService;
 import com.snapdeal.healthcheck.app.services.AdminTask;
-import com.snapdeal.healthcheck.app.utils.MailHtmlData;
 
 
 @org.springframework.stereotype.Component
@@ -90,7 +95,7 @@ public class AdminTaskImpl implements AdminTask{
 			
 			TokenApiDetails tokenApi = getTokenApiDetailsFromJSON(jsonData, compName);
 			ComponentDetails component = getComponentDetailsFromJSON(jsonData, null, compName);
-			HealthCheckResult resultObj = EnvHealthCheckImpl.checkServerHealth(component, null, tokenApi);
+			HealthCheckResult resultObj = EnvHealthCheckImpl.checkServerHealth(component, tokenApi);
 
 			StringBuilder dataResult = new StringBuilder();
 			if(resultObj.isServerUp())
@@ -123,6 +128,7 @@ public class AdminTaskImpl implements AdminTask{
 			ComponentDetails component = null;
 			Administrator admin = adminSer.getAdmin();
 			String compName = null;
+			String oldQmSpoc = null;
 			boolean tokenApiExist = jsonData.getBoolean("tokenRequired");
 			boolean updateComp = jsonData.getBoolean("updateComp");
 			if(admin == null)
@@ -140,7 +146,8 @@ public class AdminTaskImpl implements AdminTask{
 			
 			if(updateComp) {
 				updateCompName = getJsonString(jsonData, "updateCompName");
-				component = compDetails.getComponentDetails(updateCompName);	
+				component = compDetails.getComponentDetails(updateCompName);
+				oldQmSpoc = component.getQmSpoc();
 			}
 			
 			component = getComponentDetailsFromJSON(jsonData, component, compName);
@@ -149,11 +156,32 @@ public class AdminTaskImpl implements AdminTask{
 			if(validate != null)
 				return validate;
 			if(component.isEnabled())
-				resultObj = EnvHealthCheckImpl.checkServerHealth(component, null, tokenApi);
+				resultObj = EnvHealthCheckImpl.checkServerHealth(component, tokenApi);
 			
 			if(!component.isEnabled() || resultObj.isServerUp()) {
 				if(updateComp) {
+					//Check if manager has changed
+					if(oldQmSpoc != null && !oldQmSpoc.equals(component.getQmSpoc())) {
+						UUID uuid = UUID.randomUUID();
+						component.setAuthKeyShared("NO");
+						component.setAuthKey(uuid.toString());
+					}
+					
+					String newCompName = component.getComponentName();
+					componentNames.remove(updateCompName);
+					disabledComponentNames.remove(updateCompName);
+					if(component.isEnabled()) 
+						componentNames.add(newCompName);
+					else
+						disabledComponentNames.add(newCompName);
+					
 					compDetails.updateComponentDetails(component);
+					if(!newCompName.equals(updateCompName)){
+						boolean compState = healthResult.get(updateCompName);
+						healthResult.remove(updateCompName);
+						healthResult.put(newCompName, compState);
+						updateMongo(newCompName,updateCompName);
+					}
 					resultData = "<h4>Successfully updated entry!!</h4>Old Component Name: " + updateCompName + "<br>New Component Name: " + component.getComponentName();
 				} else {
 					UUID uuid = UUID.randomUUID();
@@ -281,35 +309,6 @@ public class AdminTaskImpl implements AdminTask{
 	}
 
 	@Override
-	public String getReportDateRangeData(String data) {
-		Date startDate;
-		Date endDate;
-		try {
-			JSONObject jsonData = new JSONObject(data);
-			String startDateStr = getJsonString(jsonData, "startDate");
-			String endDateStr = getJsonString(jsonData, "endDate");
-			SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-			try {
-				startDate = formatter.parse(startDateStr);
-				endDate = formatter.parse(endDateStr);
-			}catch(Exception e) {
-				return "Please pass valid dates in the format: dd-mm-yyyy";
-			}
-			log.info("Calling get timely data: " + startDate + " " + endDate);
-			Map<String, TimelyCompData> result = mongoService.getTimelyData(startDate, endDate);
-			if(result == null)
-				return "<h3>End Date cannot be less than Start Date</h3>";
-			if(result.isEmpty())
-				return "<h3>No servers were down between this date range!</h3>";
-			else
-				return MailHtmlData.createHtmlTableForTimelyReportData(result);
-		}catch(Exception e) {
-			log.error("Exception: " + e.getMessage(), e);
-			return "Exception occured: " + e.getMessage() + "<br>Please contact admin!";
-		}
-	}
-
-	@Override
 	public Map<String, String> getCompsForEndpointUpdate() {
 		Map<String, String> result = new TreeMap<>();
 		List<ComponentDetails> componentList = compDetails.getAllEnabledComponentDetails();
@@ -330,7 +329,7 @@ public class AdminTaskImpl implements AdminTask{
 			
 			ComponentDetails component = compDetails.getComponentDetails(compName);
 			component.setEndpoint(endpoint);
-			HealthCheckResult resultObj = EnvHealthCheckImpl.checkServerHealth(component, null, null);
+			HealthCheckResult resultObj = EnvHealthCheckImpl.checkServerHealth(component, null);
 
 			StringBuilder dataResult = new StringBuilder();
 			if(resultObj.isServerUp())
@@ -365,7 +364,7 @@ public class AdminTaskImpl implements AdminTask{
 				return "<h4>Not Authorized!!</h4>";
 			String oldEP = component.getEndpoint();
 			component.setEndpoint(endpoint);
-			HealthCheckResult resultObj = EnvHealthCheckImpl.checkServerHealth(component, null, null);
+			HealthCheckResult resultObj = EnvHealthCheckImpl.checkServerHealth(component, null);
 
 			StringBuilder dataResult = new StringBuilder();
 			if(resultObj.isServerUp()) {
@@ -380,5 +379,71 @@ public class AdminTaskImpl implements AdminTask{
 			resultData = "Exception occured while checking component status: " + e.getMessage();
 		}
 		return resultData;
+	}
+	
+	private void updateMongo(String newCompName, String oldCompName) {
+		List<DownTimeData> dataList = mongoService.getAllDataForComp(oldCompName);
+		for(int i=0; i<dataList.size();i++) {
+			dataList.get(i).setComponentName(newCompName);
+		}
+		mongoService.save(dataList);
+	}
+
+	@Override
+	public Set<TimelyCompData> getReportDateRangeData(String data) {
+		Date startDate;
+		Date endDate;
+		Set<TimelyCompData> result = null;
+		try {
+			JSONObject jsonData = new JSONObject(data);
+			String startDateStr = getJsonString(jsonData, "startDate");
+			String endDateStr = getJsonString(jsonData, "endDate");
+			
+			SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+			try {
+				startDate = formatter.parse(startDateStr);
+				endDate = formatter.parse(endDateStr);
+			}catch(Exception e) {
+				log.error("Invalid dates");
+				return result;
+			}
+			log.info("Calling get timely data: " + startDate + " " + endDate);
+			result = mongoService.getTimelyData(startDate, endDate, null);
+			
+		}catch(Exception e) {
+			log.error("Exception: " + e.getMessage(), e);
+		}
+		return result;
+	}
+
+	@Override
+	public String resetAuthKey(String data) {
+		String result = "";
+		try {
+			JSONObject jsonData = new JSONObject(data);
+			String compName = getJsonString(jsonData, "comp");
+			String qmSpoc = getJsonString(jsonData, "qmSpoc");
+			String adminAuthKey = getJsonString(jsonData, "adminAuthKey");
+			if(qmSpoc == null)
+				return "<h4> Failed! QM SPOC cannot be empty!!";
+			if(adminAuthKey == null)
+				return "<h4> Failed! Please pass admin auth key!!</h4>";
+			
+			Administrator admin = adminSer.getAdmin();
+			if(!adminAuthKey.equals(admin.getAuthKey()))
+				return "<h4>Not Authorized!!</h4>";
+			
+			ComponentDetails comp = compDetails.getComponentDetails(compName);
+			comp.setQmSpoc(qmSpoc);
+			UUID uuid = UUID.randomUUID();
+			comp.setAuthKey(uuid.toString());
+			comp.setAuthKeyShared("NO");
+			compDetails.updateComponentDetails(comp);
+			result = "<h4>Success!! Auth key reset successful!</h4>";
+		} catch(Exception e) {
+			log.error("Exception: " + e.getMessage(), e);
+			result = e.getMessage();
+		}
+		return result;
 	}
 }

@@ -2,17 +2,11 @@ package com.snapdeal.healthcheck.app.model;
 
 import java.util.Date;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import com.snapdeal.healthcheck.app.enums.ServerStatus;
 
-@Document(collection="healtCheckResults")
 public class HealthCheckResult {
 
-	@Id
-	private String id;
-	
 	private String componentName;
-	private boolean serverUp;
 	private String execDate;
 	private String execTime;
 	private Date execDateTime;
@@ -22,18 +16,27 @@ public class HealthCheckResult {
 	private String failedStatusCode;
 	private String failedActualResp;
 	private String failedHttpCallException;
-	private boolean ntwrkIssue;
+	private ServerStatus serverStatus;
+	private boolean serverUp;
 	
-	public boolean isNtwrkIssue() {
-		return ntwrkIssue;
-	}
-
-	public void setNtwrkIssue(boolean ntwrkIssue) {
-		this.ntwrkIssue = ntwrkIssue;
-	}
-
 	public String getFailedURL() {
 		return failedURL;
+	}
+
+	public ServerStatus getServerStatus() {
+		return serverStatus;
+	}
+
+	public boolean isServerUp() {
+		return serverUp;
+	}
+
+	public void setServerUp(boolean serverUp) {
+		this.serverUp = serverUp;
+	}
+
+	public void setServerStatus(ServerStatus serverStatus) {
+		this.serverStatus = serverStatus;
 	}
 
 	public void setFailedURL(String failedURL) {
@@ -98,12 +101,7 @@ public class HealthCheckResult {
 	public void setComponentName(String componentName) {
 		this.componentName = componentName;
 	}
-	public boolean isServerUp() {
-		return serverUp;
-	}
-	public void setServerUp(boolean serverUp) {
-		this.serverUp = serverUp;
-	}
+	
 	public String getExecDate() {
 		return execDate;
 	}
@@ -119,7 +117,7 @@ public class HealthCheckResult {
 
 	@Override
 	public String toString() {
-		return "HealthCheckResult [componentName=" + componentName + ", serverUp=" + serverUp + ", execDate=" + execDate
+		return "HealthCheckResult [componentName=" + componentName + ", serverStatus=" + serverStatus.getCode() + ", execDate=" + execDate
 				+ ", execTime=" + execTime + ", execDateTime=" + execDateTime + ", failedURL=" + failedURL
 				+ ", failedReqJson=" + failedReqJson + ", failedExpResp=" + failedExpResp + ", failedStatusCode="
 				+ failedStatusCode + ", failedActualResp=" + failedActualResp + ", failedHttpCallException="

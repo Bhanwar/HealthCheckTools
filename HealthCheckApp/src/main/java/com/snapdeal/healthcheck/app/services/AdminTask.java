@@ -1,7 +1,9 @@
 package com.snapdeal.healthcheck.app.services;
 
 import java.util.Map;
+import java.util.Set;
 
+import com.snapdeal.healthcheck.app.model.TimelyCompData;
 import com.snapdeal.healthcheck.app.model.UIComponent;
 
 public interface AdminTask {
@@ -22,5 +24,7 @@ public interface AdminTask {
 	
 	public Map<String, String> getCompsForEndpointUpdate();
 	
-	public String getReportDateRangeData(String data);
+	public Set<TimelyCompData> getReportDateRangeData(String data);
+	
+	public String resetAuthKey(String data);
 }

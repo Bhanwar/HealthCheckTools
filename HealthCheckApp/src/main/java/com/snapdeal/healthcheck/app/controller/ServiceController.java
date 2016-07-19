@@ -38,8 +38,10 @@ import com.snapdeal.healthcheck.app.constants.Formatter;
 import com.snapdeal.healthcheck.app.enums.ComponentType;
 import com.snapdeal.healthcheck.app.enums.DownTimeReasonCode;
 import com.snapdeal.healthcheck.app.enums.TokenComponent;
+import com.snapdeal.healthcheck.app.model.ComponentDetails;
 import com.snapdeal.healthcheck.app.model.DownTimeData;
 import com.snapdeal.healthcheck.app.model.DownTimeUIData;
+import com.snapdeal.healthcheck.app.model.TimelyCompData;
 import com.snapdeal.healthcheck.app.model.UIComponent;
 import com.snapdeal.healthcheck.app.mongo.repositories.DownTimeDataRepository;
 import com.snapdeal.healthcheck.app.services.AdminTask;
@@ -149,6 +151,17 @@ public class ServiceController {
 		return componentNames;	
 	}
 	
+	@RequestMapping(value = "/getComponentQmMap", method=RequestMethod.GET)
+	@ResponseBody
+	public Map<String, String> getComponentQmMap() {
+		Map<String, String> result = new TreeMap<>();
+		List<ComponentDetails> compList = compDetails.getAllEnabledComponentDetails();
+		for(ComponentDetails comp : compList) {
+			result.put(comp.getComponentName(), comp.getQmSpoc());
+		}
+		return result;	
+	}
+	
 	@RequestMapping(value = "/getCompEnums", method=RequestMethod.GET)
 	@ResponseBody
 	public Map<String, List<String>> getCompEnums() {
@@ -198,6 +211,11 @@ public class ServiceController {
 		return "addUpdateComp";
 	}
 	
+	@RequestMapping(value = "/admin/resetAuthKey", method=RequestMethod.GET)
+	public String resetAuthKeyPage() {
+		return "resetAuthKey";
+	}
+	
 	@RequestMapping(value = "/admin/getReport", method=RequestMethod.GET)
 	public String getReportDateRange() {
 		return "reportDateRange";
@@ -210,7 +228,7 @@ public class ServiceController {
 	
 	@RequestMapping(value = "/reportGen", method=RequestMethod.POST)
 	@ResponseBody
-	public String getReportDateRangeData(@RequestBody String data) {
+	public Set<TimelyCompData> getReportDateRangeData(@RequestBody String data) {
 		return admin.getReportDateRangeData(data);
 	}
 	
@@ -248,6 +266,12 @@ public class ServiceController {
 	@ResponseBody
 	public String addUpdateComp(@RequestBody String data) {
 		return admin.addUpdateComponent(data);
+	}
+	
+	@RequestMapping(value = "/resetAuthKey", method=RequestMethod.POST)
+	@ResponseBody
+	public String resetAuthKey(@RequestBody String data) {
+		return admin.resetAuthKey(data);
 	}
 	
 	@RequestMapping(value = "/updateEndpoint", method=RequestMethod.POST)

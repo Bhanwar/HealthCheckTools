@@ -19,6 +19,7 @@ public class AppConstant {
 	public static final String ADMIN_UI_HEADER_TOKEN = "$#HDR_TOKEN#$";
 	public static String sshUser;
 	public static String sshKeyLocation;
+	public static String currentExecDateString;
 	public static Map<String, Boolean> healthResult;
 	public static Set<String> componentNames;
 	public static Set<String> disabledComponentNames;

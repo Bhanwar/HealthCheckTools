@@ -3,18 +3,14 @@
 
 <html lang="en">
 <head>
-<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-<link
-	href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
-	rel="stylesheet" />
-<script
-	src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-<link
-	href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/css/bootstrapValidator.css"
-	rel="stylesheet" />
-<script
-	src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/js/bootstrapValidator.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/css/bootstrapValidator.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/js/bootstrapValidator.js"></script>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css"></link>
+
 <spring:url value="/css/home.css" var="webAppCss" />
 <link href="${webAppCss}" rel="stylesheet" />
 <spring:url value="/javascript/home.js" var="webAppJs" />
@@ -67,17 +63,17 @@
 						<div class="form-group">
 							<label class="col-md-2 control-label" for="startDate">Start
 								Date</label>
-							<div class="col-md-3">
+							<div class="col-md-2">
 								<input type="text" class="form-control" name="startDate"
-									placeholder="dd-mm-yyy">
+									placeholder="dd-mm-yyyy">
 							</div>
 							<label class="col-md-2 control-label" for="endDate">End
 								Date</label>
-							<div class="col-md-3">
-								<input type="text" class="form-control" name="endDate"
-									placeholder="dd-mm-yyy">
-							</div>
 							<div class="col-md-2">
+								<input type="text" class="form-control" name="endDate"
+									placeholder="dd-mm-yyyy">
+							</div>
+							<div class="col-md-offset-1 col-md-3">
 								<button id="reportGenSubmitBttn" type="submit" class="btn"
 									value="reportGen">Submit</button>
 							</div>
@@ -113,7 +109,7 @@ $(window).load(function() {
 			data : JSON.stringify(MyForm),
 			success : function(data) {
 				$('#myPleaseWait').modal('hide');
-				populateTable(data)
+				createTable(data)
 			},
 			error : function(jqXHR, textStatus, errorThrown) {
 				$('#myPleaseWait').modal('hide');
@@ -125,31 +121,50 @@ $(window).load(function() {
 	});
 });
 
-function populateTable(data) {
+function createTable(data) {
 	$("#reportGenTableDiv").empty();
-	$("#reportGenTableDiv").append(data);
+	window.comp = new Object();
+	for(var i in data) {
+		var tmpObj = {name: "", number: "", total: ""};
+		tmpObj.name = data[i].componentName;
+		tmpObj.number = data[i].totalDownTimes;
+		tmpObj.total = data[i].totalTimeDownStr;
+		updateGlobalObj(tmpObj);
+	}
+} 
+
+function updateGlobalObj(tmpObj) {
+	var counter = 0;
+	do {
+		counter++;
+	} while(comp.hasOwnProperty(counter)); 
+	
+	comp[counter] = tmpObj;
+	updateTable();
 }
 
-function sticky_relocate() {	
-	var scroll = $(window).scrollTop();
-    var anchor_top = $("#reportGenTable").offset().top;
-    var anchor_bottom = $("#bottom_anchor").offset().top;
-    if (scroll>anchor_top && scroll<anchor_bottom) {
-    	$("#cloneTable tr th").each(function(index){
-    		var index2 = index;
-    	    $(this).width(function(index2){
-    	    	return $("#reportGenTable tr th").eq(index).width();
-    	    });
-    	});
-    	$('#cloneTable').show();
-    } else {
-    	$('#cloneTable').hide();
-    }	
+function updateTable() {
+	var rtrn = new Array();
+	for (var key in comp) {
+		var compObj = comp[key];
+		var tmpArr = new Array();
+		for (var prop in compObj) {
+			if (compObj.hasOwnProperty(prop)){
+				tmpArr.push(compObj[prop]);
+			}
+		}
+		rtrn.push(tmpArr);
+	}
+	$('#reportGenTableDiv').html('<table class="display" id="try"></table>');
+    $('#try').dataTable( {
+        "aaData": rtrn,
+        "aoColumns": [
+            { "sTitle": "Component Name" },
+            { "sTitle": "Number of down times", "sClass": "center" },
+            { "sTitle": "Total Downtime", "sClass": "center" }
+        ]
+    } );
 }
 
-$(function () {
-	$(window).scroll(sticky_relocate);
-    sticky_relocate();
-});
 </script>
 </html>

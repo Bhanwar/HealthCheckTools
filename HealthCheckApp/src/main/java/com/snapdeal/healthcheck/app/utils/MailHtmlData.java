@@ -4,8 +4,7 @@ import static com.snapdeal.healthcheck.app.constants.AppConstant.SNAPDEAL_ID;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,33 +15,17 @@ public class MailHtmlData {
 	
 	private static final Logger log = LoggerFactory.getLogger(MailHtmlData.class);
 	
-	public static String createHtmlTableForTimelyReportData(Map<String, TimelyCompData> data) {
+	public static String createHtmlTableForTimelyReportData(Set<TimelyCompData> data) {
 		StringBuilder result = new StringBuilder("<table class=\"table\" style=\"width:100%; border: 2px solid black; border-collapse: collapse;\"><tr>"
 				+ "<th style=\"border: 1px solid black; padding: 5px; background-color: #A8D5EC; text-align: center;\">Component Name</th>"
 				+ "<th style=\"border: 1px solid black; padding: 5px; background-color: #A8D5EC; text-align: center;\">Number of down times</th>"
 				+ "<th style=\"border: 1px solid black; padding: 5px; background-color: #A8D5EC; text-align: center;\">Total Downtime</th></tr>");
-		for(Entry<String, TimelyCompData> entry : data.entrySet()) {
-			String hrs = "";
-			String mins = "";
-			int totalTime = entry.getValue().gettotalTimeDownInMins();
-			int hrsTime = totalTime/60;
-			int minsTime = totalTime%60;
-			if(hrsTime > 1) {
-				if(hrsTime == 1)
-					hrs = "1 hr";
-				else
-					hrs = hrsTime + " hrs";
-			}
-			if(minsTime > 0) {
-				if(minsTime == 1)
-					mins = "1 min";
-				else
-					mins = minsTime + " mins";
-			}
+		for(TimelyCompData dataEntry : data) {
+			updateTotalTimeDownStrForMail(dataEntry);
 			result.append("<tr style=\"text-align: center\">");
-			result.append("<td style=\"border: 1px solid black; padding: 5px;\">"+entry.getKey()+"</td>");
-			result.append("<td style=\"border: 1px solid black; padding: 5px;\">"+entry.getValue().getTotalDownTimes()+"</td>");
-			result.append("<td style=\"border: 1px solid black; padding: 5px;\">"+hrs + " " +mins+"</td>");
+			result.append("<td style=\"border: 1px solid black; padding: 5px;\">"+dataEntry.getComponentName()+"</td>");
+			result.append("<td style=\"border: 1px solid black; padding: 5px;\">"+dataEntry.getTotalDownTimes()+"</td>");
+			result.append("<td style=\"border: 1px solid black; padding: 5px;\">"+dataEntry.getTotalTimeDownStr()+"</td>");
 			result.append("</tr>");
 		}
 		result.append("</table>");
@@ -78,4 +61,28 @@ public class MailHtmlData {
 		}
 	}
 
+	private static void updateTotalTimeDownStrForMail(TimelyCompData dataObj) {
+		int totatDownTime = dataObj.getTotalTimeDownInMins();
+		int hrs = totatDownTime/60;
+		int mins = totatDownTime%60;
+		if(mins == 0 && hrs == 0) {
+			dataObj.setTotalTimeDownStr("0 min");
+			return;
+		}
+		String hrsStr = "";
+		String minsStr = "";
+		if(hrs > 0) {
+			if(hrs == 1)
+				hrsStr = "1 hr ";
+			else
+				hrsStr = hrs + " hr ";
+		}
+		if(mins > 0) {
+			if(mins == 1)
+				minsStr = "1 min";
+			else
+				minsStr = mins + " mins";
+		}
+		dataObj.setTotalTimeDownStr(hrsStr+minsStr);
+	}
 }

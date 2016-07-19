@@ -6,6 +6,7 @@ import static com.snapdeal.healthcheck.app.constants.AppConstant.componentNames;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.currentExecDate;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.disabledComponentNames;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.healthResult;
+import static com.snapdeal.healthcheck.app.constants.AppConstant.currentExecDateString;
 import static com.snapdeal.healthcheck.app.constants.Formatter.dateFormatter;
 
 import java.util.ArrayList;
@@ -29,7 +30,9 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 
 import com.snapdeal.healthcheck.app.bo.ComponentDetailsBO;
 import com.snapdeal.healthcheck.app.enums.DownTimeReasonCode;
+import com.snapdeal.healthcheck.app.enums.ServerStatus;
 import com.snapdeal.healthcheck.app.model.ComponentDetails;
+import com.snapdeal.healthcheck.app.model.ConnIssueComp;
 import com.snapdeal.healthcheck.app.model.DownTimeData;
 import com.snapdeal.healthcheck.app.model.HealthCheckResult;
 import com.snapdeal.healthcheck.app.model.QuartzJobDataHolder;
@@ -51,84 +54,170 @@ public class HealthCheckScheduler extends QuartzJobBean {
 
 	@Override
 	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
-		currentExecDate = new Date();
-		compDetails = dataObjects.getCompDetails();
-		List<ComponentDetails> components = compDetails.getAllComponentDetails();
-		log.debug("Running scheduled task: " + currentExecDate);
-		List<Callable<HealthCheckResult>> compCallList = new ArrayList<>();
-		int ntwrkIssueCount = 0;
-		Set<String> newComponentNames = new TreeSet<>();
-		Set<String> newDisabledComponentNames = new TreeSet<>();
-		for (ComponentDetails comp : components) {
-			String compName = comp.getComponentName();
-			if(comp.isEnabled()) {
-				newComponentNames.add(compName);
-				compCallList.add(new EnvHealthCheckImpl(comp, repoService));
-				//Required for newly added components on the run
-				if(healthResult.get(compName) == null)
-					healthResult.put(compName, true);
-			} else {
-				newDisabledComponentNames.add(compName);
-			}
-		}
 		
-		componentNames = newComponentNames;
-		disabledComponentNames = newDisabledComponentNames;
-		
-		ExecutorService exec = null;
-		if (!compCallList.isEmpty()) {
-			try {
-				int compCount = compCallList.size();
-				exec = Executors.newFixedThreadPool(compCount);
-				CompletionService<HealthCheckResult> compSer = new ExecutorCompletionService<HealthCheckResult>(exec);
-				for (Callable<HealthCheckResult> compToCall : compCallList) {
-					compSer.submit(compToCall);
+		try {
+			currentExecDate = new Date();
+			compDetails = dataObjects.getCompDetails();
+			List<ComponentDetails> components = compDetails.getAllComponentDetails();
+			log.debug("Running scheduled task: " + currentExecDate);
+			String execDateString = dateFormatter.format(currentExecDate);
+			List<Callable<HealthCheckResult>> compCallList = new ArrayList<>();
+			int ntwrkIssueCount = 0;
+			Set<String> newComponentNames = new TreeSet<>();
+			Set<String> newDisabledComponentNames = new TreeSet<>();
+			for (ComponentDetails comp : components) {
+				String compName = comp.getComponentName();
+				if (comp.isEnabled()) {
+					newComponentNames.add(compName);
+					compCallList.add(new EnvHealthCheckImpl(comp, repoService));
+					// Required for newly added components on the run
+					if (healthResult.get(compName) == null)
+						healthResult.put(compName, true);
+				} else {
+					newDisabledComponentNames.add(compName);
 				}
+			}
 
-				for (int i = 0; i < compCount; i++) {
-					HealthCheckResult result = null;
-					try {
-						result = compSer.take().get();
-						log.debug(result.toString());
-						ExecutorService execMail = Executors.newFixedThreadPool(1);
-						
-						if (healthResult.get(result.getComponentName()) != result.isServerUp()) {
-							log.debug("Status has changed for comp: " + result.getComponentName());
+			componentNames = newComponentNames;
+			disabledComponentNames = newDisabledComponentNames;
+
+			ExecutorService exec = null;
+			if (!compCallList.isEmpty()) {
+				try {
+					int compCount = compCallList.size();
+					exec = Executors.newFixedThreadPool(compCount);
+					CompletionService<HealthCheckResult> compSer = new ExecutorCompletionService<HealthCheckResult>(
+							exec);
+					for (Callable<HealthCheckResult> compToCall : compCallList) {
+						compSer.submit(compToCall);
+					}
+
+					for (int i = 0; i < compCount; i++) {
+						HealthCheckResult result = null;
+						try {
+							result = compSer.take().get();
+							log.debug(result.toString());
+							ExecutorService execMail = Executors.newFixedThreadPool(2);
 							final HealthCheckResult updateRes = result;
 							final Date updateDate = currentExecDate;
-							execMail.submit(new Runnable() {
-								@Override
-								public void run() {
-									updateAndSendMail(updateRes, updateDate);
-								}
-							});
+							if (healthResult.get(result.getComponentName()) != result.isServerUp()) {
+								log.debug("Status has changed for comp: " + result.getComponentName());
+								execMail.submit(new Runnable() {
+									@Override
+									public void run() {
+										updateAndSendMail(updateRes, updateDate);
+									}
+								});
+							}
+							healthResult.put(result.getComponentName(), result.isServerUp());
+							if (result.getServerStatus().equals(ServerStatus.NTWRK_ISSUE)
+									|| result.getServerStatus().equals(ServerStatus.CONN_TIMED_OUT)) {
+								execMail.submit(new Runnable() {
+									@Override
+									public void run() {
+										createCompIssueEntryMongo(updateRes, updateDate);
+										if (updateRes.getServerStatus().equals(ServerStatus.NTWRK_ISSUE))
+											closeConnTimedOutEntryMongo(updateRes, updateDate,
+													ServerStatus.CONN_TIMED_OUT);
+										else if (updateRes.getServerStatus().equals(ServerStatus.CONN_TIMED_OUT))
+											closeConnTimedOutEntryMongo(updateRes, updateDate,
+													ServerStatus.NTWRK_ISSUE);
+									}
+								});
+							} else {
+								execMail.submit(new Runnable() {
+									@Override
+									public void run() {
+										closeConnTimedOutEntryMongo(updateRes, updateDate, ServerStatus.NTWRK_ISSUE);
+										closeConnTimedOutEntryMongo(updateRes, updateDate, ServerStatus.CONN_TIMED_OUT);
+									}
+								});
+							}
+							execMail.shutdown();
+						} catch (InterruptedException | ExecutionException e) {
+							log.error("Exception occured while getting results: " + e.getMessage(), e);
 						}
-						if(result.isNtwrkIssue()) {
-							ntwrkIssueCount++;
-						}
-						healthResult.put(result.getComponentName(), result.isServerUp());
-						execMail.shutdown();
-					} catch (InterruptedException | ExecutionException e) {
-						log.error("Exception occured while getting results: " + e.getMessage(), e);
 					}
+					if (currentExecDateString == null || !currentExecDateString.equals(execDateString)) {
+						currentExecDateString = execDateString;
+						updateMongoDataWithCurrentExecDate(currentExecDateString);
+					}
+					log.info("Health check result: " + healthResult);
+				} catch (Exception ee) {
+					log.error("Exception occured while executing scheduled task: " + ee.getMessage(), ee);
+				} finally {
+					if (exec != null)
+						exec.shutdown();
 				}
-				updateDownTimeDataWithCurrentExecDate(currentExecDate);
-				log.info("Health check result: " + healthResult);
-			} catch (Exception ee) {
-				log.error("Exception occured while executing scheduled task: " + ee.getMessage(), ee);
-			} finally {
-				if (exec != null)
-					exec.shutdown();
 			}
+			dataObjects.shareAuthKeysToQMs();
+			if (ntwrkIssueCount > 0) {
+				sendNetworkIssueMail(ntwrkIssueCount, currentExecDate);
+			}
+		} catch (Exception e) {
+			log.error("Exception occured while running scheduler!! ", e);
 		}
-		dataObjects.shareAuthKeysToQMs();
-		if(ntwrkIssueCount > 0) {
-			sendNetworkIssueMail(ntwrkIssueCount, currentExecDate);
+	}
+
+	private void createCompIssueEntryMongo(HealthCheckResult result, Date execDate) {
+		String compName = result.getComponentName();
+		ConnIssueComp compIssueData = null;
+		boolean ntwrkIssue = false;
+		if (result.getServerStatus().equals(ServerStatus.CONN_TIMED_OUT))
+			compIssueData = repoService.getConnTimedOutEntry(compName);
+		else if (result.getServerStatus().equals(ServerStatus.NTWRK_ISSUE)) {
+			compIssueData = repoService.getNetworkIssueEntry(compName);
+			ntwrkIssue = true;
+		} else
+			return;
+
+		if (compIssueData == null) {
+			log.debug("Creating component issue entry for comp: " + compName + ", Type: "
+					+ result.getServerStatus().getCode());
+			String execDateStr = dateFormatter.format(execDate);
+			compIssueData = new ConnIssueComp(compName);
+			compIssueData.setStatus("OPEN");
+			if (ntwrkIssue)
+				compIssueData.setIssueType("NWI");
+			else
+				compIssueData.setIssueType("CTO");
+			compIssueData.setDownTime(execDate);
+			compIssueData.setStartDate(execDateStr);
+			compIssueData.setHttpCallException(result.getFailedHttpCallException());
+			Set<String> execDates = new HashSet<>();
+			execDates.add(execDateStr);
+			compIssueData.setExecDate(execDates);
+			repoService.save(compIssueData);
+			if (!ntwrkIssue)
+				sendConnTimedOutMail(compName, result, execDate);
+		} else
+			log.debug("Component issue entry already exist for comp: " + compName + ", Type: "
+					+ result.getServerStatus().getCode());
+	}
+
+	private void closeConnTimedOutEntryMongo(HealthCheckResult result, Date execDate, ServerStatus serverStatus) {
+		String compName = result.getComponentName();
+		ConnIssueComp compIssueData = null;
+		if (serverStatus.equals(ServerStatus.CONN_TIMED_OUT))
+			compIssueData = repoService.getConnTimedOutEntry(compName);
+		else if (serverStatus.equals(ServerStatus.NTWRK_ISSUE))
+			compIssueData = repoService.getNetworkIssueEntry(compName);
+		else
+			return;
+		if (compIssueData != null) {
+			log.debug("Closing comp entry for comp: " + compName + ", Type: " + serverStatus.getCode());
+			String execDateStr = dateFormatter.format(execDate);
+			compIssueData.setUpTime(execDate);
+			compIssueData.setEndDate(execDateStr);
+			compIssueData.setTotalDownTimeInMins(
+					Long.toString((execDate.getTime() - compIssueData.getDownTime().getTime()) / 60000));
+			compIssueData.setStatus("CLOSED");
+			repoService.save(compIssueData);
 		}
 	}
 
 	private void sendNetworkIssueMail(int count, Date execDate) {
-		if(sendMail) {
+		if (sendMail) {
 			List<String> emailAddressTo = new ArrayList<>();
 			List<String> emailAddressCc = new ArrayList<>();
 			String msgSubject = "Network issue from Health Check App to " + count + " components! Please check<eom>";
@@ -138,6 +227,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 				if (toAdd[i].contains(SNAPDEAL_ID))
 					emailAddressTo.add(toAdd[i]);
 			}
+			log.debug("Sending network issue mail to Admins! To: " + emailAddressTo + ", Cc: " + emailAddressCc);
 			EmailUtil mail = new EmailUtil(emailAddressTo, emailAddressCc, null, msgSubject, msgBody);
 			boolean mailSent = true;
 			do {
@@ -145,6 +235,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			} while (!mailSent);
 		}
 	}
+
 	private void updateAndSendMail(HealthCheckResult result, Date execDate) {
 		DownTimeData data = null;
 		boolean isServerUp = result.isServerUp();
@@ -153,7 +244,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 		if (isServerUp) {
 			log.debug(compName + " Server is UP!!");
 			data = repoService.findUpTimeUpdate(compName);
-			if(data != null) {
+			if (data != null) {
 				data.setUpTime(execDate);
 				long totalTimeMins = (execDate.getTime() - data.getDownTime().getTime()) / 60000;
 				log.debug("Total down time: " + totalTimeMins);
@@ -162,13 +253,13 @@ public class HealthCheckScheduler extends QuartzJobBean {
 				data.setEndDate(execDateStr);
 				log.debug("Updating down time data in Mongo");
 				repoService.save(data);
-				if(sendMail)
+				if (sendMail)
 					sendServerUpMail(compName, execDate);
 			}
 		} else {
 			log.debug(compName + " Server is DOWN!!");
 			data = repoService.findUpTimeUpdate(compName);
-			if(data == null) {
+			if (data == null) {
 				data = new DownTimeData();
 				data.setComponentName(compName);
 				data.setStartDate(execDateStr);
@@ -186,7 +277,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 				data.setFailedStatusCode(result.getFailedStatusCode());
 				log.debug("Saving down time data in Mongo");
 				repoService.save(data);
-				if(sendMail)
+				if (sendMail)
 					sendServerDownMail(compName, result, execDate);
 			} else {
 				log.warn(compName + ": Down time data already exist in Mongo!! This should not happen, please check!");
@@ -194,8 +285,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 		}
 	}
 
-	private void updateDownTimeDataWithCurrentExecDate(Date execDate) {
-		String currentExecDate = dateFormatter.format(execDate);
+	private void updateMongoDataWithCurrentExecDate(String currentExecDate) {
 		List<DownTimeData> allDownServers = repoService.findAllDownTimeData();
 		if (!allDownServers.isEmpty()) {
 			for (DownTimeData downData : allDownServers) {
@@ -205,6 +295,18 @@ public class HealthCheckScheduler extends QuartzJobBean {
 					execDates.add(currentExecDate);
 					downData.setExecDate(execDates);
 					repoService.save(downData);
+				}
+			}
+		}
+		List<ConnIssueComp> openIssues = repoService.findAllOpenIssues();
+		if (!openIssues.isEmpty()) {
+			for (ConnIssueComp issue : openIssues) {
+				if (!issue.getExecDate().contains(currentExecDate)) {
+					log.debug("Updating current exec date for issue comp: " + issue.getComponentName());
+					Set<String> execDates = issue.getExecDate();
+					execDates.add(currentExecDate);
+					issue.setExecDate(execDates);
+					repoService.save(issue);
 				}
 			}
 		}
@@ -219,6 +321,22 @@ public class HealthCheckScheduler extends QuartzJobBean {
 		sendMail(compName, msgSubject, msgBody);
 	}
 
+	private void sendConnTimedOutMail(String compName, HealthCheckResult result, Date execDate) {
+		if (sendMail) {
+			String msgSubject = compName + " server is timing out on " + envName + " - " + execDate;
+			String msgBody = "<html><h3>Your component: <i>" + compName
+					+ "</i> is timing out for the below call. Please have a look at it.</h3>";
+
+			StringBuilder msg = new StringBuilder(msgBody);
+			msg.append("<br><b>URL: </b>" + getStringForHtml(result.getFailedURL()));
+			if (result.getFailedReqJson() != null)
+				msg.append("<br><b>Request JSON: </b>" + getStringForHtml(result.getFailedReqJson()));
+			msg.append("<br><br><b>Http Call Exception: </b>" + getStringForHtml(result.getFailedHttpCallException()));
+			msg.append("<br><br><br>" + MAIL_SIGN + "</html>");
+			sendMail(compName, msgSubject, msg.toString());
+		}
+	}
+
 	private void sendServerDownMail(String compName, HealthCheckResult result, Date execDate) {
 		String msgSubject = compName + " server is down on " + envName + " - " + execDate;
 		String msgBody = "<html><h3>Your component: <i>" + compName
@@ -226,11 +344,17 @@ public class HealthCheckScheduler extends QuartzJobBean {
 
 		StringBuilder msg = new StringBuilder(msgBody);
 		msg.append("<br><b>URL: </b>" + getStringForHtml(result.getFailedURL()));
-		msg.append("<br><b>Request JSON: </b>" + getStringForHtml(result.getFailedReqJson()));
-		msg.append("<br><b>Status code: </b>" + getStringForHtml(result.getFailedStatusCode()));
-		msg.append("<br><b>Response: </b>" + getStringForHtml(result.getFailedActualResp()));
-		msg.append("<br><b>Expected token in response: </b>" + getStringForHtml(result.getFailedExpResp()));
-		msg.append("<br><b>Http Call Exception: </b>" + getStringForHtml(result.getFailedHttpCallException()));
+		if (result.getFailedReqJson() != null)
+			msg.append("<br><b>Request JSON: </b>" + getStringForHtml(result.getFailedReqJson()));
+		msg.append("<br><br><b>Expected token in response: </b>" + getStringForHtml(result.getFailedExpResp()));
+		msg.append("<br>");
+		if (result.getFailedStatusCode() != null)
+			msg.append("<br><b>Status code: </b>" + getStringForHtml(result.getFailedStatusCode()));
+
+		if (result.getFailedActualResp() != null)
+			msg.append("<br><b>Response: </b>" + getStringForHtml(result.getFailedActualResp()));
+		if (result.getFailedHttpCallException() != null)
+			msg.append("<br><b>Http Call Exception: </b>" + getStringForHtml(result.getFailedHttpCallException()));
 		msg.append("<br><br><br>" + MAIL_SIGN + "</html>");
 		sendMail(compName, msgSubject, msg.toString());
 	}
@@ -240,35 +364,12 @@ public class HealthCheckScheduler extends QuartzJobBean {
 		if (comp == null) {
 			log.error("No component found with the name: " + compName);
 		} else {
-//			List<String> emailAddressTo = new ArrayList<>();
-//			List<String> emailAddressCc = new ArrayList<>();
 			String toAddress = comp.getQaSpoc();
-//			for (int i = 0; i < list.length; i++) {
-//				if (list[i].contains(SNAPDEAL_ID))
-//					emailAddressTo.add(list[i]);
-//			}
 			if (comp.getQmSpoc() != null && comp.getQmSpoc().contains(SNAPDEAL_ID)) {
 				toAddress = toAddress + "," + comp.getQmSpoc();
 				msgBody = msgBody.replace("${QMSPOC}", comp.getQmSpoc());
 			}
-//			String[] ccAdd = ccAddress.split(",");
-//			for (int i = 0; i < ccAdd.length; i++) {
-//				if (ccAdd[i].contains(SNAPDEAL_ID))
-//					emailAddressCc.add(ccAdd[i]);
-//			}
-			
 			MailHtmlData.sendHtmlMail(toAddress, ccAddress, msgSubject, msgBody, sendMail);
-			
-//			log.debug("Sending mail to " + emailAddressTo + ", cc: " + emailAddressCc);
-//			if (emailAddressTo.isEmpty()) {
-//				log.warn("Mail was not sent as the TO Address list was empty!!");
-//			} else {
-//				EmailUtil mail = new EmailUtil(emailAddressTo, emailAddressCc, null, msgSubject, msgBody);
-//				boolean mailSent = true;
-//				do {
-//					mailSent = mail.sendHTMLEmail();
-//				} while (!mailSent);
-//			}
 		}
 	}
 

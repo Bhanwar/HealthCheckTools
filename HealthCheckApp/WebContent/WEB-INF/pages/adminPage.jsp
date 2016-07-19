@@ -49,6 +49,8 @@
 			<br>
 			<button type="button" class="btn btn-default btn-lg bttn-padding" id="getDateRangeReport">Get Report for Date Range</button>
 			<br>
+			<button type="button" class="btn btn-default btn-lg bttn-padding" id="resetAuthKey">Reset Comp Auth Key (Admin only)</button>
+			<br>
 			<button type="button" class="btn btn-default btn-lg bttn-padding" id="addComp">Add Or Update Components (Admin only)</button>
 		</div>
 	</div>
@@ -85,6 +87,11 @@
 		$('#getDateRangeReport').click(function() {
 			$('#myPleaseWait').modal('show');
 			window.location = "/healthCheck/admin/getReport";
+		});
+		
+		$('#resetAuthKey').click(function() {
+			$('#myPleaseWait').modal('show');
+			window.location = "/healthCheck/admin/resetAuthKey";
 		});
 	});
 </script>

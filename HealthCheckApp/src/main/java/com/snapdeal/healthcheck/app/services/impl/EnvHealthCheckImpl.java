@@ -27,9 +27,9 @@ import com.snapdeal.healthcheck.app.comp.token.SFMobileToken;
 import com.snapdeal.healthcheck.app.comp.token.SellerServicesToken;
 import com.snapdeal.healthcheck.app.constants.AppConstant;
 import com.snapdeal.healthcheck.app.enums.ComponentType;
+import com.snapdeal.healthcheck.app.enums.ServerStatus;
 import com.snapdeal.healthcheck.app.enums.TokenComponent;
 import com.snapdeal.healthcheck.app.model.ComponentDetails;
-import com.snapdeal.healthcheck.app.model.ConnTimedOutComp;
 import com.snapdeal.healthcheck.app.model.HealthCheckResult;
 import com.snapdeal.healthcheck.app.model.HttpCallResponse;
 import com.snapdeal.healthcheck.app.model.TokenApiDetails;
@@ -59,10 +59,10 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 		if(!tokenComp.equals(TokenComponent.INV)) {
 			tokenApidetails = mongoService.getTokenDetails().getTokenApiDetails(compName);
 		}
-		return checkServerHealth(compDetails, mongoService, tokenApidetails);
+		return checkServerHealth(compDetails, tokenApidetails);
 	}
 
-	public static HealthCheckResult checkServerHealth(ComponentDetails component, MongoRepoService mongoRepoService, TokenApiDetails tokenApi) {
+	public static HealthCheckResult checkServerHealth(ComponentDetails component, TokenApiDetails tokenApi) {
 		boolean isServerUp = true;
 		boolean apiExist = false;
 		boolean currentState = true;
@@ -82,7 +82,6 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 		String token = null;
 
 		HealthCheckResult result = new HealthCheckResult(compName);
-		result.setNtwrkIssue(false);
 		HttpCallResponse response = null;
 		Date resultDate = currentExecDate;
 		String logSuffix = compName + ": ";
@@ -216,41 +215,22 @@ public class EnvHealthCheckImpl implements Callable<HealthCheckResult> {
 			}
 
 			result.setServerUp(isServerUp);
+			if(isServerUp)
+				result.setServerStatus(ServerStatus.UP);
+			else
+				result.setServerStatus(ServerStatus.DOWN);
 
-			if (mongoRepoService != null) {
-				ConnTimedOutComp timedOut = null;
-				if (!isServerUp) {
-					log.debug(logSuffix + "server is not up");
-					if (htmlCallException != null && htmlCallException.equals(CONNECTION_TIMED_OUT)) {
-						log.debug(logSuffix + "server connection timed out");
-						timedOut = mongoRepoService.findIfConnTimedOut(compName);
-						if (timedOut == null) {
-							log.debug(logSuffix + "creating connection timed out entry!");
-							timedOut = new ConnTimedOutComp();
-							timedOut.setComponentName(compName);
-							timedOut.setExecDate(resultDate);
-							mongoRepoService.save(timedOut);
-							result.setServerUp(currentState);
-							return result;
-						}
-						log.debug(logSuffix + "connection timed out entry already exist! Returning the result");
-						resultDate = timedOut.getExecDate();
-					}
-				} else {
-					timedOut = mongoRepoService.findIfConnTimedOut(compName);
-					if (timedOut != null) {
-						log.debug(logSuffix + "deleting previous connection timed out entry!");
-						mongoRepoService.delete(timedOut);
-					}
-				}
-			}
 			if (!isServerUp) {
 				// Check for netwrok issues
 				if (htmlCallException != null) {
 					if(htmlCallException.equals(AppConstant.NETWORK_UNREACHABLE) || htmlCallException.equals(AppConstant.NO_ROUTE_TO_HOST)) {
-						result.setNtwrkIssue(true);
+						result.setServerStatus(ServerStatus.NTWRK_ISSUE);
 						result.setServerUp(currentState);
 						log.warn(logSuffix + "Connect to server failing with network issue: " + htmlCallException);
+					} else if(htmlCallException.equals(CONNECTION_TIMED_OUT)) {
+						result.setServerStatus(ServerStatus.CONN_TIMED_OUT);
+						result.setServerUp(currentState);
+						log.warn(logSuffix + "Connection timed out!!");
 					} else
 						log.debug(logSuffix + "Server Down!!");
 				}

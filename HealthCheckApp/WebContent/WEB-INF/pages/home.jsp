@@ -84,14 +84,35 @@
 								<div class="percentgraph"
 									style="width: <c:out value="${timePercentage}"/>%;"></div>
 								<c:forEach items="${entry.value}" var="val">
-									<c:set var="downTimeData"
-										value="<html>Server Down Time: ${val.downTime}
-									<br>Server Up Time: ${val.upTime}
-									<br>Total time server down (mins): ${val.totalTime}
-									<br>Status Code: ${val.statusCode}
-									<br>Http Excp: ${val.httpExcp}</html>" />
-									<div title="${downTimeData}" class="redbar pointer toolTipster" onclick="updateReason()"
-										style="margin-left: <c:out value="${val.leftMargin}"/>%; width: <c:out value="${val.width}"/>%;"></div>
+									<c:choose>
+										<c:when test="${val.type == 'DOWN'}">
+											<c:set var="downTimeData"
+												value="<html>Server Down Time: ${val.downTime}
+														<br>Server Up Time: ${val.upTime}
+														<br>Total time server down (mins): ${val.totalTime}
+														<br>Status Code: ${val.statusCode}
+														<br>Http Excp: ${val.httpExcp}</html>" />
+											<div title="${downTimeData}" class="redbar pointer toolTipster" onclick="updateReason()"
+												style="margin-left: <c:out value="${val.leftMargin}"/>%; width: <c:out value="${val.width}"/>%;"></div>
+										</c:when>
+										<c:when test="${val.type == 'CTO'}">
+											<c:set var="ctoData"
+												value="<html>Connection Timed Out
+														<br>Total time (mins): ${val.totalTime}
+														</html>" />
+											<div title="${ctoData}" class="yellowbar toolTipster"
+												style="margin-left: <c:out value="${val.leftMargin}"/>%; width: <c:out value="${val.width}"/>%;"></div>
+										</c:when>
+										<c:when test="${val.type == 'NWI'}">
+											<c:set var="nwiData"
+												value="<html>Network Issue
+														<br>Http Excp: ${val.httpExcp}
+														<br>Total time (mins): ${val.totalTime}
+														</html>" />
+											<div title="${nwiData}" class="purplebar toolTipster"
+												style="margin-left: <c:out value="${val.leftMargin}"/>%; width: <c:out value="${val.width}"/>%;"></div>
+										</c:when>
+									</c:choose>
 								</c:forEach>
 							</div>
 						</td>
