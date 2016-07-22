@@ -9,13 +9,13 @@ import static com.snapdeal.healthcheck.app.constants.Formatter.timeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.annotation.PostConstruct;
 
@@ -155,7 +155,7 @@ public class ServiceController {
 	@RequestMapping(value = "/getAllComponentList", method=RequestMethod.GET)
 	@ResponseBody
 	public Set<String> getAllComponentList() {
-		Set<String> allComponentsList = new HashSet<String>();
+		Set<String> allComponentsList = new TreeSet<String>();
 		allComponentsList.addAll(componentNames);
 		allComponentsList.addAll(disabledComponentNames);
 		return allComponentsList;

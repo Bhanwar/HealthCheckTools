@@ -218,16 +218,17 @@ public class AdminTaskImpl implements AdminTask{
 			JSONObject jsonData = new JSONObject(data);
 			String compName = getJsonString(jsonData, "compName");
 			String authKey = getJsonString(jsonData,"authKey");
+			if(null == authKey){
+				return "Auth Key is Mandatory";
+			}
 			if(!authKey.equals(adminSer.getAdmin().getAuthKey())){
 				return "Not Authorised";
 			}
-			//Delete the component from Mysql
-			ComponentDetails compDetailObj = compDetails.getComponentDetails(compName);
-			compDetails.deleteComponent(compDetailObj);
+			
 			//Update in Mongo with server up and uptime
 			Date execDate = new Date();
 			String execDateStr = Formatter.dateFormatter.format(execDate);
-			DownTimeData compMongoData = mongoService.getAllDataForComp(compName).get(0);
+			DownTimeData compMongoData = mongoService.findUpTimeUpdate(compName);
 			compMongoData.setUpTime(new Date());
 			long totalTimeMins = (execDate.getTime() - compMongoData.getDownTime().getTime()) / 60000;
 			log.debug("Total down time: " + totalTimeMins);
@@ -235,7 +236,11 @@ public class AdminTaskImpl implements AdminTask{
 			compMongoData.setServerUp("YES");
 			compMongoData.setEndDate(execDateStr);
 			log.debug("Updating down time data in Mongo");
-			mongoService.save(compMongoData);			
+			mongoService.save(compMongoData);	
+			
+			//Delete the component from Mysql
+			ComponentDetails compDetailObj = compDetails.getComponentDetails(compName);
+			compDetails.deleteComponent(compDetailObj);
 			
 		}catch(Exception e) {
 			log.error("Exception occured while deleteing component details: " + e.getMessage(), e);

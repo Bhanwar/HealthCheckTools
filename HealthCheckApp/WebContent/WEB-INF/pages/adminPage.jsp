@@ -53,7 +53,7 @@
 			<br>
 			<button type="button" class="btn btn-default btn-lg bttn-padding" id="addComp">Add Or Update Components (Admin only)</button>
 			<br>
-			<button type="button" class="btn btn-default btn-lg bttn-padding" id="deleteComp">Delete Component(Admin only)</button>
+			<button type="button" class="btn btn-default btn-lg bttn-padding" id="deleteComp">Delete Component (Admin only)</button>
 			<br>
 			
 		</div>
