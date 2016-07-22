@@ -228,30 +228,33 @@ public class AdminTaskImpl implements AdminTask{
 			//Update in Mongo with server up and uptime
 			Date execDate = new Date();
 			String execDateStr = Formatter.dateFormatter.format(execDate);
+			
 			DownTimeData compMongoData = mongoService.findUpTimeUpdate(compName);
-			compMongoData.setUpTime(new Date());
-			long totalTimeMins = (execDate.getTime() - compMongoData.getDownTime().getTime()) / 60000;
-			log.debug("Total down time: " + totalTimeMins);
-			compMongoData.setTotalDownTimeInMins(Long.toString(totalTimeMins));
-			compMongoData.setServerUp("YES");
-			compMongoData.setEndDate(execDateStr);
-			log.debug("Updating down time data in Mongo");
-			mongoService.save(compMongoData);	
+			if(null!=compMongoData) {
+				compMongoData.setUpTime(new Date());
+				long totalTimeMins = (execDate.getTime() - compMongoData.getDownTime().getTime()) / 60000;
+				log.debug("Total down time: " + totalTimeMins);
+				compMongoData.setTotalDownTimeInMins(Long.toString(totalTimeMins));
+				compMongoData.setServerUp("YES");
+				compMongoData.setEndDate(execDateStr);
+				log.debug("Updating down time data in Mongo");
+				mongoService.save(compMongoData);
+			}
 			
 			//Delete the component from Mysql
 			ComponentDetails compDetailObj = compDetails.getComponentDetails(compName);
 			compDetails.deleteComponent(compDetailObj);
+			StringBuilder dataResult = new StringBuilder();
+			dataResult.append("<h4>Deletion SUCCESS</h4>");
+			dataResult.append("<br>The component is deleted successfully<br>");
+			resultData = dataResult.toString();
 			
 		}catch(Exception e) {
 			log.error("Exception occured while deleteing component details: " + e.getMessage(), e);
 			resultData = "Exception occured while deleting component details: " + e.getMessage();
 		}
-		
-		StringBuilder dataResult = new StringBuilder();
-		dataResult.append("<h4>Deletion SUCCESS</h4>");
-		dataResult.append("<br>The component is deleted successfully<br>");
 
-		resultData = dataResult.toString();
+		
 		return resultData;
 	}
 
