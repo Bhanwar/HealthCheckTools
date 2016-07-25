@@ -112,14 +112,16 @@ public class HealthCheckScheduler extends QuartzJobBean {
 							healthResult.put(result.getComponentName(), result.isServerUp());
 							if (result.getServerStatus().equals(ServerStatus.NTWRK_ISSUE)
 									|| result.getServerStatus().equals(ServerStatus.CONN_TIMED_OUT)) {
+								if(result.getServerStatus().equals(ServerStatus.NTWRK_ISSUE))
+									ntwrkIssueCount++;
 								execMail.submit(new Runnable() {
 									@Override
 									public void run() {
 										createCompIssueEntryMongo(updateRes, updateDate);
-										if (updateRes.getServerStatus().equals(ServerStatus.NTWRK_ISSUE))
+										if (updateRes.getServerStatus().equals(ServerStatus.NTWRK_ISSUE)) {
 											closeConnTimedOutEntryMongo(updateRes, updateDate,
 													ServerStatus.CONN_TIMED_OUT);
-										else if (updateRes.getServerStatus().equals(ServerStatus.CONN_TIMED_OUT))
+										} else if (updateRes.getServerStatus().equals(ServerStatus.CONN_TIMED_OUT))
 											closeConnTimedOutEntryMongo(updateRes, updateDate,
 													ServerStatus.NTWRK_ISSUE);
 									}
@@ -188,8 +190,8 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			execDates.add(execDateStr);
 			compIssueData.setExecDate(execDates);
 			repoService.save(compIssueData);
-			if (!ntwrkIssue)
-				sendConnTimedOutMail(compName, result, execDate);
+//			if (!ntwrkIssue)
+//				sendConnTimedOutMail(compName, result, execDate);
 		} else
 			log.debug("Component issue entry already exist for comp: " + compName + ", Type: "
 					+ result.getServerStatus().getCode());
