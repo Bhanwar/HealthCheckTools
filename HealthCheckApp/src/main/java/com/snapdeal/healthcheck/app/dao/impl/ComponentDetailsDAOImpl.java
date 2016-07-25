@@ -45,4 +45,10 @@ public class ComponentDetailsDAOImpl extends AbstractDao implements ComponentDet
 		return (List<ComponentDetails>) criteria.list();
 	}
 
+	@Override
+	public void deleteComponent(ComponentDetails compDetail) {
+		 getSession().delete(compDetail);
+		
+	}
+
 }

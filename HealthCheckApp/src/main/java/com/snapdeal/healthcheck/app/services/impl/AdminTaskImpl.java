@@ -22,6 +22,7 @@ import com.snapdeal.healthcheck.app.bo.AdminBO;
 import com.snapdeal.healthcheck.app.bo.ComponentDetailsBO;
 import com.snapdeal.healthcheck.app.bo.TokenApiDetailsBO;
 import com.snapdeal.healthcheck.app.constants.AppConstant;
+import com.snapdeal.healthcheck.app.constants.Formatter;
 import com.snapdeal.healthcheck.app.enums.ComponentType;
 import com.snapdeal.healthcheck.app.enums.TokenComponent;
 import com.snapdeal.healthcheck.app.model.Administrator;
@@ -206,11 +207,55 @@ public class AdminTaskImpl implements AdminTask{
 		}
 		return resultData;
 	}
-
+	
+    /**
+     * Deletes the component from Health Check system. 
+     */
 	@Override
 	public String deleteComponent(String data) {
-		// TODO Auto-generated method stub
-		return null;
+		String resultData= "";
+		try{
+			JSONObject jsonData = new JSONObject(data);
+			String compName = getJsonString(jsonData, "compName");
+			String authKey = getJsonString(jsonData,"authKey");
+			if(null == authKey){
+				return "Auth Key is Mandatory";
+			}
+			if(!authKey.equals(adminSer.getAdmin().getAuthKey())){
+				return "Not Authorised";
+			}
+			
+			//Update in Mongo with server up and uptime
+			Date execDate = new Date();
+			String execDateStr = Formatter.dateFormatter.format(execDate);
+			
+			DownTimeData compMongoData = mongoService.findUpTimeUpdate(compName);
+			if(null!=compMongoData) {
+				compMongoData.setUpTime(new Date());
+				long totalTimeMins = (execDate.getTime() - compMongoData.getDownTime().getTime()) / 60000;
+				log.debug("Total down time: " + totalTimeMins);
+				compMongoData.setTotalDownTimeInMins(Long.toString(totalTimeMins));
+				compMongoData.setServerUp("YES");
+				compMongoData.setEndDate(execDateStr);
+				log.debug("Updating down time data in Mongo");
+				mongoService.save(compMongoData);
+			}
+			
+			//Delete the component from Mysql
+			ComponentDetails compDetailObj = compDetails.getComponentDetails(compName);
+			compDetails.deleteComponent(compDetailObj);
+			StringBuilder dataResult = new StringBuilder();
+			dataResult.append("<h4>Deletion SUCCESS</h4>");
+			dataResult.append("<br>The component is deleted successfully<br>");
+			resultData = dataResult.toString();
+			
+		}catch(Exception e) {
+			log.error("Exception occured while deleteing component details: " + e.getMessage(), e);
+			resultData = "Exception occured while deleting component details: " + e.getMessage();
+		}
+
+		
+		return resultData;
 	}
 
 	private TokenApiDetails getTokenApiDetailsFromJSON(JSONObject jsonData, String compName) {

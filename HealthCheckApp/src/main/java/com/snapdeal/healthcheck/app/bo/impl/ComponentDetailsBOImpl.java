@@ -43,5 +43,11 @@ public class ComponentDetailsBOImpl implements ComponentDetailsBO{
 		return dao.getAllComponentDetails();
 	}
 
+	@Override
+	public void deleteComponent(ComponentDetails compDetail) {
+		dao.deleteComponent(compDetail);
+		
+	}
+
 
 }

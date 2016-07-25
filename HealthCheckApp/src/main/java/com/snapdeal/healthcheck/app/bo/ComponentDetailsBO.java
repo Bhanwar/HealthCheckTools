@@ -16,4 +16,6 @@ public interface ComponentDetailsBO {
 	
 	public void saveComponentDetails(ComponentDetails compDetail);
 	
+	public void deleteComponent(ComponentDetails compDetail);
+	
 }

@@ -52,6 +52,10 @@
 			<button type="button" class="btn btn-default btn-lg bttn-padding" id="resetAuthKey">Reset Comp Auth Key (Admin only)</button>
 			<br>
 			<button type="button" class="btn btn-default btn-lg bttn-padding" id="addComp">Add Or Update Components (Admin only)</button>
+			<br>
+			<button type="button" class="btn btn-default btn-lg bttn-padding" id="deleteComp">Delete Component (Admin only)</button>
+			<br>
+			
 		</div>
 	</div>
 </body>
@@ -93,6 +97,13 @@
 			$('#myPleaseWait').modal('show');
 			window.location = "/healthCheck/admin/resetAuthKey";
 		});
+		
+		$('#deleteComp').click(function() {
+			$('#myPleaseWait').modal('show');
+			window.location = "/healthCheck/admin/deleteComponent";
+		});
+		
+		
 	});
 </script>
 </html>

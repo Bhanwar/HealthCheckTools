@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.annotation.PostConstruct;
 
@@ -151,6 +152,15 @@ public class ServiceController {
 		return componentNames;	
 	}
 	
+	@RequestMapping(value = "/getAllComponentList", method=RequestMethod.GET)
+	@ResponseBody
+	public Set<String> getAllComponentList() {
+		Set<String> allComponentsList = new TreeSet<String>();
+		allComponentsList.addAll(componentNames);
+		allComponentsList.addAll(disabledComponentNames);
+		return allComponentsList;
+	}
+	
 	@RequestMapping(value = "/getComponentQmMap", method=RequestMethod.GET)
 	@ResponseBody
 	public Map<String, String> getComponentQmMap() {
@@ -199,6 +209,11 @@ public class ServiceController {
 	@RequestMapping(value = "/admin/updateAuthKey", method=RequestMethod.GET)
 	public String updateAuthKeyPage() {
 		return "authKeyUpdate";
+	}
+	
+	@RequestMapping(value = "/admin/deleteComponent", method=RequestMethod.GET)
+	public String deleteComponent() {
+		return "deleteComponent";
 	}
 	
 	@RequestMapping(value = "/admin", method=RequestMethod.GET)
@@ -268,6 +283,12 @@ public class ServiceController {
 		return admin.addUpdateComponent(data);
 	}
 	
+	@RequestMapping(value = "/deleteComponent", method=RequestMethod.POST)
+	@ResponseBody
+	public String deleteComponent(@RequestBody String data) {
+		return admin.deleteComponent(data);
+	}
+	
 	@RequestMapping(value = "/resetAuthKey", method=RequestMethod.POST)
 	@ResponseBody
 	public String resetAuthKey(@RequestBody String data) {
@@ -279,6 +300,8 @@ public class ServiceController {
 	public String updateEndpoint(@RequestBody String data) {
 		return admin.updateEndpoint(data);
 	}
+	
+	
 	
 	@RequestMapping(value = "/", method=RequestMethod.GET)
 	public String homePage(ModelMap model) {

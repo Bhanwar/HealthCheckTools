@@ -15,4 +15,6 @@ public interface ComponentDetailsDAO {
 	public void saveComponentDetails(ComponentDetails compDetail);
 	
 	public void updateComponentDetails(ComponentDetails compDetail);
+	
+	public void deleteComponent(ComponentDetails compDetail);
 }
