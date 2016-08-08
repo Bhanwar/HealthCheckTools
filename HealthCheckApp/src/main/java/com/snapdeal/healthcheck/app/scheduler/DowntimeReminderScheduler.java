@@ -44,7 +44,7 @@ public class DowntimeReminderScheduler extends QuartzJobBean {
 			//Get All Enabled components and for each check downtime and send reminder mails.
 			List<ComponentDetails> components = compDetails.getAllEnabledComponentDetails();
 			
-			log.debug("Running scheduled task: " + currentDate);
+			log.debug("Running scheduled task for Downtime Reminder Mail: " + currentDate);
 						
 			if (!components.isEmpty()) {
 				for (ComponentDetails comp : components) {
