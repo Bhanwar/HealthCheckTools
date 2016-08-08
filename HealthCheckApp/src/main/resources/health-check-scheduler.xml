@@ -99,6 +99,18 @@
 		<beans:property name="jobDetail" ref="monthlyReportJob" />
 		<beans:property name="cronExpression" value="${monthly_report_cron}" />
 	</beans:bean>
+	
+	<beans:bean id="downtimeReminderJob"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<beans:property name="jobClass"
+			value="com.snapdeal.healthcheck.app.scheduler.DowntimeReminderScheduler" />
+		<beans:property name="durability" value="true" />
+	</beans:bean>
+	<beans:bean id="downtimeReminderCronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<beans:property name="jobDetail" ref="downtimeReminderJob" />
+		<beans:property name="cronExpression" value="${downtime_reminder_cron}" />
+	</beans:bean>
 
 	<beans:bean id="dataSource"
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
@@ -158,6 +170,7 @@
 				<beans:ref bean="dailyReportJob" />
 				<beans:ref bean="weeklyReportJob" />
 				<beans:ref bean="monthlyReportJob" />
+				<beans:ref bean="downtimeReminderJob" />
 			</beans:list>
 		</beans:property>
 		<beans:property name="triggers">
@@ -166,6 +179,7 @@
 				<beans:ref bean="dailyReportCronTrigger" />
 				<beans:ref bean="weeklyReportCronTrigger" />
 				<beans:ref bean="monthlyReportCronTrigger" />
+				<beans:ref bean="downtimeReminderCronTrigger" />
 			</beans:list>
 		</beans:property>
 		<beans:property name="waitForJobsToCompleteOnShutdown"
