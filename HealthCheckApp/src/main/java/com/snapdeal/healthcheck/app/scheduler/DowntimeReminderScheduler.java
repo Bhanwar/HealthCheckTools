@@ -48,7 +48,7 @@ public class DowntimeReminderScheduler extends QuartzJobBean {
 						
 			if (!components.isEmpty()) {
 				for (ComponentDetails comp : components) {
-					sendDownTimeReminderMail(comp.getComponentName(), currentDate);
+					sendDownTimeReminderMail(comp, currentDate);
 				}
 			}
 			
@@ -57,26 +57,27 @@ public class DowntimeReminderScheduler extends QuartzJobBean {
 		}
 	}
 	
-	private void sendDownTimeReminderMail(String compName, Date execDate) {
+	private void sendDownTimeReminderMail(ComponentDetails comp, Date execDate) {
 		DownTimeData data = null;
+		String compName = comp.getComponentName();
 		data = repoService.findUpTimeUpdate(compName);
 		if (data != null) {
 			log.debug(compName + " Server is DOWN!!");
 			long totalTimeMins = (execDate.getTime() - data.getDownTime().getTime()) / 60000;
 			log.debug("Total down time: " + totalTimeMins);
 			if (sendMail) {
-				sendServerDownMail(compName, data, execDate, totalTimeMins);
+				sendServerDownMail(comp, data, execDate, totalTimeMins);
 			} 
 		}
 	}
 
 
-	private void sendServerDownMail(String compName, DownTimeData result, Date execDate, long downTime) {
+	private void sendServerDownMail(ComponentDetails comp, DownTimeData result, Date execDate, long downTime) {
 		int hours = (int)downTime/60;
 			
 		if (hours>0) {
-			String msgSubject = compName + " server is down on " + envName + " - " + execDate;
-			String msgBody = "<html><h3>Your component: <i>" + compName + "</i> has been down for more than "
+			String msgSubject = comp.getComponentName() + " server is down on " + envName + " - " + execDate;
+			String msgBody = "<html><h3>Your component: <i>" + comp.getComponentName() + "</i> has been down for more than "
 					+ hours  + " Hour(s) .Please have a look at it.</h3>";
 			StringBuilder msg = new StringBuilder(msgBody);
 			msg.append("<br><b>URL: </b>" + getStringForHtml(result.getFailedUrl()));
@@ -91,22 +92,17 @@ public class DowntimeReminderScheduler extends QuartzJobBean {
 			if (result.getFailedHttpException() != null)
 				msg.append("<br><b>Http Call Exception: </b>" + getStringForHtml(result.getFailedHttpException()));
 			msg.append("<br><br><br>" + MAIL_SIGN + "</html>");
-			sendMail(compName, msgSubject, msg.toString());
+			sendMail(comp, msgSubject, msg.toString());
 		}
 	}
 
-	private void sendMail(String compName, String msgSubject, String msgBody) {
-		ComponentDetails comp = compDetails.getComponentDetails(compName);
-		if (comp == null) {
-			log.error("No component found with the name: " + compName);
-		} else {
-			String toAddress = comp.getQaSpoc();
-			if (comp.getQmSpoc() != null && comp.getQmSpoc().contains(SNAPDEAL_ID)) {
-				toAddress = toAddress + "," + comp.getQmSpoc();
-				msgBody = msgBody.replace("${QMSPOC}", comp.getQmSpoc());
-			}
-			MailHtmlData.sendHtmlMail(toAddress, ccAddress, msgSubject, msgBody, sendMail);
+	private void sendMail(ComponentDetails comp, String msgSubject, String msgBody) {		
+		String toAddress = comp.getQaSpoc();
+		if (comp.getQmSpoc() != null && comp.getQmSpoc().contains(SNAPDEAL_ID)) {
+			toAddress = toAddress + "," + comp.getQmSpoc();
+			msgBody = msgBody.replace("${QMSPOC}", comp.getQmSpoc());
 		}
+		MailHtmlData.sendHtmlMail(toAddress, ccAddress, msgSubject, msgBody, sendMail);		
 	}
 
 	private String getStringForHtml(String data) {
