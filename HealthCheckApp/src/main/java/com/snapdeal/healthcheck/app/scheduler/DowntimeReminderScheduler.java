@@ -41,25 +41,17 @@ public class DowntimeReminderScheduler extends QuartzJobBean {
 		try {
 			currentDate = new Date();
 			compDetails = dataObjects.getCompDetails();
-			List<ComponentDetails> components = compDetails.getAllComponentDetails();
+			//Get All Enabled components and for each check downtime and send reminder mails.
+			List<ComponentDetails> components = compDetails.getAllEnabledComponentDetails();
+			
 			log.debug("Running scheduled task: " + currentDate);
 						
-			Set<String> newComponentNames = new TreeSet<>();			
-			for (ComponentDetails comp : components) {
-				String compName = comp.getComponentName();
-				if (comp.isEnabled()) {
-					newComponentNames.add(compName);										
-				} 
-			}
-
-			componentNames = newComponentNames;			
-			// My code starts here
-			if (!componentNames.isEmpty()) {
-				for (String compName : componentNames) {
-					sendDownTimeReminderMail(compName, currentDate);
+			if (!components.isEmpty()) {
+				for (ComponentDetails comp : components) {
+					sendDownTimeReminderMail(comp.getComponentName(), currentDate);
 				}
 			}
-			// My code ends here
+			
 		} catch (Exception e) {
 			log.error("Exception occured while running scheduler!! ", e);
 		}
@@ -67,28 +59,25 @@ public class DowntimeReminderScheduler extends QuartzJobBean {
 	
 	private void sendDownTimeReminderMail(String compName, Date execDate) {
 		DownTimeData data = null;
-		log.debug(compName + " Server is DOWN!!");
 		data = repoService.findUpTimeUpdate(compName);
 		if (data != null) {
-
+			log.debug(compName + " Server is DOWN!!");
 			long totalTimeMins = (execDate.getTime() - data.getDownTime().getTime()) / 60000;
 			log.debug("Total down time: " + totalTimeMins);
 			if (sendMail) {
 				sendServerDownMail(compName, data, execDate, totalTimeMins);
-			} else {
-				log.warn(compName + ": Down time data already exist in Mongo!! This should not happen, please check!");
-			}
+			} 
 		}
 	}
 
 
 	private void sendServerDownMail(String compName, DownTimeData result, Date execDate, long downTime) {
-		long timeDividedBy60 = downTime/60;
-		//Send Mail only if component is down for whole number of hours , 1, 2 ,3 etc hours		
-		if (timeDividedBy60 % 1==0 && timeDividedBy60!=0) {
+		int hours = (int)downTime/60;
+			
+		if (hours>0) {
 			String msgSubject = compName + " server is down on " + envName + " - " + execDate;
 			String msgBody = "<html><h3>Your component: <i>" + compName + "</i> has been down for more than "
-					+ timeDividedBy60  + " Hour(s) .Please have a look at it.</h3>";
+					+ hours  + " Hour(s) .Please have a look at it.</h3>";
 			StringBuilder msg = new StringBuilder(msgBody);
 			msg.append("<br><b>URL: </b>" + getStringForHtml(result.getFailedUrl()));
 			if (result.getFailedReqJson() != null)
