@@ -175,4 +175,8 @@ public class MongoRepoService {
 		hours = hours + hrsTime;
 		return hours + " hrs " + mins + " mins";
 	}
+	
+	public void delete(String id) {
+		downTimeRepo.delete(downTimeRepo.findById(id));
+	}
 }

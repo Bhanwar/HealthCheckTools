@@ -162,6 +162,8 @@
 					value="${env_name}" />
 				<beans:entry key="ntwrkAddress" value-type="java.lang.String"
 					value="${network_mail_recepients}" />
+				<beans:entry key="hcOwner" value-type="java.lang.String"
+					value="${hc_owner}" />
 			</beans:map>
 		</beans:property>
 		<beans:property name="jobDetails">

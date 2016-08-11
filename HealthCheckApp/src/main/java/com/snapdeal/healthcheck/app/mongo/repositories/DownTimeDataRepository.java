@@ -37,6 +37,4 @@ public interface DownTimeDataRepository extends MongoRepository<DownTimeData, St
 	
 	@Query("{ '_id' : ?0}")
 	DownTimeData findById(String compId);
-	
-
 }

@@ -2,12 +2,9 @@ package com.snapdeal.healthcheck.app.scheduler;
 
 import static com.snapdeal.healthcheck.app.constants.AppConstant.MAIL_SIGN;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.SNAPDEAL_ID;
-import static com.snapdeal.healthcheck.app.constants.AppConstant.componentNames;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
