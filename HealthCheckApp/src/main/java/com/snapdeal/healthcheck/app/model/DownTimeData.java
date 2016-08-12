@@ -30,6 +30,7 @@ public class DownTimeData {
 	private String failedStatusCode;
 	private String failedExpResp;
 	private String failedHttpException;
+	private boolean isMailSent;
 	
 	public DownTimeReasonCode getReasonCode() {
 		return reasonCode;
@@ -131,13 +132,20 @@ public class DownTimeData {
 	public void setExecDate(Set<String> execDate) {
 		this.execDate = execDate;
 	}
+	public boolean isMailSent() {
+		return isMailSent;
+	}
+	public void setMailSent(boolean isMailSent) {
+		this.isMailSent = isMailSent;
+	}
+	
 	@Override
 	public String toString() {
 		return "DownTimeData [componentName=" + componentName + ", downTime=" + downTime + ", upTime=" + upTime
 				+ ", serverUp=" + serverUp + ", totalDownTimeInMins=" + totalDownTimeInMins + ", reasonCode="
 				+ reasonCode + ", description=" + description + ", startDate=" + startDate + ", endDate=" + endDate
-				+ ", execDate=" + execDate + "]";
+				+ ", execDate=" + execDate + ", failedUrl=" + failedUrl + ", failedReqJson=" + failedReqJson
+				+ ", failedResp=" + failedResp + ", failedStatusCode=" + failedStatusCode + ", failedExpResp="
+				+ failedExpResp + ", failedHttpException=" + failedHttpException + ", isMailSent=" + isMailSent + "]";
 	}
-	
-	
 }

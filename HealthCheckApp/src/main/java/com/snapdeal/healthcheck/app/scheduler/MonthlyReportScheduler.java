@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
-import com.snapdeal.healthcheck.app.comparators.DownTimeComparator;
+import com.snapdeal.healthcheck.app.comparators.DownTimeMinsComparator;
 import com.snapdeal.healthcheck.app.model.TimelyCompData;
 import com.snapdeal.healthcheck.app.mongo.repositories.MongoRepoService;
 import com.snapdeal.healthcheck.app.utils.MailHtmlData;
@@ -39,7 +39,7 @@ public class MonthlyReportScheduler extends QuartzJobBean {
 			calender.setTime(currentDate);
 			calender.add(Calendar.DATE, -1);
 			Date endDate = calender.getTime();
-			Set<TimelyCompData> result = repoService.getTimelyData(startDate, endDate, new DownTimeComparator());
+			Set<TimelyCompData> result = repoService.getTimelyData(startDate, endDate, new DownTimeMinsComparator());
 			String startDateStr = dateFormatter.format(startDate);
 			String endDateStr = dateFormatter.format(endDate);
 			StringBuilder htmlData = new StringBuilder("<html><h2>Health Check Monthly report from: " + startDateStr
@@ -47,6 +47,7 @@ public class MonthlyReportScheduler extends QuartzJobBean {
 			if (!result.isEmpty()) {
 				htmlData.append(MailHtmlData.createHtmlTableForTimelyReportData(result));
 			}
+			htmlData.append("<h2>FYI: You can generate a report for any date range using this <a href=\"http://tm.snapdeal.io:9090/healthCheck/admin/getReport\" target=\"_blank\">Generate Report Link</a></h2>");
 			htmlData.append("</html>");
 			log.info("Sending monthly report..");
 			MailHtmlData.sendHtmlMail(toAddress, ccAddress,

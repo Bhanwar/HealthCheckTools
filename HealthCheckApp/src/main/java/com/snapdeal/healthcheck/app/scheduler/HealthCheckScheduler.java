@@ -26,6 +26,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.repository.support.Repositories;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
 import com.snapdeal.healthcheck.app.bo.ComponentDetailsBO;
@@ -51,6 +52,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 	private String envName;
 	private boolean sendMail;
 	private MongoRepoService repoService;
+	private String hcOwner;
 
 	@Override
 	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
@@ -100,6 +102,9 @@ public class HealthCheckScheduler extends QuartzJobBean {
 							ExecutorService execMail = Executors.newFixedThreadPool(2);
 							final HealthCheckResult updateRes = result;
 							final Date updateDate = currentExecDate;
+							
+							
+							// Transition check
 							if (healthResult.get(result.getComponentName()) != result.isServerUp()) {
 								log.debug("Status has changed for comp: " + result.getComponentName());
 								execMail.submit(new Runnable() {
@@ -108,18 +113,30 @@ public class HealthCheckScheduler extends QuartzJobBean {
 										updateAndSendMail(updateRes, updateDate);
 									}
 								});
+							} 
+							// Send mail to all if server still down
+							else if (result.isServerUp() == false){
+								log.debug("Status is still DOWN for: " + result.getComponentName());
+								execMail.submit(new Runnable() {
+									@Override
+									public void run() {
+										sendMailToAll(updateRes, updateDate);
+									}
+								});
 							}
 							healthResult.put(result.getComponentName(), result.isServerUp());
 							if (result.getServerStatus().equals(ServerStatus.NTWRK_ISSUE)
 									|| result.getServerStatus().equals(ServerStatus.CONN_TIMED_OUT)) {
+								if(result.getServerStatus().equals(ServerStatus.NTWRK_ISSUE))
+									ntwrkIssueCount++;
 								execMail.submit(new Runnable() {
 									@Override
 									public void run() {
 										createCompIssueEntryMongo(updateRes, updateDate);
-										if (updateRes.getServerStatus().equals(ServerStatus.NTWRK_ISSUE))
+										if (updateRes.getServerStatus().equals(ServerStatus.NTWRK_ISSUE)) {
 											closeConnTimedOutEntryMongo(updateRes, updateDate,
 													ServerStatus.CONN_TIMED_OUT);
-										else if (updateRes.getServerStatus().equals(ServerStatus.CONN_TIMED_OUT))
+										} else if (updateRes.getServerStatus().equals(ServerStatus.CONN_TIMED_OUT))
 											closeConnTimedOutEntryMongo(updateRes, updateDate,
 													ServerStatus.NTWRK_ISSUE);
 									}
@@ -188,8 +205,8 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			execDates.add(execDateStr);
 			compIssueData.setExecDate(execDates);
 			repoService.save(compIssueData);
-			if (!ntwrkIssue)
-				sendConnTimedOutMail(compName, result, execDate);
+//			if (!ntwrkIssue)
+//				sendConnTimedOutMail(compName, result, execDate);
 		} else
 			log.debug("Component issue entry already exist for comp: " + compName + ", Type: "
 					+ result.getServerStatus().getCode());
@@ -275,6 +292,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 				data.setFailedReqJson(result.getFailedReqJson());
 				data.setFailedResp(result.getFailedActualResp());
 				data.setFailedStatusCode(result.getFailedStatusCode());
+				data.setMailSent(false);
 				log.debug("Saving down time data in Mongo");
 				repoService.save(data);
 				if (sendMail)
@@ -337,7 +355,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 		}
 	}
 
-	private void sendServerDownMail(String compName, HealthCheckResult result, Date execDate) {
+	private void sendServerDownMail(String compName, HealthCheckResult result, Date execDate, boolean...sendToAll) {
 		String msgSubject = compName + " server is down on " + envName + " - " + execDate;
 		String msgBody = "<html><h3>Your component: <i>" + compName
 				+ "</i> seems to be down. Please have a look at it.</h3>";
@@ -356,10 +374,10 @@ public class HealthCheckScheduler extends QuartzJobBean {
 		if (result.getFailedHttpCallException() != null)
 			msg.append("<br><b>Http Call Exception: </b>" + getStringForHtml(result.getFailedHttpCallException()));
 		msg.append("<br><br><br>" + MAIL_SIGN + "</html>");
-		sendMail(compName, msgSubject, msg.toString());
+		sendMail(compName, msgSubject, msg.toString(), sendToAll);
 	}
 
-	private void sendMail(String compName, String msgSubject, String msgBody) {
+	private void sendMail(String compName, String msgSubject, String msgBody, boolean ...sendToAll) {
 		ComponentDetails comp = compDetails.getComponentDetails(compName);
 		if (comp == null) {
 			log.error("No component found with the name: " + compName);
@@ -369,8 +387,28 @@ public class HealthCheckScheduler extends QuartzJobBean {
 				toAddress = toAddress + "," + comp.getQmSpoc();
 				msgBody = msgBody.replace("${QMSPOC}", comp.getQmSpoc());
 			}
-			MailHtmlData.sendHtmlMail(toAddress, ccAddress, msgSubject, msgBody, sendMail);
+			if (sendToAll.length > 0)
+				MailHtmlData.sendHtmlMail(toAddress, ccAddress, msgSubject, msgBody, sendMail);
+			else
+				MailHtmlData.sendHtmlMail(toAddress, hcOwner, msgSubject, msgBody, sendMail);
 		}
+	}
+	
+	private void sendMailToAll(HealthCheckResult updateRes, Date updateDate) {
+		String compName = updateRes.getComponentName();
+		ComponentDetails comp = compDetails.getComponentDetails(compName);
+		if(comp == null)
+			log.error("No component found with given name: " + compName);
+		else {
+			DownTimeData data = repoService.findUpTimeUpdate(compName);
+			if (!data.isMailSent()) {
+				sendServerDownMail(compName, updateRes, updateDate, true);
+				data.setMailSent(true);
+				repoService.delete(data.getId());
+				repoService.save(data);
+			}
+		}
+		
 	}
 
 	private String getStringForHtml(String data) {
@@ -418,5 +456,13 @@ public class HealthCheckScheduler extends QuartzJobBean {
 
 	public void setDataObjects(QuartzJobDataHolder dataObjects) {
 		this.dataObjects = dataObjects;
+	}
+
+	public String getHcOwner() {
+		return hcOwner;
+	}
+
+	public void setHcOwner(String hcOwner) {
+		this.hcOwner = hcOwner;
 	}
 }
