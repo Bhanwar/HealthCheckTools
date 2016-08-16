@@ -1,7 +1,5 @@
 package com.snapdeal.healthcheck.app.utils;
 
-import static com.snapdeal.healthcheck.app.constants.AppConstant.SNAPDEAL_ID;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -39,14 +37,14 @@ public class MailHtmlData {
 		String[] toAdd = toAddress.split(",");
 		List<String> emailAddressTo = new ArrayList<>();
 		for(int i=0;i<toAdd.length;i++) {
-			if(toAdd[i].contains(SNAPDEAL_ID))
+//			if(toAdd[i].contains(SNAPDEAL_ID))
 				emailAddressTo.add(toAdd[i]);
 		}
 		
 		String[] ccAdd = ccAddress.split(",");
 		List<String> emailAddressCc = new ArrayList<>();
 		for(int i=0;i<ccAdd.length;i++) {
-			if(ccAdd[i].contains(SNAPDEAL_ID))
+//			if(ccAdd[i].contains(SNAPDEAL_ID))
 				emailAddressCc.add(ccAdd[i]);
 		}
 		

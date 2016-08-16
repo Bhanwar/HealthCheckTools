@@ -1,12 +1,11 @@
 package com.snapdeal.healthcheck.app.scheduler;
 
 import static com.snapdeal.healthcheck.app.constants.AppConstant.MAIL_SIGN;
-import static com.snapdeal.healthcheck.app.constants.AppConstant.SNAPDEAL_ID;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.componentNames;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.currentExecDate;
+import static com.snapdeal.healthcheck.app.constants.AppConstant.currentExecDateString;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.disabledComponentNames;
 import static com.snapdeal.healthcheck.app.constants.AppConstant.healthResult;
-import static com.snapdeal.healthcheck.app.constants.AppConstant.currentExecDateString;
 import static com.snapdeal.healthcheck.app.constants.Formatter.dateFormatter;
 
 import java.util.ArrayList;
@@ -26,7 +25,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.repository.support.Repositories;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
 import com.snapdeal.healthcheck.app.bo.ComponentDetailsBO;
@@ -241,7 +239,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			String msgBody = "<html>" + MAIL_SIGN + "</html>";
 			String[] toAdd = ntwrkAddress.split(",");
 			for (int i = 0; i < toAdd.length; i++) {
-				if (toAdd[i].contains(SNAPDEAL_ID))
+//				if (toAdd[i].contains(SNAPDEAL_ID))
 					emailAddressTo.add(toAdd[i]);
 			}
 			log.debug("Sending network issue mail to Admins! To: " + emailAddressTo + ", Cc: " + emailAddressCc);
@@ -389,7 +387,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 		} else {
 			String toAddress = comp.getQaSpoc();
 			log.debug("QASpoc: " + toAddress);
-			if (comp.getQmSpoc() != null && comp.getQmSpoc().contains(SNAPDEAL_ID)) {
+			if (comp.getQmSpoc() != null) {
 				toAddress = toAddress + "," + comp.getQmSpoc();
 				msgBody = msgBody.replace("${QMSPOC}", comp.getQmSpoc());
 			}
