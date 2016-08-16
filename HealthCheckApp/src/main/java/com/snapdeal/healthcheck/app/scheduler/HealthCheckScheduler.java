@@ -356,6 +356,8 @@ public class HealthCheckScheduler extends QuartzJobBean {
 	}
 
 	private void sendServerDownMail(String compName, HealthCheckResult result, Date execDate, boolean...sendToAll) {
+		log.info("In sendServerDownMail. Sending mail for : " + compName);
+		log.info("In sendServerDownMail. SendToAll flag is: " + sendToAll.length);
 		String msgSubject = compName + " server is down on " + envName + " - " + execDate;
 		String msgBody = "<html><h3>Your component: <i>" + compName
 				+ "</i> seems to be down. Please have a look at it.</h3>";
@@ -378,29 +380,39 @@ public class HealthCheckScheduler extends QuartzJobBean {
 	}
 
 	private void sendMail(String compName, String msgSubject, String msgBody, boolean ...sendToAll) {
+		log.debug("In sendMail. Sending mail for : " + compName);
+		log.debug("In sendMail. SendToAll flag is: " + sendToAll.length);
 		ComponentDetails comp = compDetails.getComponentDetails(compName);
+		log.info("Component name: " + compName);
 		if (comp == null) {
 			log.error("No component found with the name: " + compName);
 		} else {
 			String toAddress = comp.getQaSpoc();
+			log.debug("QASpoc: " + toAddress);
 			if (comp.getQmSpoc() != null && comp.getQmSpoc().contains(SNAPDEAL_ID)) {
 				toAddress = toAddress + "," + comp.getQmSpoc();
 				msgBody = msgBody.replace("${QMSPOC}", comp.getQmSpoc());
 			}
-			if (sendToAll.length > 0)
+			if (sendToAll.length > 0){
+				log.debug("In sendMail. Sending mail for with ccAddress: " + compName + "with sendMail as: " + sendMail);				
 				MailHtmlData.sendHtmlMail(toAddress, ccAddress, msgSubject, msgBody, sendMail);
-			else
+			}
+			else {
+				log.debug("In sendMail. Sending mail for hcOwners only: " + compName);				
 				MailHtmlData.sendHtmlMail(toAddress, hcOwner, msgSubject, msgBody, sendMail);
+			}
 		}
 	}
 	
 	private void sendMailToAll(HealthCheckResult updateRes, Date updateDate) {
 		String compName = updateRes.getComponentName();
+		log.info("Server still down. Sending mail to all for component: " + compName);
 		ComponentDetails comp = compDetails.getComponentDetails(compName);
 		if(comp == null)
 			log.error("No component found with given name: " + compName);
 		else {
 			DownTimeData data = repoService.findUpTimeUpdate(compName);
+			log.debug("mail sent flag for: " + compName + " is : " + data.isMailSent());
 			if (!data.isMailSent()) {
 				sendServerDownMail(compName, updateRes, updateDate, true);
 				data.setMailSent(true);

@@ -197,23 +197,28 @@ public class EmailUtil {
 	 * @throws Exception the exception
 	 */
 	public boolean sendHTMLEmail() {
-
+		log.debug("In sendHTMLEmail.");
 		Session session = Session.getInstance(props,auth);
 		boolean mailSent = false;
 		try {
 
 			Message message = new MimeMessage(session);
 			message.setFrom(new InternetAddress(FROM_ADDRESS)); //Set from address of the email
+			log.debug("Mail sent from: " + FROM_ADDRESS);
+			log.debug("Mail sent by: " + USER_NAME);
+			log.debug("Mail sent using password: " + PASSSWORD);
 			message.setContent(msgText,"text/html"); //set content type of the email
 			Address[] toAddress = new Address[emailAddressTo.size()];
 			for (int i=0; i<emailAddressTo.size(); i++) {
 				toAddress[i] = new InternetAddress(emailAddressTo.get(i));
+				log.debug("TO address: " + toAddress[i]);
 			}
 			message.addRecipients(RecipientType.TO, toAddress);
 			if(emailAddressCc != null && emailAddressCc.size() > 0) {
 				Address[] ccAddress = new Address[emailAddressCc.size()];
 				for (int i=0; i<emailAddressCc.size(); i++) {
 					ccAddress[i] = new InternetAddress(emailAddressCc.get(i));
+					log.debug("CC address: " + ccAddress[i]);
 				}
 				message.addRecipients(RecipientType.CC, ccAddress);
 			}
@@ -226,10 +231,10 @@ public class EmailUtil {
 			}
 			message.setSubject(msgSubject); //Set email message subject
 			Transport.send(message); //Send email message
-
-			log.debug("Successfully Sent Mail !! " + this.toString());
+			log.info("Successfully Sent Mail !! " + this.toString());
 			mailSent = true;
 		} catch (MessagingException e) {
+			e.printStackTrace();
 			log.error("Exception Occured while sending sendHTMLEmailMessage : " + this.toString(), e);
 		}
 		return mailSent;

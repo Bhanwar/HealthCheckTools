@@ -33,6 +33,9 @@ public class MailHtmlData {
 	}
 	
 	public static void sendHtmlMail(String toAddress, String ccAddress, String mailSubject, String mailBody, boolean sendMail) {
+		log.debug("Sending HTML Mail to : " + toAddress);
+		log.debug("Sending HTML Mail to cc : " + ccAddress);
+		log.debug("Sending HTML Mail with mailsubject : " + mailSubject);
 		String[] toAdd = toAddress.split(",");
 		List<String> emailAddressTo = new ArrayList<>();
 		for(int i=0;i<toAdd.length;i++) {
@@ -51,12 +54,17 @@ public class MailHtmlData {
 			log.warn("Mail with subject line: "+ mailSubject +" was not sent as the TO Address list was empty!!");
 		} else {
 			if(sendMail) {
-				EmailUtil mail = new EmailUtil(emailAddressTo, emailAddressCc, null, mailSubject, mailBody);
-				boolean mailSent = true;
-				do {
-					mailSent = mail.sendHTMLEmail();
-				} while (!mailSent);
-				log.debug("Mail with subject line: "+ mailSubject +" sent successfully to: " + emailAddressTo + ", cc: " + emailAddressCc);
+				try {
+					EmailUtil mail = new EmailUtil(emailAddressTo, emailAddressCc, null, mailSubject, mailBody);
+					boolean mailSent = true;
+					do {
+						mailSent = mail.sendHTMLEmail();
+					} while (!mailSent);
+					log.info("Mail with subject line: "+ mailSubject +" sent successfully to: " + emailAddressTo + ", cc: " + emailAddressCc);
+				} catch (Exception e) {
+					log.error("Mail sending failed with details: subject line: "+ mailSubject +" sent successfully to: " + emailAddressTo + ", cc: " + emailAddressCc + "\n Exception: " + e.getMessage());
+					e.printStackTrace();
+				}
 			}
 		}
 	}
