@@ -112,25 +112,24 @@ public class MongoRepoService {
 			List<DownTimeData> downTimeList = findAllCurrentExecDownTimeDataForDate(execDate);
 			if(!downTimeList.isEmpty()) {
 				for(DownTimeData downTime : downTimeList) {
-					if(compId.add(downTime.getId())) {
+					if (compId.add(downTime.getId())) {
 						String compName = downTime.getComponentName();
-						int totalDownTime=0;
-						if(downTime.getServerUp().equals("YES"))
+						int totalDownTime = 0;
+						if (downTime.getServerUp().equals("YES"))
 							totalDownTime = Integer.valueOf(downTime.getTotalDownTimeInMins());
 						else {
 							totalDownTime = (int) ((currentDate.getTime() - downTime.getDownTime().getTime()) / 60000);
 						}
-						if(!result.containsKey(compName))
+						if (!result.containsKey(compName))
 							result.put(compName, new TimelyCompData(compName));
-						
+
 						TimelyCompData compData = result.get(compName);
 						int totalTimeDownInMins = compData.getTotalTimeDownInMins() + totalDownTime;
-						if(totalTimeDownInMins > maxTimeOutInMins)
+						if (totalTimeDownInMins > maxTimeOutInMins)
 							maxTimeOutInMins = totalDownTime;
-						
+
 						compData.setTotalDownTimes(compData.getTotalDownTimes() + 1);
 						compData.setTotalTimeDownInMins(totalTimeDownInMins);
-						
 					}
 				}
 			}

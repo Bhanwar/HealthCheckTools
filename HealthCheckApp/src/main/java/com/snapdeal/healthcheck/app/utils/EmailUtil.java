@@ -204,21 +204,16 @@ public class EmailUtil {
 
 			Message message = new MimeMessage(session);
 			message.setFrom(new InternetAddress(FROM_ADDRESS)); //Set from address of the email
-			log.debug("Mail sent from: " + FROM_ADDRESS);
-			log.debug("Mail sent by: " + USER_NAME);
-			log.debug("Mail sent using password: " + PASSSWORD);
 			message.setContent(msgText,"text/html"); //set content type of the email
 			Address[] toAddress = new Address[emailAddressTo.size()];
 			for (int i=0; i<emailAddressTo.size(); i++) {
 				toAddress[i] = new InternetAddress(emailAddressTo.get(i));
-				log.debug("TO address: " + toAddress[i]);
 			}
 			message.addRecipients(RecipientType.TO, toAddress);
 			if(emailAddressCc != null && emailAddressCc.size() > 0) {
 				Address[] ccAddress = new Address[emailAddressCc.size()];
 				for (int i=0; i<emailAddressCc.size(); i++) {
 					ccAddress[i] = new InternetAddress(emailAddressCc.get(i));
-					log.debug("CC address: " + ccAddress[i]);
 				}
 				message.addRecipients(RecipientType.CC, ccAddress);
 			}
@@ -229,13 +224,15 @@ public class EmailUtil {
 				}
 				message.addRecipients(RecipientType.BCC, bccAddress);
 			}
+			log.debug("Mail sending configured. Preparing to send mail.");
 			message.setSubject(msgSubject); //Set email message subject
+			log.debug(message.getSubject());
 			Transport.send(message); //Send email message
 			log.info("Successfully Sent Mail !! " + this.toString());
 			mailSent = true;
-		} catch (MessagingException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-			log.error("Exception Occured while sending sendHTMLEmailMessage : " + this.toString(), e);
+			log.error("Exception Occured while sending sendHTMLEmail message : " + this.toString(), e);
 		}
 		return mailSent;
 	}
@@ -367,5 +364,11 @@ public class EmailUtil {
 		} catch (MessagingException e) {
 			log.error("Exception Occured while sending sendHTMLEmailMessage : " + this.toString(), e);
 		}
+	}
+	
+	
+	public static void main(String[] args) {
+		EmailUtil eu = new EmailUtil(new ArrayList<String>() {{add("vivek.singh02@snapdeal.com");};}, "kya ye mail aayi?", "Aayi kya?");
+		eu.sendHTMLEmail();
 	}
 }

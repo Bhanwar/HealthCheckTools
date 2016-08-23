@@ -237,6 +237,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 			List<String> emailAddressCc = new ArrayList<>();
 			String msgSubject = "Network issue from Health Check App to " + count + " components! Please check<eom>";
 			String msgBody = "<html>" + MAIL_SIGN + "</html>";
+			log.debug("Network recepients are: " + ntwrkAddress);
 			String[] toAdd = ntwrkAddress.split(",");
 			for (int i = 0; i < toAdd.length; i++) {
 //				if (toAdd[i].contains(SNAPDEAL_ID))
@@ -268,7 +269,9 @@ public class HealthCheckScheduler extends QuartzJobBean {
 				data.setEndDate(execDateStr);
 				log.debug("Updating down time data in Mongo");
 				repoService.save(data);
-				if (sendMail)
+				if (sendMail && data.isMailSent())
+					sendServerUpMail(compName, execDate, true);
+				else
 					sendServerUpMail(compName, execDate);
 			}
 		} else {
@@ -328,7 +331,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 		}
 	}
 
-	private void sendServerUpMail(String compName, Date execDate) {
+	private void sendServerUpMail(String compName, Date execDate, boolean ...sendToAll) {
 		String msgSubject = compName + " server is up & running on " + envName + " - " + execDate;
 		String msgBody = "<html><h3>Your component: <i>" + compName
 				+ "</i> is back up & running. Thanks for looking into it</h3>" + "<br><br>@${QMSPOC}<br>"
@@ -474,5 +477,13 @@ public class HealthCheckScheduler extends QuartzJobBean {
 
 	public void setHcOwner(String hcOwner) {
 		this.hcOwner = hcOwner;
+	}
+
+	public String getNtwrkAddress() {
+		return ntwrkAddress;
+	}
+
+	public void setNtwrkAddress(String ntwrkAddress) {
+		this.ntwrkAddress = ntwrkAddress;
 	}
 }
