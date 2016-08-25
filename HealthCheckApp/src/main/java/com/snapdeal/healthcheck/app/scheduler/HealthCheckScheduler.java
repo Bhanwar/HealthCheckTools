@@ -332,7 +332,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 	}
 
 	private void sendServerUpMail(String compName, Date execDate, boolean ...sendToAll) {
-		String msgSubject = compName + " server is up & running on " + envName + " - " + execDate;
+		String msgSubject = compName + " server is up & running on " + envName;
 		String msgBody = "<html><h3>Your component: <i>" + compName
 				+ "</i> is back up & running. Thanks for looking into it</h3>" + "<br><br>@${QMSPOC}<br>"
 				+ "Use the below link to update the server downtime reason,<br>http://tm.snapdeal.io:9090/healthCheck/admin/updateReasonPage"
@@ -359,7 +359,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 	private void sendServerDownMail(String compName, HealthCheckResult result, Date execDate, boolean...sendToAll) {
 		log.info("In sendServerDownMail. Sending mail for : " + compName);
 		log.info("In sendServerDownMail. SendToAll flag is: " + sendToAll.length);
-		String msgSubject = compName + " server is down on " + envName + " - " + execDate;
+		String msgSubject = compName + " server is down on " + envName;
 		String msgBody = "<html><h3>Your component: <i>" + compName
 				+ "</i> seems to be down. Please have a look at it.</h3>";
 

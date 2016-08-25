@@ -73,7 +73,8 @@ public class DowntimeReminderScheduler extends QuartzJobBean {
 		int hours = (int)downTime/60;
 			
 		if (hours>0) {
-			String msgSubject = comp.getComponentName() + " server is down on " + envName + " - " + execDate;
+			String msgSubject = comp.getComponentName() + " server is down on " + envName + " for more than "
+					+ hours  + " Hour(s)";
 			String msgBody = "<html><h3>Your component: <i>" + comp.getComponentName() + "</i> has been down for more than "
 					+ hours  + " Hour(s) .Please have a look at it.</h3>";
 			StringBuilder msg = new StringBuilder(msgBody);
