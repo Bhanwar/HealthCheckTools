@@ -337,7 +337,7 @@ public class HealthCheckScheduler extends QuartzJobBean {
 				+ "</i> is back up & running. Thanks for looking into it</h3>" + "<br><br>@${QMSPOC}<br>"
 				+ "Use the below link to update the server downtime reason,<br>http://tm.snapdeal.io:9090/healthCheck/admin/updateReasonPage"
 				+ "<br>" + MAIL_SIGN + "</html>";
-		sendMail(compName, msgSubject, msgBody);
+		sendMail(compName, msgSubject, msgBody, sendToAll);
 	}
 
 	private void sendConnTimedOutMail(String compName, HealthCheckResult result, Date execDate) {
