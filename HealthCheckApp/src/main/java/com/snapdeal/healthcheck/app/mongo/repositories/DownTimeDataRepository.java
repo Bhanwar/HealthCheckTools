@@ -14,7 +14,7 @@ public interface DownTimeDataRepository extends MongoRepository<DownTimeData, St
 	@Query("{ 'componentName' : ?0 , 'serverUp' : ?1}")
 	DownTimeData findUpTimeUpdate(String compName, String isServerUp);
 	
-	@Query("{ 'execDate' : ?0, 'isMailSent': true}")
+	@Query("{ 'execDate' : ?0}")
 	List<DownTimeData> findAllExecForDate(String date);
 	
 	@Query("{ 'componentName' : ?0}")
